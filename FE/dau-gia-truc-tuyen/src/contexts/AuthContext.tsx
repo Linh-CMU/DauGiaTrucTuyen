@@ -34,10 +34,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       // });
   
       // For demonstration purposes, assuming you get a token:
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjYxNzQxNDAwfQ.W8K6E3AWvZcEC9dBj9hXpD5Jfj19M'
       const decoded = jwtDecode<UserType>(token);
-      setUser(decoded);
       localStorage.setItem('token', token);
+      setUser(decoded);
       navigate(decoded.role === 'admin' ? '/admin' : '/');
     };
   
