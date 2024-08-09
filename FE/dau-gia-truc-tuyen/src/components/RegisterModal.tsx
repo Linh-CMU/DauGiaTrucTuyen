@@ -15,26 +15,18 @@ const style = {
 };
 
 
-interface LoginModalProps {
+interface RegisterModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-
-const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
+const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
   const authContext = useContext(AuthContext);
 
   const handleClose = () => {
     //handle close login modal here
     onClose()
   }
-
-  const handleLogin = () => {
-    if (authContext) {
-      // authContext.login(username, password);
-      onClose();
-    }
-  };
   
   return (
     <div>
@@ -46,7 +38,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2" color="black">
-            Text in a modal
+            Text in register modal
           </Typography>
         </Box>
       </Modal>
@@ -54,4 +46,4 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
   );
 };
 
-export default LoginModal;
+export default RegisterModal;
