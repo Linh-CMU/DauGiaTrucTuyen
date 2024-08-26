@@ -1,58 +1,66 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
-import { AuthContextType, UserType } from '../types';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+import axios from 'axios';
+import { LoginRequest, SignUpRequest } from 'types';
 
-const defaultContextValue: AuthContextType = {
-    user: null,
-    login: () => {},
-    logout: () => {},
-};
-const AuthContext = createContext<AuthContextType>(defaultContextValue);
+interface AuthContextType {
+  token: string | null;
+  login: (data: LoginRequest) => Promise<boolean>;
+  logout: () => void;
+  signUp: (data: SignUpRequest) => Promise<boolean>;
+  isAuthenticated: () => boolean;
+}
 
-const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<UserType | null>(null);
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const decoded = jwtDecode<UserType>(token);
-        setUser(decoded);
-      }
-    }, []);
-  
-    const login = (username: string, password: string) => {
-      // Here you would typically call an API to get the token
-      // For example:
-      // api.login(username, password).then(response => {
-      //   const { token } = response.data;
-      //   const decoded = jwtDecode<UserType>(token);
-      //   setUser(decoded);
-      //   localStorage.setItem('token', token);
-      //   navigate(decoded.role === 'admin' ? '/admin' : '/');
-      // });
-  
-      // For demonstration purposes, assuming you get a token:
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjYxNzQxNDAwfQ.W8K6E3AWvZcEC9dBj9hXpD5Jfj19M'
-      const decoded = jwtDecode<UserType>(token);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+
+  const login = async (authRequest: LoginRequest): Promise<boolean> => {
+    try {
+      const response = await axios.post('https://yourapi.com/login', authRequest);
+      const token = response.data.token;
       localStorage.setItem('token', token);
-      setUser(decoded);
-      navigate(decoded.role === 'admin' ? '/admin' : '/');
-    };
-  
-    const logout = () => {
-      setUser(null);
-      localStorage.removeItem('token');
-      navigate('/');
-    };
-  
-    return (
-      <AuthContext.Provider value={{ user, login, logout }}>
-        {children}
-      </AuthContext.Provider>
-    );
+      setToken(token);
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
-  
 
-export { AuthProvider, AuthContext };
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+  };
+
+  const signUp = async (authRequest: LoginRequest) => {
+    try {
+      const response = await axios.post('https://yourapi.com/sign-up', authRequest);
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      setToken(token);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const isAuthenticated = () => !!token;
+
+  return (
+    <AuthContext.Provider value={{ token, login, logout, signUp, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

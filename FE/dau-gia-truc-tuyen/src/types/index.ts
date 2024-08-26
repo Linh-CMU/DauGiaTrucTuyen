@@ -1,10 +1,9 @@
-export interface UserType {
-    role: string;
-    [key: string]: any;
-  }
-  
-  export type AuthContextType = {
-    user: UserType | null;
-    login: (username: string, password: string) => void;
-    logout: () => void;
-  };
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+export interface SignUpRequest {
+  username: string;
+  password: string;
+  email: string;
+}

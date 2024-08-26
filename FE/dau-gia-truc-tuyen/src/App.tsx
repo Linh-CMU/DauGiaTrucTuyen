@@ -1,30 +1,18 @@
-import { useContext } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-import HeaderTop from "./common/header/HeaderTop";
-import { AuthContext } from "./contexts/AuthContext";
-import AdminPage from "./pages/AdminPage";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignupPage";
+import { Route, Routes } from 'react-router-dom';
+import HeaderTop from './common/header/HeaderTop';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignupPage';
 
 const App = () => {
-  const { user } = useContext(AuthContext);
-  console.log(user, "user");
-
   return (
     <div className="w-full h-screen flex flex-col bg-gray-100">
       <HeaderTop />
-      <div className="container mx-auto flex-grow overflow-y-auto">
+      <div className="container mx-auto flex-grow overflow-y-auto flex align-middle justify-center">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route
-            path="/admin"
-            element={
-              user?.role == "admin" ? <AdminPage /> : <Navigate to="/" />
-            }
-          />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
         </Routes>
       </div>
     </div>

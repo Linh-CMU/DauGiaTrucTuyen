@@ -46,7 +46,7 @@ const HeaderTop = () => {
     navigate("/login");
   };
   const onSignupBtnClick = () => {
-    navigate("/signup");
+    navigate("/sign-up");
   };
   return (
     <HeaderContainer>
