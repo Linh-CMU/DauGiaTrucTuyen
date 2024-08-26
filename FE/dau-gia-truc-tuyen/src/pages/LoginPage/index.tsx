@@ -1,6 +1,7 @@
-import { Button, TextField, styled } from "@mui/material";
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Button, TextField, styled } from '@mui/material';
+import { useAuth } from '../../contexts/AuthContext';
+import { FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginButton = styled(Button)`
   background-color: #3b82f6;
@@ -10,27 +11,30 @@ const LoginButton = styled(Button)`
 `;
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (username === "admin" && password === "admin") {
-      navigate("/");
+    const success = await login({ username, password });
+    if (success) {
+      navigate('/');
+      console.log('Login successful!');
     } else {
-      alert("Invalid Credential");
+      console.error('Login failed!');
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+    <div className="flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded shadow-md w-[25rem]">
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
               fullWidth
-              label="Username"
+              label="Tên Đăng Nhập"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -40,7 +44,7 @@ const LoginPage = () => {
             <TextField
               fullWidth
               type="password"
-              label="Password"
+              label="Mật Khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
