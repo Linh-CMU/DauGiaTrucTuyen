@@ -1,8 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
-import HeaderTop from './common/header/HeaderTop';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignupPage';
+import HeaderTop from '@common/header/HeaderTop';
+import { HomePage, LoginPage, SignUpPage } from '@pages/index';
 
 const App = () => {
   return (

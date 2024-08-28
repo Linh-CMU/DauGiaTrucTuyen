@@ -1,9 +1,10 @@
 // src/HeaderTop.js
-import { Button } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from '@hooks/useAuth';
+import { Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
-const HeaderContainer = styled("div")`
+const HeaderContainer = styled('div')`
   height: 4rem;
   width: 100%;
   display: flex;
@@ -13,7 +14,7 @@ const HeaderContainer = styled("div")`
   background-color: #1a202c; /* Darker background for better contrast */
 `;
 
-const Title = styled("div")`
+const Title = styled('div')`
   font-size: 1.25rem; /* Increase font size */
   font-weight: bold;
   color: #f7fafc; /* Lighter text color for contrast */
@@ -38,15 +39,16 @@ const StyledButton = styled(Button)`
 `;
 
 const HeaderTop = () => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const onTitleClick = () => {
-    navigate("/");
+    navigate('/');
   };
   const onLoginBtnClick = () => {
-    navigate("/login");
+    navigate('/login');
   };
   const onSignupBtnClick = () => {
-    navigate("/sign-up");
+    navigate('/sign-up');
   };
   return (
     <HeaderContainer>
@@ -60,6 +62,9 @@ const HeaderTop = () => {
           </StyledButton>
           <StyledButton variant="contained" onClick={onSignupBtnClick}>
             Đăng kí
+          </StyledButton>
+          <StyledButton variant="text" onClick={logout}>
+            Đắng xuất
           </StyledButton>
         </div>
       </div>

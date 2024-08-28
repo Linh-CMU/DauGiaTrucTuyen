@@ -1,17 +1,20 @@
+import { AuthProvider } from '@contexts/AuthContext';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+}
