@@ -12,11 +12,3 @@ export interface AuthResponse {
   isSucceed: boolean;
   message: string;
 }
-export interface AuthContextType {
-  token: string | null;
-  username: string | null;
-  login: (data: LoginRequest) => Promise<boolean>;
-  logout: () => void;
-  signUp: (data: SignUpRequest) => Promise<boolean>;
-  isAuthenticated: () => boolean;
-}
