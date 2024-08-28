@@ -1,5 +1,5 @@
+import { useAuth } from '@hooks/useAuth';
 import { Button, TextField, styled } from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

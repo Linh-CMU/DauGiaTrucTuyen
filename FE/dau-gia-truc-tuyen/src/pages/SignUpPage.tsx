@@ -1,8 +1,8 @@
 // src/SignUp.js
+import { useAuth } from '@hooks/useAuth';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { styled } from '@mui/material/styles';
-import { useAuth } from '../../contexts/AuthContext';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
