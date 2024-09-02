@@ -1,17 +1,8 @@
-// src/SignUp.js
-import { useAuth } from '@hooks/useAuth';
+import { useAuth } from '@contexts/AuthContext';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { styled } from '@mui/material/styles';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const SignUpButton = styled(Button)`
-  background-color: #3b82f6;
-  &:hover {
-    background-color: #2563eb;
-  }
-`;
 
 const SignUpPage = () => {
   const [username, setUsername] = useState('');
@@ -80,9 +71,9 @@ const SignUpPage = () => {
               required
             />
           </div>
-          <SignUpButton fullWidth variant="contained" type="submit">
-            Sign Up
-          </SignUpButton>
+          <Button fullWidth variant="contained" type="submit">
+            Đăng Ký
+          </Button>
         </form>
       </div>
     </div>

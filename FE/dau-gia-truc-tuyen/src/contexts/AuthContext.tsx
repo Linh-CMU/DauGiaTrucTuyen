@@ -1,12 +1,21 @@
 import axios from 'axios';
-import React, { ReactNode, createContext, useMemo, useState } from 'react';
-import { AuthContextType, AuthResponse, LoginRequest, SignUpRequest } from 'types';
+import React, { ReactNode, createContext, useContext, useState } from 'react';
+import { AuthResponse, LoginRequest, SignUpRequest } from 'types';
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthContextType {
+  token: string | null;
+  username: string | null;
+  login: (data: LoginRequest) => Promise<boolean>;
+  logout: () => void;
+  signUp: (data: SignUpRequest) => Promise<boolean>;
+  isAuthenticated: () => boolean;
+}
 
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // State for token and username, initialize with values from localStorage
@@ -27,7 +36,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Update state
       setToken(token);
       setUsername(username);
-
       return true;
     } catch (error) {
       return false;
@@ -55,10 +63,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if user is authenticated
   const isAuthenticated = () => !!token;
 
-  // Memoize context value to optimize performance
-  const provideValue = useMemo(() => {
-    return { token, username, login, logout, signUp, isAuthenticated };
-  }, [token, username]);
+  return (
+    <AuthContext.Provider value={{ token, username, login, logout, signUp, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-  return <AuthContext.Provider value={provideValue}>{children}</AuthContext.Provider>;
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
