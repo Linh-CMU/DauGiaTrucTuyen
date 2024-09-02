@@ -15,7 +15,7 @@ interface MessageContextType {
 const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
 export const MessageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [message, setMessage] = useState<string | null>('');
+  const [message, setMessage] = useState<string | null>('HEHEHE');
 
   return (
     <MessageContext.Provider value={{ message, setMessage }}>{children}</MessageContext.Provider>
