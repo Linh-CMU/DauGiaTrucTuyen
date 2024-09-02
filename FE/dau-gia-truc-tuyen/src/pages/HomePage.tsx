@@ -1,4 +1,4 @@
-import SearchBox from "../../components/SearchBox";
+import SearchBox from "../components/SearchBox";
 
 const HomePage = () => {
   return (
@@ -15,6 +15,6 @@ const HomePage = () => {
         <div className="p-14">body here</div>
       </div>
     </>
-  );
+  )
 };
 export default HomePage;

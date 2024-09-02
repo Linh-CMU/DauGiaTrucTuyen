@@ -25,16 +25,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./src",
-    // "paths": {
-    //   "@components/*": ["components/*"],
-    //   "@pages/*": ["pages/*"],
-    //   "@contexts/*": ["contexts/*"],
-    //   "@utils/*": ["utils/*"],
-    //   "@hooks/*": ["hooks/*"],
-    //   "@services/*": ["services/*"],
-    //   "@types/*": ["types/*"]
-    // }
-
+    "paths": {
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@contexts/*": ["contexts/*"],
+      "@utils/*": ["utils/*"],
+      "@hooks/*": ["hooks/*"],
+      "@services/*": ["services/*"],
+      "@types/*": ["types/*"],
+      "@common/*": ["common/*"]
+    }
   },
   "include": ["src"]
 }

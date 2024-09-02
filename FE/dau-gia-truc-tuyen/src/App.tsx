@@ -1,22 +1,42 @@
-import React, { useState, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import AdminPage from './pages/AdminPage';
-import LoginModal from './components/LoginModal';
-import { AuthContext } from './contexts/AuthContext';
-import HeaderTop from './common/header/HeaderTop';
+import HeaderTop from '@common/header/HeaderTop';
+import LoadingIndicator from '@common/loading-indicator/LoadingIndicator';
+import MessageModal from '@common/message-modal/MessageModal';
+import ProtectedRoute from '@common/protected-route/ProtectedRoute';
+import { LoadingProvider, useLoading } from '@contexts/LoadingContext';
+import { MessageProvider } from '@contexts/MessageContext';
+import { HomePage, LoginPage, SignUpPage } from '@pages/index';
+import { Route, Routes } from 'react-router-dom';
+
+const AppRoutes: React.FC = () => {
+  const { isLoading } = useLoading();
+  return (
+    <>
+      <MessageModal />
+      {isLoading && <LoadingIndicator />}
+
+      <Routes>
+        <Route path="/" element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
+      </Routes>
+    </>
+  );
+};
 
 const App = () => {
-  const { user } = useContext(AuthContext);
-  console.log(user,"user")
   return (
-        <div className="w-screen h-screen">
+    <LoadingProvider>
+      <MessageProvider>
+        <div className="w-full h-screen flex flex-col bg-gray-100">
           <HeaderTop />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/admin" element={user?.role == "admin" ? <AdminPage /> : <Navigate to="/" />} />
-          </Routes>
+          <div>
+            <AppRoutes />
+          </div>
         </div>
+      </MessageProvider>
+    </LoadingProvider>
   );
 };
 
