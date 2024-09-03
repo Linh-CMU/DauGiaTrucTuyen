@@ -25,7 +25,14 @@ const HeaderTop = () => {
     <HeaderContainer>
       <div className="container mx-auto flex justify-between items-center">
         <Title className="cursor-pointer" onClick={onTitleClick}>
-          Đấu giá trực tuyến
+          <div className="flex gap-2">
+            <img src="logo.png" alt="logo" width="40px" height="40px"/>
+            <div className="flex flex-col">
+            Cá độ trực tuyến
+            <span className="text-[10px]">Trung tâm dịch vụ đấu giá tài sản thành phố Đà Nẵng</span>
+
+            </div>
+          </div>
         </Title>
         <div className="flex align-middle gap-1">
           {isAuthenticated() ? (

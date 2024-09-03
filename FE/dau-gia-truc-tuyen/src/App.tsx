@@ -35,7 +35,7 @@ const App = () => {
       <MessageProvider>
         <div className="w-full h-screen flex flex-col bg-gray-100">
           <HeaderTop />
-          <div className="container mx-auto flex-grow overflow-y-auto flex align-middle justify-center">
+          <div>
             <AppRoutes />
           </div>
         </div>

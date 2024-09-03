@@ -6,7 +6,7 @@ const headerContainerStyles = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '0 1rem',
+  padding: '0.5rem',
   backgroundColor: '#1a202c',
 };
 
