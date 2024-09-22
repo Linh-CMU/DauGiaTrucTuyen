@@ -29,9 +29,9 @@ const App = () => {
   return (
     <LoadingProvider>
       <MessageProvider>
-        <div className="w-full h-screen flex flex-col bg-gray-100">
+        <div className="w-full flex flex-col bg-white">
           <HeaderTop />
-          <div>
+          <div className="bg-white">
             <AppRoutes />
           </div>
         </div>

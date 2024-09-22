@@ -4,10 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        main: '#fafafa'
-      }
+        main: '#fafafa',
+        lightGray: '#F9F9F9',
+      },
+      maxWidth: {
+        '1440px': '1440px', // Custom max-width for 1440px
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+  ],
 }
 
