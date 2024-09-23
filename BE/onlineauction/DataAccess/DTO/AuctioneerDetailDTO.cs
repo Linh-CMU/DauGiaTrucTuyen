@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class AuctioneerDetailDTO
+    public class AuctionDetailDTO
     {
-        public int ListAuctioneerID { get; set; }
+        public int ListAuctionID { get; set; }
         public string Category { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
-        public string NameAuctioneer { get; set; }
+        public string NameAuction { get; set; }
         public decimal StartingPrice { get; set; }
         public string StartDay { get; set; }
         public string StartTime { get; set; }

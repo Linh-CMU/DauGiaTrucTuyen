@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Model
 {
-    [Table("AuctioneerDetail")]
-    public class AuctioneerDetail
+    [Table("AuctionDetail")]
+    public class AuctionDetail
     {
-        [Key, ForeignKey("ListAuctioneer")]
-        public int ListAuctioneerID { get; set; }
+        [Key, ForeignKey("ListAuction")]
+        public int ListAuctionID { get; set; }
         [ForeignKey("Category")]
         public int? CategoryID { get; set; }
         public string StartDay { get; set; }
@@ -23,7 +23,7 @@ namespace BusinessObject.Model
         public string TimePerLap { get; set; }
         public decimal? PriceStep { get; set; }
         public string PaymentMethod { get; set; }
-        public virtual ListAuctioneer ListAuctioneers { get; set; }
+        public virtual ListAuction ListAuctions { get; set; }
         public virtual Category Categorys { get; set; }
         public virtual ICollection<FileAttachments> FileAttachments { get; set; } = new List<FileAttachments>();
     }

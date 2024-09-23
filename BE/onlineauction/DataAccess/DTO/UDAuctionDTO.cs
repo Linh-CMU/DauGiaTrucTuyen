@@ -11,7 +11,7 @@ namespace DataAccess.DTO
     {
         public int AuctionID { get; set; }
         public IFormFile Image { get; set; }
-        public string NameAuctioneer { get; set; }
+        public string NameAuction { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
     }

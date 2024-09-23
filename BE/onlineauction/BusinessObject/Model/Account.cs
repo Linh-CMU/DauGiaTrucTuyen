@@ -21,12 +21,12 @@ namespace BusinessObject.Model
 
         public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
-        public virtual ICollection<RegistAuctioneer> RegistAuctioneers { get; set; } = new List<RegistAuctioneer>();
+        public virtual ICollection<RegistAuction> RegistAuctions { get; set; } = new List<RegistAuction>();
 
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-        public virtual ICollection<ListAuctioneer> CreatedAuctioneers { get; set; } = new List<ListAuctioneer>();
+        public virtual ICollection<ListAuction> CreatedAuctions { get; set; } = new List<ListAuction>();
 
-        public virtual ICollection<ListAuctioneer> ManagedAuctioneers { get; set; } = new List<ListAuctioneer>();
+        public virtual ICollection<ListAuction> ManagedAuctions { get; set; } = new List<ListAuction>();
     }
 }

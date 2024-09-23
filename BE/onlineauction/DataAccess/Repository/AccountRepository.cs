@@ -21,15 +21,46 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repository
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="DataAccess.IRepository.IAccountRepository" />
     public class AccountRepository : IAccountRepository
     {
+        /// <summary>
+        /// The context
+        /// </summary>
         private readonly ConnectDB _context;
+        /// <summary>
+        /// The account manager
+        /// </summary>
         private readonly UserManager<Account> _accountManager;
+        /// <summary>
+        /// The role manager
+        /// </summary>
         private readonly RoleManager<IdentityRole> _roleManager;
+        /// <summary>
+        /// The configuration
+        /// </summary>
         private readonly IConfiguration _configuration;
+        /// <summary>
+        /// The upload
+        /// </summary>
         private readonly IUploadRepository _upload;
+        /// <summary>
+        /// The upload repository
+        /// </summary>
         private readonly IUploadRepository _uploadRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AccountRepository"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="accountManager">The account manager.</param>
+        /// <param name="roleManager">The role manager.</param>
+        /// <param name="uploadRepository">The upload repository.</param>
+        /// <param name="upload">The upload.</param>
+        /// <param name="configuration">The configuration.</param>
         public AccountRepository(
             ConnectDB context,
             UserManager<Account> accountManager,
@@ -46,6 +77,11 @@ namespace DataAccess.Repository
             _upload = upload;
         }
 
+        /// <summary>
+        /// Logins the asynchronous.
+        /// </summary>
+        /// <param name="loginDTO">The login dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> LoginAsync(Login loginDTO)
         {
             Account account = null;
@@ -85,6 +121,12 @@ namespace DataAccess.Repository
             return new ResponseDTO() { IsSucceed = true, Message = token };
         }
 
+        /// <summary>
+        /// Generates the new json web token.
+        /// </summary>
+        /// <param name="claims">The claims.</param>
+        /// <param name="expiresIn">The expires in.</param>
+        /// <returns></returns>
         private string GenerateNewJsonWebToken(List<Claim> claims, TimeSpan expiresIn)
         {
             var authSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -101,6 +143,11 @@ namespace DataAccess.Repository
             return token;
         }
 
+        /// <summary>
+        /// Makes the user asynchronous.
+        /// </summary>
+        /// <param name="account">The account.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> MakeUSERAsync(AddAccountDTO account)
         {
             var isExistEmail = await _accountManager.FindByEmailAsync(account.Email);
@@ -145,6 +192,11 @@ namespace DataAccess.Repository
             return new ResponseDTO() { IsSucceed = true, Message = "User created successfully" };
         }
 
+        /// <summary>
+        /// Changes the pass word.
+        /// </summary>
+        /// <param name="changepassDTO">The changepass dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ChangePassWord(ChangepassDTO changepassDTO)
         {
             Account account = null;
@@ -175,6 +227,11 @@ namespace DataAccess.Repository
             return new ResponseDTO { IsSucceed = true, Message = "Password changed successfully" };
         }
 
+        /// <summary>
+        /// Profiles the user.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ProfileUser(string username)
         {
             ProfileDTO profileDTO = null;
@@ -213,6 +270,11 @@ namespace DataAccess.Repository
             };
             return new ResponseDTO { Result = profileDTO, IsSucceed = true, Message = "Successfully" };
         }
+        /// <summary>
+        /// Gets the content of the reset password email.
+        /// </summary>
+        /// <param name="resetLink">The reset link.</param>
+        /// <returns></returns>
         private string GetResetPasswordEmailContent(string resetLink)
         {
             string emailContent = @"<!DOCTYPE html>
@@ -233,6 +295,11 @@ namespace DataAccess.Repository
                             </html>";
             return emailContent;
         }
+        /// <summary>
+        /// Forgots the password.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ForgotPassword(string username)
         {
             // Tìm kiếm tài khoản theo email hoặc tên người dùng
@@ -264,14 +331,17 @@ namespace DataAccess.Repository
                 fromEmail: "nguyenanh0978638@gmail.com",
                 toEmail: account.Email,
                 subject: "Forgot Password",
-                body: GetResetPasswordEmailContent(resetLink),
-                gmailSend: "nguyenanh0978638@gmail.com",
-                gmailPassword: "zwlcvsnblwndpbpe"
+                body: GetResetPasswordEmailContent(resetLink)
             );
 
             return new ResponseDTO { IsSucceed = true, Message = "Email sent successfully." };
         }
 
+        /// <summary>
+        /// Resets the password asynchronous.
+        /// </summary>
+        /// <param name="resetPasswordDTO">The reset password dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
         {
             // Tìm kiếm tài khoản theo email hoặc tên người dùng
@@ -303,6 +373,12 @@ namespace DataAccess.Repository
 
             return new ResponseDTO { IsSucceed = true, Message = "Password reset successfully" };
         }
+        /// <summary>
+        /// Adds the information.
+        /// </summary>
+        /// <param name="userID">The user identifier.</param>
+        /// <param name="uProfileDTO">The u profile dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> AddInformation(string userID, AddInformationDTO uProfileDTO)
         {
             var account = await AccountDAO.Instance.ProfileDAO(userID);
@@ -336,6 +412,12 @@ namespace DataAccess.Repository
                 return new ResponseDTO { IsSucceed = false, Message = "Profile update failed: " + ex.Message };
             }
         }
+        /// <summary>
+        /// Updates the user profile.
+        /// </summary>
+        /// <param name="userID">The user identifier.</param>
+        /// <param name="uProfileDTO">The u profile dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> UpdateUserProfile(string userID, UProfileDTO uProfileDTO)
         {
             var account = await AccountDAO.Instance.ProfileDAO(userID);
@@ -370,6 +452,11 @@ namespace DataAccess.Repository
 
 
 
+        /// <summary>
+        /// Makes the adminsync.
+        /// </summary>
+        /// <param name="updatePermissionDTO">The update permission dto.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> MakeAdminsync(AddAccountDTO updatePermissionDTO)
         {
             var isExistEmail = await _accountManager.FindByEmailAsync(updatePermissionDTO.Email);
@@ -414,6 +501,10 @@ namespace DataAccess.Repository
             return new ResponseDTO() { IsSucceed = true, Message = "User created successfully" };
         }
 
+        /// <summary>
+        /// Lists the account.
+        /// </summary>
+        /// <returns></returns>
         public async Task<ResponseDTO> ListAccount()
         {
             try
@@ -470,6 +561,11 @@ namespace DataAccess.Repository
         }
 
 
+        /// <summary>
+        /// Locks the account.
+        /// </summary>
+        /// <param name="accountID">The account identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> LockAccount(string accountID)
         {
             // Tìm tài khoản theo ID
@@ -498,6 +594,11 @@ namespace DataAccess.Repository
                 return new ResponseDTO { IsSucceed = false, Message = "Account lock failed: " + ex.Message };
             }
         }
+        /// <summary>
+        /// Uns the lock account.
+        /// </summary>
+        /// <param name="accountID">The account identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> UnLockAccount(string accountID)
         {
             // Tìm tài khoản theo ID

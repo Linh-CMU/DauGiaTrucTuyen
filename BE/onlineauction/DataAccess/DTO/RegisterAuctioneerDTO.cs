@@ -10,7 +10,7 @@ namespace DataAccess.DTO
     public class RegisterAuctioneerDTO
     {
         public IFormFile Image { get; set; }
-        public string NameAuctioneer { get; set; }
+        public string NameAuction { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public int CategoryID { get; set; }
@@ -18,7 +18,6 @@ namespace DataAccess.DTO
         public string StartTime { get; set; }
         public string EndDay { get; set; }
         public string EndTime { get; set; }
-        public decimal PriceStep { get; set; }
         public IFormFile file { get; set; }
         public IFormFile signatureImg { get; set; }
         public IFormFile image { get; set; }

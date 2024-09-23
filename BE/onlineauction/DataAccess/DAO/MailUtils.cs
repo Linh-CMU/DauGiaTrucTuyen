@@ -8,8 +8,20 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DAO
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MailUtils
     {
+        /// <summary>
+        /// Sends the mail.
+        /// </summary>
+        /// <param name="_from">From.</param>
+        /// <param name="_to">To.</param>
+        /// <param name="_subject">The subject.</param>
+        /// <param name="_body">The body.</param>
+        /// <param name="client">The client.</param>
+        /// <returns></returns>
         public static async Task<bool> SendMail(string _from, string _to, string _subject, string _body, SmtpClient client)
         {
             // Tạo nội dung Email
@@ -38,6 +50,14 @@ namespace DataAccess.DAO
             }
         }
 
+        /// <summary>
+        /// Sends the mail local SMTP.
+        /// </summary>
+        /// <param name="_from">From.</param>
+        /// <param name="_to">To.</param>
+        /// <param name="_subject">The subject.</param>
+        /// <param name="_body">The body.</param>
+        /// <returns></returns>
         public static async Task<bool> SendMailLocalSmtp(string _from, string _to, string _subject, string _body)
         {
             using (SmtpClient client = new SmtpClient("localhost"))
@@ -46,13 +66,21 @@ namespace DataAccess.DAO
             }
         }
 
+        /// <summary>
+        /// Sends the mail google SMTP.
+        /// </summary>
+        /// <param name="fromEmail">From email.</param>
+        /// <param name="toEmail">To email.</param>
+        /// <param name="subject">The subject.</param>
+        /// <param name="body">The body.</param>
+        /// <param name="gmailSend">The gmail send.</param>
+        /// <param name="gmailPassword">The gmail password.</param>
+        /// <returns></returns>
         public static async Task<bool> SendMailGoogleSmtp(
                     string fromEmail,
                     string toEmail,
                     string subject,
-                    string body,
-                    string gmailSend,
-                    string gmailPassword)
+                    string body)
         {
             MailMessage message = new MailMessage(
                 from: fromEmail,
@@ -70,7 +98,7 @@ namespace DataAccess.DAO
             using (SmtpClient client = new SmtpClient("smtp.gmail.com"))
             {
                 client.Port = 587;
-                client.Credentials = new NetworkCredential(gmailSend, gmailPassword);
+                client.Credentials = new NetworkCredential("nguyenanh0978638@gmail.com", "zwlcvsnblwndpbpe");
                 client.EnableSsl = true;
                 return await SendMail(fromEmail, toEmail, subject, body, client);
             }

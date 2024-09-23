@@ -14,11 +14,11 @@ namespace BusinessObject.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FileAID { get; set; }
-        [ForeignKey("AuctioneerDetail")]
-        public int ListAuctioneerID { get; set; }
+        [ForeignKey("AuctionDetail")]
+        public int ListAuctionID { get; set; }
         public string FileAuctioneer { get; set; }
         public string SignatureImg { get; set; }
-        public virtual AuctioneerDetail AuctioneerDetails { get; set; }
+        public virtual AuctionDetail AuctionDetails { get; set; }
         public virtual ICollection<TImage> TImages { get; set; } = new List<TImage>();
     }
 }

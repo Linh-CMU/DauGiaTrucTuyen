@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class DBInit : Migration
+    public partial class Indit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -200,29 +200,29 @@ namespace BusinessObject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ListAuctioneer",
+                name: "ListAuction",
                 columns: table => new
                 {
-                    ListAuctioneerID = table.Column<int>(type: "int", nullable: false)
+                    ListAuctionID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Creator = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Manager = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NameAuctioneer = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NameAuction = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartingPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     StatusAuction = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ListAuctioneer", x => x.ListAuctioneerID);
+                    table.PrimaryKey("PK_ListAuction", x => x.ListAuctionID);
                     table.ForeignKey(
-                        name: "FK_ListAuctioneer_AspNetUsers_Creator",
+                        name: "FK_ListAuction_AspNetUsers_Creator",
                         column: x => x.Creator,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_ListAuctioneer_AspNetUsers_Manager",
+                        name: "FK_ListAuction_AspNetUsers_Manager",
                         column: x => x.Manager,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
@@ -236,7 +236,8 @@ namespace BusinessObject.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StatusNotification = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -250,62 +251,61 @@ namespace BusinessObject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AuctioneerDetail",
+                name: "AuctionDetail",
                 columns: table => new
                 {
-                    ListAuctioneerID = table.Column<int>(type: "int", nullable: false),
-                    CategoryID = table.Column<int>(type: "int", nullable: false),
+                    ListAuctionID = table.Column<int>(type: "int", nullable: false),
+                    CategoryID = table.Column<int>(type: "int", nullable: true),
                     StartDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EndDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EndTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumberofAuctionRounds = table.Column<int>(type: "int", nullable: false),
                     TimePerLap = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PriceStep = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PriceStep = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuctioneerDetail", x => x.ListAuctioneerID);
+                    table.PrimaryKey("PK_AuctionDetail", x => x.ListAuctionID);
                     table.ForeignKey(
-                        name: "FK_AuctioneerDetail_Category_CategoryID",
+                        name: "FK_AuctionDetail_Category_CategoryID",
                         column: x => x.CategoryID,
                         principalTable: "Category",
-                        principalColumn: "CategoryID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "CategoryID");
                     table.ForeignKey(
-                        name: "FK_AuctioneerDetail_ListAuctioneer_ListAuctioneerID",
-                        column: x => x.ListAuctioneerID,
-                        principalTable: "ListAuctioneer",
-                        principalColumn: "ListAuctioneerID",
+                        name: "FK_AuctionDetail_ListAuction_ListAuctionID",
+                        column: x => x.ListAuctionID,
+                        principalTable: "ListAuction",
+                        principalColumn: "ListAuctionID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RegistAuctioneer",
+                name: "RegistAuction",
                 columns: table => new
                 {
                     RAID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ListAuctioneerID = table.Column<int>(type: "int", nullable: false),
+                    ListAuctionID = table.Column<int>(type: "int", nullable: false),
                     PaymentTerm = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AuctionStatus = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RegistAuctioneer", x => x.RAID);
+                    table.PrimaryKey("PK_RegistAuction", x => x.RAID);
                     table.ForeignKey(
-                        name: "FK_RegistAuctioneer_AspNetUsers_AccountID",
+                        name: "FK_RegistAuction_AspNetUsers_AccountID",
                         column: x => x.AccountID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RegistAuctioneer_ListAuctioneer_ListAuctioneerID",
-                        column: x => x.ListAuctioneerID,
-                        principalTable: "ListAuctioneer",
-                        principalColumn: "ListAuctioneerID",
+                        name: "FK_RegistAuction_ListAuction_ListAuctionID",
+                        column: x => x.ListAuctionID,
+                        principalTable: "ListAuction",
+                        principalColumn: "ListAuctionID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -315,7 +315,7 @@ namespace BusinessObject.Migrations
                 {
                     FileAID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ListAuctioneerID = table.Column<int>(type: "int", nullable: false),
+                    ListAuctionID = table.Column<int>(type: "int", nullable: false),
                     FileAuctioneer = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SignatureImg = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -323,10 +323,10 @@ namespace BusinessObject.Migrations
                 {
                     table.PrimaryKey("PK_FileAttachments", x => x.FileAID);
                     table.ForeignKey(
-                        name: "FK_FileAttachments_AuctioneerDetail_ListAuctioneerID",
-                        column: x => x.ListAuctioneerID,
-                        principalTable: "AuctioneerDetail",
-                        principalColumn: "ListAuctioneerID");
+                        name: "FK_FileAttachments_AuctionDetail_ListAuctionID",
+                        column: x => x.ListAuctionID,
+                        principalTable: "AuctionDetail",
+                        principalColumn: "ListAuctionID");
                 });
 
             migrationBuilder.CreateTable(
@@ -342,9 +342,9 @@ namespace BusinessObject.Migrations
                 {
                     table.PrimaryKey("PK_Bet", x => x.BetID);
                     table.ForeignKey(
-                        name: "FK_Bet_RegistAuctioneer_RAID",
+                        name: "FK_Bet_RegistAuction_RAID",
                         column: x => x.RAID,
-                        principalTable: "RegistAuctioneer",
+                        principalTable: "RegistAuction",
                         principalColumn: "RAID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -369,9 +369,9 @@ namespace BusinessObject.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Feedback_RegistAuctioneer_RAID",
+                        name: "FK_Feedback_RegistAuction_RAID",
                         column: x => x.RAID,
-                        principalTable: "RegistAuctioneer",
+                        principalTable: "RegistAuction",
                         principalColumn: "RAID");
                 });
 
@@ -389,9 +389,9 @@ namespace BusinessObject.Migrations
                 {
                     table.PrimaryKey("PK_Payment", x => x.PayID);
                     table.ForeignKey(
-                        name: "FK_Payment_RegistAuctioneer_RAID",
+                        name: "FK_Payment_RegistAuction_RAID",
                         column: x => x.RAID,
-                        principalTable: "RegistAuctioneer",
+                        principalTable: "RegistAuction",
                         principalColumn: "RAID");
                 });
 
@@ -420,8 +420,8 @@ namespace BusinessObject.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "a2501138-4d7f-4d4b-97db-12d03ffb8983", null, "user", "USER" },
-                    { "d9e61529-d917-44a7-93bf-985c29a0283e", null, "admin", "ADMIN" }
+                    { "dfca1ec8-4c98-46a5-9215-fe75aa689218", null, "user", "USER" },
+                    { "f8c8702d-1daa-436a-8dd7-275d56ef30b6", null, "admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -464,8 +464,8 @@ namespace BusinessObject.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuctioneerDetail_CategoryID",
-                table: "AuctioneerDetail",
+                name: "IX_AuctionDetail_CategoryID",
+                table: "AuctionDetail",
                 column: "CategoryID");
 
             migrationBuilder.CreateIndex(
@@ -479,18 +479,18 @@ namespace BusinessObject.Migrations
                 column: "AccountID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileAttachments_ListAuctioneerID",
+                name: "IX_FileAttachments_ListAuctionID",
                 table: "FileAttachments",
-                column: "ListAuctioneerID");
+                column: "ListAuctionID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ListAuctioneer_Creator",
-                table: "ListAuctioneer",
+                name: "IX_ListAuction_Creator",
+                table: "ListAuction",
                 column: "Creator");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ListAuctioneer_Manager",
-                table: "ListAuctioneer",
+                name: "IX_ListAuction_Manager",
+                table: "ListAuction",
                 column: "Manager");
 
             migrationBuilder.CreateIndex(
@@ -504,14 +504,14 @@ namespace BusinessObject.Migrations
                 column: "RAID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistAuctioneer_AccountID",
-                table: "RegistAuctioneer",
+                name: "IX_RegistAuction_AccountID",
+                table: "RegistAuction",
                 column: "AccountID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistAuctioneer_ListAuctioneerID",
-                table: "RegistAuctioneer",
-                column: "ListAuctioneerID");
+                name: "IX_RegistAuction_ListAuctionID",
+                table: "RegistAuction",
+                column: "ListAuctionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TImage_FileAID",
@@ -559,19 +559,19 @@ namespace BusinessObject.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "RegistAuctioneer");
+                name: "RegistAuction");
 
             migrationBuilder.DropTable(
                 name: "FileAttachments");
 
             migrationBuilder.DropTable(
-                name: "AuctioneerDetail");
+                name: "AuctionDetail");
 
             migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "ListAuctioneer");
+                name: "ListAuction");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

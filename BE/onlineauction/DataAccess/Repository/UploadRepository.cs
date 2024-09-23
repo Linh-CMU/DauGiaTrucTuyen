@@ -6,10 +6,21 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repository
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="DataAccess.IRepository.IUploadRepository" />
     public class UploadRepository : IUploadRepository
     {
+        /// <summary>
+        /// The destination folder path
+        /// </summary>
         private readonly string destinationFolderPath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UploadRepository"/> class.
+        /// </summary>
+        /// <param name="baseDirectory">The base directory.</param>
         public UploadRepository(string baseDirectory)
         {
             // Khởi tạo thư mục 'uploads' trong thư mục gốc của dự án
@@ -22,6 +33,13 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Saves the file asynchronous.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="folder">The folder.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public async Task<string> SaveFileAsync(IFormFile file, string folder, string userId)
         {
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", folder);
@@ -41,6 +59,12 @@ namespace DataAccess.Repository
             return $"{folder}/{fileName}";
         }
 
+        /// <summary>
+        /// Reads the file asynchronous.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <returns></returns>
+        /// <exception cref="System.IO.FileNotFoundException">File không tồn tại.</exception>
         public Task<Stream> ReadFileAsync(string filePath)
         {
             // Chuyển đổi dấu gạch chéo `/` thành gạch chéo ngược `\` cho hệ thống tệp của Windows
@@ -54,6 +78,12 @@ namespace DataAccess.Repository
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
             return Task.FromResult((Stream)stream);
         }
+        /// <summary>
+        /// Reads the file asyncs.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        /// <exception cref="System.IO.FileNotFoundException">File không tồn tại.</exception>
         public string ReadFileAsyncs(string fileName)
         {
             // Giải mã URL nếu cần

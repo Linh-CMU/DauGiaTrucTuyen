@@ -15,6 +15,6 @@ namespace BusinessObject.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryID { get; set; }
         public string NameCategory { get; set; }
-        public virtual ICollection<AuctioneerDetail> AuctioneerDetails { get; set; } = new List<AuctioneerDetail>();
+        public virtual ICollection<AuctionDetail> AuctionDetails { get; set; } = new List<AuctionDetail>();
     }
 }

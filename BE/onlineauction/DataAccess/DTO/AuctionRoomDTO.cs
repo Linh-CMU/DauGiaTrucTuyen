@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class AuctionnerAdminDTO
+    public class AuctionRoomDTO
     {
-        public int AuctioneerID { get; set; }
+        public int ListAuctionID { get; set; }
         public string Category { get; set; }
-        public string Name { get; set; }
         public string Image { get; set; }
         public string NameAuction { get; set; }
         public decimal StartingPrice { get; set; }
@@ -18,7 +17,7 @@ namespace DataAccess.DTO
         public string StartTime { get; set; }
         public string EndDay { get; set; }
         public string EndTime { get; set; }
-        public string StatusAuction { get; set; }
-        public string Time { get; set; }
+        public string bidStatus { get; set; }
+        public bool statusBet { get; set; }
     }
 }

@@ -12,15 +12,36 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repository
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="DataAccess.IRepository.IAdminRepository" />
     public class AdminRepository : IAdminRepository
     {
+        /// <summary>
+        /// The account manager
+        /// </summary>
         private readonly UserManager<Account> _accountManager;
+        /// <summary>
+        /// The upload
+        /// </summary>
         private readonly IUploadRepository _upload;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminRepository"/> class.
+        /// </summary>
+        /// <param name="accountManager">The account manager.</param>
+        /// <param name="upload">The upload.</param>
         public AdminRepository(UserManager<Account> accountManager, IUploadRepository upload)
         {
             _accountManager = accountManager;
             _upload = upload;
         }
+        /// <summary>
+        /// Accepts the auctioneer for admin.
+        /// </summary>
+        /// <param name="autioneer">The autioneer.</param>
+        /// <param name="idAuction">The identifier auction.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> AcceptAuctioneerForAdmin(AcceptAutioneerDTO autioneer, string idAuction)
         {
             try
@@ -35,6 +56,11 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Adds the category.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> AddCategory(string name)
         {
             try
@@ -56,6 +82,11 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Deletes the category.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> DeleteCategory(int id)
         {
             try
@@ -73,6 +104,12 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Lists the auction.
+        /// </summary>
+        /// <param name="accountID">The account identifier.</param>
+        /// <param name="status">The status.</param>
+        /// <returns></returns>
         public async Task<List<AuctionnerAdminDTO>> ListAuction(string accountID, int status)
         {
             var auctioneerList = new List<AuctionnerAdminDTO>();
@@ -99,11 +136,11 @@ namespace DataAccess.Repository
                         formattedTimeRemaining = FormatTimeSpan(timeRemaining);
                     }
 
-                    auctioneer.AuctioneerID = item.ListAuctioneerID;
+                    auctioneer.AuctioneerID = item.ListAuctionID;
                     auctioneer.Category = item.Category;
                     auctioneer.Name = item.Name;
                     auctioneer.Image = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Image}";
-                    auctioneer.NameAuctioneer = item.NameAuctioneer;
+                    auctioneer.NameAuction = item.NameAuction;
                     auctioneer.StartingPrice = item.StartingPrice;
                     auctioneer.StartDay = item.StartDay;
                     auctioneer.StartTime = item.StartTime;
@@ -117,10 +154,19 @@ namespace DataAccess.Repository
             }
             return auctioneerList;
         }
+        /// <summary>
+        /// Formats the time span.
+        /// </summary>
+        /// <param name="timeSpan">The time span.</param>
+        /// <returns></returns>
         private string FormatTimeSpan(TimeSpan timeSpan)
         {
             return $"{timeSpan.Days * 24 + timeSpan.Hours:D2}:{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
         }
+        /// <summary>
+        /// Lists the category.
+        /// </summary>
+        /// <returns></returns>
         public async Task<ResponseDTO> ListCategory()
         {
             try
@@ -134,6 +180,12 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Updates the category.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="Namecategory">The namecategory.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> UpdateCategory(int id, string Namecategory)
         {
             try
@@ -158,6 +210,11 @@ namespace DataAccess.Repository
                 return new ResponseDTO { IsSucceed = false, Message = "Update category failed" };
             }
         }
+        /// <summary>
+        /// Profiles the user.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ProfileUser(string username)
         {
             ProfileDTO profileDTO = null;
@@ -196,11 +253,16 @@ namespace DataAccess.Repository
             return new ResponseDTO { Result = profileDTO, IsSucceed = true, Message = "Successfully" };
         }
 
-        public async Task<ResponseDTO> AuctioneerDetail(int id)
+        /// <summary>
+        /// Auctions the detail.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<ResponseDTO> AuctionDetail(int id)
         {
             try
             {
-                var result = await AuctionDAO.Instance.AuctioneerDetail(id);
+                var result = await AuctionDAO.Instance.AuctionDetail(id);
                 return new ResponseDTO { Result = result, IsSucceed = true, Message = "Show auction detail successfully" };
             }
             catch (Exception ex)
@@ -209,6 +271,12 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Searchs the auctioneer admin.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
         public async Task<List<AuctionnerAdminDTO>> SearchAuctioneerAdmin(string id, string content)
         {
             var auctioneerList = new List<AuctionnerAdminDTO>();
@@ -235,11 +303,11 @@ namespace DataAccess.Repository
                         formattedTimeRemaining = FormatTimeSpan(timeRemaining);
                     }
 
-                    auctioneer.AuctioneerID = item.ListAuctioneerID;
+                    auctioneer.AuctioneerID = item.ListAuctionID;
                     auctioneer.Category = item.Category;
                     auctioneer.Name = item.Name;
                     auctioneer.Image = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Image}";
-                    auctioneer.NameAuctioneer = item.NameAuctioneer;
+                    auctioneer.NameAuction = item.NameAuction;
                     auctioneer.StartingPrice = item.StartingPrice;
                     auctioneer.StartDay = item.StartDay;
                     auctioneer.StartTime = item.StartTime;
@@ -254,6 +322,13 @@ namespace DataAccess.Repository
             return auctioneerList;
         }
 
+        /// <summary>
+        /// Lists your auctioneer category admin.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="status">The status.</param>
+        /// <param name="category">The category.</param>
+        /// <returns></returns>
         public async Task<List<AuctionnerAdminDTO>> ListYourAuctioneerCategoryAdmin(string id, int status, int category)
         {
             var auctioneerList = new List<AuctionnerAdminDTO>();
@@ -280,11 +355,11 @@ namespace DataAccess.Repository
                         formattedTimeRemaining = FormatTimeSpan(timeRemaining);
                     }
 
-                    auctioneer.AuctioneerID = item.ListAuctioneerID;
+                    auctioneer.AuctioneerID = item.ListAuctionID;
                     auctioneer.Category = item.Category;
                     auctioneer.Name = item.Name;
                     auctioneer.Image = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Image}";
-                    auctioneer.NameAuctioneer = item.NameAuctioneer;
+                    auctioneer.NameAuction = item.NameAuction;
                     auctioneer.StartingPrice = item.StartingPrice;
                     auctioneer.StartDay = item.StartDay;
                     auctioneer.StartTime = item.StartTime;

@@ -10,15 +10,33 @@ using System.Text.Json;
 
 namespace CapstoneAuctioneerAPI.Controller
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [Route("api/Admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {
+        /// <summary>
+        /// The admin service
+        /// </summary>
         private readonly AdminService _adminService;
-        public AdminController(AdminService adminService)
+        private readonly BatchService _batchService;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminController"/> class.
+        /// </summary>
+        /// <param name="adminService">The admin service.</param>
+        public AdminController(AdminService adminService, BatchService batchService)
         {
             _adminService = adminService;
+            _batchService = batchService;
         }
+        /// <summary>
+        /// Lists the auction.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("ListAuctionAdmin")]
         [Authorize(Policy = "ADMIN")]
@@ -31,9 +49,9 @@ namespace CapstoneAuctioneerAPI.Controller
                     while (webSocket.State == WebSocketState.Open)
                     {
                         string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                        var auctioneerDetails = await _adminService.ListAuction(userId, status);
+                        var AuctionDetails = await _adminService.ListAuction(userId, status);
                         // Chuyển đổi chuỗi thành qua kiểu json
-                        string jsonString = JsonSerializer.Serialize(auctioneerDetails);
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
                         // Chuyển đổi thời gian còn lại thành mảng byte
                         var bytes = Encoding.UTF8.GetBytes(jsonString);
                         await webSocket.SendAsync(new ArraySegment<byte>(bytes),
@@ -50,6 +68,12 @@ namespace CapstoneAuctioneerAPI.Controller
                 return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
+        /// <summary>
+        /// Lists your auctioneer category admin.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="category">The category.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("ListAuctionCategoryAdmin")]
         [Authorize(Policy = "ADMIN")]
@@ -62,9 +86,9 @@ namespace CapstoneAuctioneerAPI.Controller
                     while (webSocket.State == WebSocketState.Open)
                     {
                         string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                        var auctioneerDetails = await _adminService.ListYourAuctioneerCategoryAdmin(userId, status, category);
+                        var AuctionDetails = await _adminService.ListYourAuctioneerCategoryAdmin(userId, status, category);
                         // Chuyển đổi chuỗi thành qua kiểu json
-                        string jsonString = JsonSerializer.Serialize(auctioneerDetails);
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
                         // Chuyển đổi thời gian còn lại thành mảng byte
                         var bytes = Encoding.UTF8.GetBytes(jsonString);
                         await webSocket.SendAsync(new ArraySegment<byte>(bytes),
@@ -81,6 +105,11 @@ namespace CapstoneAuctioneerAPI.Controller
                 return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
+        /// <summary>
+        /// Searchs the auctioneer admin.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("SearchAuctioneerAdmin")]
         [Authorize(Policy = "ADMIN")]
@@ -93,9 +122,9 @@ namespace CapstoneAuctioneerAPI.Controller
                     while (webSocket.State == WebSocketState.Open)
                     {
                         string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                        var auctioneerDetails = await _adminService.SearchAuctioneerAdmin(userId, content);
+                        var AuctionDetails = await _adminService.SearchAuctioneerAdmin(userId, content);
                         // Chuyển đổi chuỗi thành qua kiểu json
-                        string jsonString = JsonSerializer.Serialize(auctioneerDetails);
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
                         // Chuyển đổi thời gian còn lại thành mảng byte
                         var bytes = Encoding.UTF8.GetBytes(jsonString);
                         await webSocket.SendAsync(new ArraySegment<byte>(bytes),
@@ -112,14 +141,19 @@ namespace CapstoneAuctioneerAPI.Controller
                 return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
+        /// <summary>
+        /// Auctions the detail.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("auctiondetail")]
         [Authorize(Policy = "ADMIN")]
-        public async Task<ActionResult> AuctioneerDetail(int id)
+        public async Task<ActionResult> AuctionDetail(int id)
         {
             try
             {
-                var result = await _adminService.AuctioneerDetail(id);
+                var result = await _adminService.AuctionDetail(id);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -131,6 +165,11 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Inforusers the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("inforuser")]
         [Authorize(Policy = "ADMIN")]
@@ -150,6 +189,10 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Listinforusers this instance.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("listinforuser")]
         [Authorize(Policy = "ADMIN")]
@@ -169,6 +212,11 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Adds the category.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("AddCategory")]
         [Authorize(Policy = "ADMIN")]
@@ -188,6 +236,11 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Accepts the auction.
+        /// </summary>
+        /// <param name="autioneer">The autioneer.</param>
+        /// <returns></returns>
         [HttpPut]
         [Route("ApproveorRejectAuction")]
         [Authorize(Policy = "ADMIN")]
@@ -197,6 +250,10 @@ namespace CapstoneAuctioneerAPI.Controller
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
                 var result = await _adminService.AcceptAuctioneerForAdmin(autioneer, userId);
+                if(autioneer.Status == true)
+                {
+
+                }
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -208,6 +265,12 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Accepts the auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="Namecategory">The namecategory.</param>
+        /// <returns></returns>
         [HttpPut]
         [Route("UpdateCategory")]
         [Authorize(Policy = "ADMIN")]
@@ -227,7 +290,12 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-        [HttpPut]
+        /// <summary>
+        /// Deletes the category.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        [HttpDelete]
         [Route("DeleteCategory")]
         [Authorize(Policy = "ADMIN")]
         public async Task<ActionResult> DeleteCategory(int id)

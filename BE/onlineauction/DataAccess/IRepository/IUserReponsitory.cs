@@ -8,8 +8,62 @@ using System.Threading.Tasks;
 
 namespace DataAccess.IRepository
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IUserReponsitory
     {
+        /// <summary>
+        /// Regiters the auctioneer.
+        /// </summary>
+        /// <param name="userID">The user identifier.</param>
+        /// <param name="register">The register.</param>
+        /// <returns></returns>
         Task<ResponseDTO> RegiterAuctioneer(string userID, RegisterAuctioneerDTO register);
+        /// <summary>
+        /// Users the register auction.
+        /// </summary>
+        /// <param name="userID">The user identifier.</param>
+        /// <param name="auctionId">The auction identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> UserRegisterAuction(string userID, int auctionId);
+        /// <summary>
+        /// Places the bid.
+        /// </summary>
+        /// <param name="userid">The userid.</param>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> PlaceBid(string userid, int id);
+        /// <summary>
+        /// Lists your auctioneer.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="status">The status.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> ListYourAuctioneer(string id, int status);
+        /// <summary>
+        /// Lists your autioneer detail.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> ListYourAutioneerDetail(int id);
+        /// <summary>
+        /// Auctionrooms the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> Auctionroom(int id);
+        /// <summary>
+        /// Withdraws the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> Withdraw(int id);
+        /// <summary>
+        /// Views the bid history.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<List<ViewBidHistoryDTO>> ViewBidHistory(int id);
     }
 }

@@ -9,13 +9,31 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DAO
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class CategoryDAO
     {
+        /// <summary>
+        /// The instance
+        /// </summary>
         private static CategoryDAO _instance = null;
+        /// <summary>
+        /// The instance lock
+        /// </summary>
         private static readonly object _instanceLock = new object();
 
+        /// <summary>
+        /// Prevents a default instance of the <see cref="CategoryDAO"/> class from being created.
+        /// </summary>
         private CategoryDAO() { }
 
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
         public static CategoryDAO Instance
         {
             get
@@ -30,6 +48,12 @@ namespace DataAccess.DAO
                 }
             }
         }
+        /// <summary>
+        /// Adds the category.
+        /// </summary>
+        /// <param name="category">The category.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public async Task<bool> AddCategory(Category category)
         {
             try
@@ -50,6 +74,11 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
+        /// <summary>
+        /// Categories the asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public async Task<List<Category>> CategoryAsync()
         {
             try
@@ -64,6 +93,15 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
+        /// <summary>
+        /// Updates the category.
+        /// </summary>
+        /// <param name="category">The category.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">
+        /// Category not found.
+        /// or
+        /// </exception>
         public async Task<bool> UpdateCategory(Category category)
         {
             try
@@ -90,6 +128,15 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
+        /// <summary>
+        /// Deletes the category.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">
+        /// Category not found.
+        /// or
+        /// </exception>
         public async Task<bool> DeleteCategory(int id)
         {
             try
@@ -104,7 +151,7 @@ namespace DataAccess.DAO
                     }
 
                     // Find if there are any auctions associated with this category
-                    var auctions = await connect.AuctioneerDetails.Where(a => a.CategoryID == id).ToListAsync();
+                    var auctions = await connect.AuctionDetails.Where(a => a.CategoryID == id).ToListAsync();
                     if (auctions.Any())
                     {
                         // Update the CategoryID of each auction to null

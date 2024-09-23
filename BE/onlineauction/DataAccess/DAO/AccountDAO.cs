@@ -12,13 +12,31 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DAO
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AccountDAO
     {
+        /// <summary>
+        /// The instance
+        /// </summary>
         private static AccountDAO _instance = null;
+        /// <summary>
+        /// The instance lock
+        /// </summary>
         private static readonly object _instanceLock = new object();
 
+        /// <summary>
+        /// Prevents a default instance of the <see cref="AccountDAO"/> class from being created.
+        /// </summary>
         private AccountDAO() { }
 
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
         public static AccountDAO Instance
         {
             get
@@ -33,6 +51,11 @@ namespace DataAccess.DAO
                 }
             }
         }
+        /// <summary>
+        /// Adds the account detail asynchronous.
+        /// </summary>
+        /// <param name="accountDetail">The account detail.</param>
+        /// <returns></returns>
         public async Task<bool> AddAccountDetailAsync(AccountDetail accountDetail)
         {
             try
@@ -50,6 +73,12 @@ namespace DataAccess.DAO
                 return false;
             }
         }
+        /// <summary>
+        /// Profiles the DAO.
+        /// </summary>
+        /// <param name="accountID">The account identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public async Task<AccountDetail> ProfileDAO(string accountID)
         {
             AccountDetail accountDetail = null;
@@ -66,6 +95,17 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
+        /// <summary>
+        /// Updates the account detail.
+        /// </summary>
+        /// <param name="accountDetail">The account detail.</param>
+        /// <exception cref="System.Exception">
+        /// Account detail not found.
+        /// or
+        /// An error occurred while updating the account detail: {ex.Message}
+        /// or
+        /// An unexpected error occurred: {ex.Message}
+        /// </exception>
         public async Task UpdateAccountDetail(AccountDetail accountDetail)
         {
             try

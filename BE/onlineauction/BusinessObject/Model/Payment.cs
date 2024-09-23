@@ -14,10 +14,10 @@ namespace BusinessObject.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PayID { get; set; }
-        [ForeignKey("RegistAuctioneer")]
+        [ForeignKey("RegistAuction")]
         public int RAID { get; set; }
         public string PaymentType { get; set; }
         public string PaymentDate { get; set; }
-        public virtual RegistAuctioneer RegistAuctioneers { get; set; }
+        public virtual RegistAuction RegistAuctions { get; set; }
     }
 }

@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Model
 {
-    [Table("ListAuctioneer")]
-    public class ListAuctioneer
+    [Table("ListAuction")]
+    public class ListAuction
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ListAuctioneerID { get; set; }
+        public int ListAuctionID { get; set; }
         [ForeignKey("Account")]
         public string? Creator { get; set; }
         [ForeignKey("Account")]
         public string? Manager { get; set; }
         public string Image { get; set; }
-        public string NameAuctioneer { get; set; }
+        public string NameAuction { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public bool? StatusAuction { get; set; }
         public virtual Account CreatorAccount { get; set; }
         public virtual Account ManagerAccount { get; set; }
-        public virtual AuctioneerDetail AuctioneerDetails { get; set; }
-        public virtual ICollection<RegistAuctioneer> RegistAuctioneers { get; set; } = new List<RegistAuctioneer>();
+        public virtual AuctionDetail AuctionDetails { get; set; }
+        public virtual ICollection<RegistAuction> RegistAuctions { get; set; } = new List<RegistAuction>();
     }
 }

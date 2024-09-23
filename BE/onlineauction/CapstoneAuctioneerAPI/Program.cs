@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 builder.Services.AddCors();
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson()
@@ -66,11 +66,19 @@ builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<AuctionService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<BatchService>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAuctioneerRepository, AuctioneerRepository>();
 builder.Services.AddScoped<IUserReponsitory, UserReponsitory>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton(x => new PaypalClient(
+    builder.Configuration["PaypalOptions:AppId"],
+    builder.Configuration["PaypalOptions:AppSecret"],
+    builder.Configuration["PaypalOptions:Mode"]
+    ));
 builder.Services.AddSingleton<IUploadRepository>(sp => new UploadRepository(builder.Environment.ContentRootPath));
 builder.Services
     .AddAuthentication(options =>
@@ -130,6 +138,7 @@ app.UseCors(builder =>
     .AllowAnyMethod()
     .AllowAnyHeader();
 });
+app.UseWebSockets();
 app.UseRouting();
 app.Use(next => context =>
 {

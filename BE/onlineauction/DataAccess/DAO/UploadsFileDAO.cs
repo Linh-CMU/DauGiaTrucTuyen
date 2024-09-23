@@ -4,10 +4,20 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DAO
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class UploadsFileDAO
     {
+        /// <summary>
+        /// The destination folder path
+        /// </summary>
         private readonly string destinationFolderPath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UploadsFileDAO"/> class.
+        /// </summary>
+        /// <param name="baseDirectory">The base directory.</param>
         public UploadsFileDAO(string baseDirectory)
         {
             destinationFolderPath = Path.Combine(baseDirectory, "uploads");
@@ -17,6 +27,13 @@ namespace DataAccess.DAO
             }
         }
 
+        /// <summary>
+        /// Reads the file asynchronous.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">File name cannot be null or empty. - fileName</exception>
+        /// <exception cref="System.IO.FileNotFoundException">File không tồn tại.</exception>
         public async Task<Stream> ReadFileAsync(string? fileName)
         {
             if (string.IsNullOrEmpty(fileName))

@@ -12,7 +12,7 @@ namespace DataAccess.DTO
         public object User { get; set; }
         public string Manager { get; set; }
         public string Image { get; set; }
-        public string NameAuctioneer { get; set; }
+        public string NameAuction { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public string categoryName { get; set; }

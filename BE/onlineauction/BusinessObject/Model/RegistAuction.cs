@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Model
 {
-    [Table("RegistAuctioneer")]
-    public class RegistAuctioneer
+    [Table("RegistAuction")]
+    public class RegistAuction
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -18,8 +18,8 @@ namespace BusinessObject.Model
         [ForeignKey("Account")]
         public string AccountID { get; set; }
 
-        [ForeignKey("ListAuctioneer")]
-        public int ListAuctioneerID { get; set; }
+        [ForeignKey("ListAuction")]
+        public int ListAuctionID { get; set; }
 
         public string? PaymentTerm { get; set; }
         public bool? AuctionStatus { get; set; }
@@ -27,7 +27,7 @@ namespace BusinessObject.Model
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
 
-        public virtual ListAuctioneer ListAuctioneers { get; set; }
+        public virtual ListAuction ListAuctions { get; set; }
 
         public virtual Feedback Feedbacks { get; set; } 
 

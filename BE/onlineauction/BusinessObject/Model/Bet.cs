@@ -15,11 +15,10 @@ namespace BusinessObject.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BetID { get; set; }
 
-        [ForeignKey("RegistAuctioneer")]
+        [ForeignKey("RegistAuction")]
         public int RAID { get; set; }
-
         public decimal PriceBit { get; set; }
-
-        public virtual RegistAuctioneer RegistAuctioneer { get; set; }
+        public string BidTime { get; set; }
+        public virtual RegistAuction RegistAuctioneer { get; set; }
     }
 }
