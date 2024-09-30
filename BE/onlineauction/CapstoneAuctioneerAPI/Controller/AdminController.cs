@@ -22,11 +22,15 @@ namespace CapstoneAuctioneerAPI.Controller
         /// The admin service
         /// </summary>
         private readonly AdminService _adminService;
+        /// <summary>
+        /// The batch service
+        /// </summary>
         private readonly BatchService _batchService;
         /// <summary>
-        /// Initializes a new instance of the <see cref="AdminController"/> class.
+        /// Initializes a new instance of the <see cref="AdminController" /> class.
         /// </summary>
         /// <param name="adminService">The admin service.</param>
+        /// <param name="batchService">The batch service.</param>
         public AdminController(AdminService adminService, BatchService batchService)
         {
             _adminService = adminService;
@@ -252,7 +256,9 @@ namespace CapstoneAuctioneerAPI.Controller
                 var result = await _adminService.AcceptAuctioneerForAdmin(autioneer, userId);
                 if(autioneer.Status == true)
                 {
-
+                    var results = await _adminService.AuctionDetailBatchJob(autioneer.AutioneerID);
+                    var enddate = ConvertToDateTime(results.EndDay, results.EndTime);
+                    _batchService.CreateAuction(results.ID, enddate);
                 }
                 if (result.IsSucceed)
                 {
@@ -312,6 +318,28 @@ namespace CapstoneAuctioneerAPI.Controller
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        /// <summary>
+        /// Converts to date time.
+        /// </summary>
+        /// <param name="endDay">The end day.</param>
+        /// <param name="endTime">The end time.</param>
+        /// <returns></returns>
+        /// <exception cref="System.FormatException">Định dạng EndDay hoặc EndTime không hợp lệ.</exception>
+        private DateTime ConvertToDateTime(string endDay, string endTime)
+        {
+            string combinedDateTime = $"{endDay} {endTime}";
+
+            if (DateTime.TryParseExact(combinedDateTime, "yyyy-MM-dd HH:mm:ss",
+                                        System.Globalization.CultureInfo.InvariantCulture,
+                                        System.Globalization.DateTimeStyles.None, out DateTime endDateTime))
+            {
+                return endDateTime;
+            }
+            else
+            {
+                throw new FormatException("Định dạng EndDay hoặc EndTime không hợp lệ.");
             }
         }
     }

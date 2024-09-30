@@ -38,6 +38,7 @@ namespace BusinessObject.Context
         public virtual DbSet<RegistAuction> RegistAuctioneers { get; set; }
         public virtual DbSet<TImage> TImages { get; set; }
         public virtual DbSet<AuctionDetail> AuctionDetails { get; set; }
+        public virtual DbSet<Deposit> Deposits { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

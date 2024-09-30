@@ -23,7 +23,7 @@ namespace DataAccess.Service
         /// </summary>
         private readonly IAccountRepository _accountRepository;
         /// <summary>
-        /// Initializes a new instance of the <see cref="AdminService"/> class.
+        /// Initializes a new instance of the <see cref="AdminService" /> class.
         /// </summary>
         /// <param name="adminRepository">The admin repository.</param>
         /// <param name="accountRepository">The account repository.</param>
@@ -145,6 +145,16 @@ namespace DataAccess.Service
         public async Task<List<AuctionnerAdminDTO>> SearchAuctioneerAdmin(string id, string content)
         {
             var result = await _adminRepository.SearchAuctioneerAdmin(id, content);
+            return result;
+        }
+        /// <summary>
+        /// Auctions the detail batch job.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<DAuctioneerDTO> AuctionDetailBatchJob(int id)
+        {
+            var result = await _adminRepository.AuctionDetailBatchJob(id);
             return result;
         }
     }

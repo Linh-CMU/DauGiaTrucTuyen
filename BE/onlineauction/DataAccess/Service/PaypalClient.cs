@@ -153,6 +153,49 @@ namespace DataAccess.Service
 
             return response;
         }
+        /// <summary>
+        /// Refunds the captured payment.
+        /// </summary>
+        /// <param name="captureId">The capture identifier.</param>
+        /// <param name="amount">The amount to refund.</param>
+        /// <param name="currency">The currency of the refund (e.g., USD).</param>
+        /// <returns>The response from PayPal after the refund request.</returns>
+        public async Task<RefundResponse> RefundOrder(string captureId)
+        {
+            var auth = await Authenticate();
+
+            var refundRequest = new RefundRequest
+            {
+                amount = new Amount
+                {
+                    value = "10",
+                    currency_code = "USD"
+                }
+            };
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {auth.access_token}");
+
+            var httpResponse = await httpClient.PostAsJsonAsync($"{BaseUrl}/v2/payments/captures/{captureId}/refund", refundRequest);
+
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+            var response = JsonSerializer.Deserialize<RefundResponse>(jsonResponse);
+
+            return response;
+        }
+    }
+
+    public sealed class RefundRequest
+    {
+        public Amount amount { get; set; }
+    }
+
+    public sealed class RefundResponse
+    {
+        public string id { get; set; }
+        public string status { get; set; }
+        public Amount amount { get; set; }
+        public List<Link> links { get; set; }
     }
 
     /// <summary>

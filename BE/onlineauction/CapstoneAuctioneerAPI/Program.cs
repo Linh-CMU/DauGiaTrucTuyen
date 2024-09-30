@@ -16,6 +16,8 @@ using CapstoneAuctioneerAPI;
 using DataAccess;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using System.Text.Unicode;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -25,7 +27,11 @@ builder.Services.AddControllersWithViews()
     .AddXmlDataContractSerializerFormatters();
 
 builder.Services.AddSession();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(UnicodeRanges.All);
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -122,7 +128,9 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddMvc();
 
 var app = builder.Build();
-
+var cultureInfo = new CultureInfo("vi-VN");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -142,6 +150,7 @@ app.UseWebSockets();
 app.UseRouting();
 app.Use(next => context =>
 {
+    context.Response.ContentType = "application/json; charset=utf-8";
     var endpoint = context.GetEndpoint();
     if (endpoint == null)
     {

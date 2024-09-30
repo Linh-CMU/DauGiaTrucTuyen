@@ -2,6 +2,7 @@
 using DataAccess.DAO;
 using DataAccess.DTO;
 using DataAccess.IRepository;
+using DataAccess.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Win32;
 using System;
@@ -341,6 +342,11 @@ namespace DataAccess.Repository
         public async Task<ResponseDTO> CheckPayMent(Payment payment, int id)
         {
             return await RegistAuctionDAO.Instance.CheckPayMent(payment, id);
+        }
+
+        public SetTimeForBatchDTO sendMailAfterPaymet(int id, string uid)
+        {
+            return RegistAuctionDAO.Instance.sendMailAfterPaymet(id, uid);
         }
     }
 }

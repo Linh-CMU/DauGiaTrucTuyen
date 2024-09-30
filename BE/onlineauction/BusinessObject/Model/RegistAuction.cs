@@ -20,11 +20,11 @@ namespace BusinessObject.Model
 
         [ForeignKey("ListAuction")]
         public int ListAuctionID { get; set; }
-
         public string? PaymentTerm { get; set; }
         public bool? AuctionStatus { get; set; }
 
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public virtual ICollection<Deposit> Deposits { get; set; } = new List<Deposit>();
         public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
 
         public virtual ListAuction ListAuctions { get; set; }

@@ -177,7 +177,7 @@ namespace DataAccess.Repository
                         CategoryID = register.CategoryID,
                         StartDay = register.StartDay,
                         StartTime = register.StartTime,
-                        EndDay = register.EndTime,
+                        EndDay = register.EndDay,
                         EndTime = register.EndTime,
                         NumberofAuctionRounds = 1,
                         TimePerLap = "1",

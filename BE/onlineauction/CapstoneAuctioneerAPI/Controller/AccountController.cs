@@ -60,6 +60,13 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        [HttpGet]
+        [Route("acv")]
+        public IActionResult Gets()
+        {
+            var data = new { message = "Xin chào!" };
+            return Ok(data);
+        }
 
         /// <summary>
         /// Registers the specified account.

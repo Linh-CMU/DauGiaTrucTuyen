@@ -74,22 +74,53 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         [HttpPost("/capture-paypal-order")]
+        [Authorize]
         public async Task<IActionResult> CapturePaypalOrder(string orderID, int auctionId, CancellationToken cancellationToken)
         {
             try
             {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var response = await _paypalClient.CaptureOrder(orderID);
                 var payment = new Payment
                 {
                     PaymentType = "paypal"
                 };
-                var a = await _auctionService.CheckPayMent(payment, auctionId);
+                var a = _auctionService.CheckPayMent(payment, auctionId, userId);
+
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 var error = new { ex.GetBaseException().Message };
                 return BadRequest(error);
+            }
+        }
+        /// <summary>
+        /// Refunds a completed PayPal order.
+        /// </summary>
+        /// <param name="orderID">The PayPal order ID.</param>
+        /// <param name="auctionId">The auction ID related to the order.</param>
+        /// <returns></returns>
+        [HttpPost("/refund-paypal-order")]
+        [Authorize]
+        public async Task<IActionResult> RefundPaypalOrder(string orderID, int auctionId)
+        {
+            try
+            {
+                var refundResponse = await _paypalClient.RefundOrder(orderID);
+                var payment = new Payment
+                {
+                    PaymentType = "paypal",
+                    AuctionId = auctionId,
+                    Status = "Refunded"
+                };
+                _auctionService.UpdatePaymentStatus(payment);
+
+                return Ok(refundResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { ex.GetBaseException().Message });
             }
         }
         /// <summary>

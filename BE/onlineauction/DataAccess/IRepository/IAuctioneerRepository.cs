@@ -72,6 +72,7 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> CheckPayMent(Payment payment, int id);
+        SetTimeForBatchDTO sendMailAfterPaymet(int id, string uid);
 
     }
 }

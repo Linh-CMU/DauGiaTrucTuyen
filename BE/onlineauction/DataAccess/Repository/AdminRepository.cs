@@ -27,7 +27,7 @@ namespace DataAccess.Repository
         /// </summary>
         private readonly IUploadRepository _upload;
         /// <summary>
-        /// Initializes a new instance of the <see cref="AdminRepository"/> class.
+        /// Initializes a new instance of the <see cref="AdminRepository" /> class.
         /// </summary>
         /// <param name="accountManager">The account manager.</param>
         /// <param name="upload">The upload.</param>
@@ -372,6 +372,17 @@ namespace DataAccess.Repository
                 }
             }
             return auctioneerList;
+        }
+
+        /// <summary>
+        /// Auctions the detail batch job.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<DAuctioneerDTO> AuctionDetailBatchJob(int id)
+        {
+            var result = await AuctionDAO.Instance.AuctionDetail(id);
+            return result;
         }
     }
 }

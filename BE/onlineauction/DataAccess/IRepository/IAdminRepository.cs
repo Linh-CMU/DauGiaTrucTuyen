@@ -79,5 +79,12 @@ namespace DataAccess.IRepository
         /// <returns></returns>
         Task<ResponseDTO> AuctionDetail(int id);
 
+        /// <summary>
+        /// Auctions the detail batch job.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<DAuctioneerDTO> AuctionDetailBatchJob(int id);
+
     }
 }

@@ -33,6 +33,7 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="endTime">The end time.</param>
         /// <param name="date">The date.</param>
+        /// <param name="account">The account.</param>
         public void CreateAuction(int id, DateTime endTime, DateTime date, string account)
         {
             Console.WriteLine($"{id} đã được tạo và sẽ kết thúc vào {endTime}.");
@@ -47,13 +48,17 @@ namespace DataAccess.Service
         /// <param name="endTime">The end time.</param>
         /// <param name="auctioneer">The auctioneer.</param>
         /// <param name="admin">The admin.</param>
+        /// <param name="account">The account.</param>
+        /// <param name="title">The title.</param>
         /// <param name="date">The date.</param>
-        public void CreateAuction(int id, DateTime endTime, string auctioneer, string admin, string account, string title, DateTime date)
+        /// <param name="idadmin">The idadmin.</param>
+        /// <param name="idauction">The idauction.</param>
+        public void CreateAuction(int id, DateTime endTime, string auctioneer, string admin, string account, string title, DateTime date, string idadmin, string idauction)
         {
             Console.WriteLine($"{id} đã được tạo và sẽ kết thúc vào {endTime}.");
             DateTime notificationTime = endTime.AddSeconds(15);
             TimeSpan delay = notificationTime - DateTime.Now;
-            BackgroundJob.Schedule(() => NotifyAuctionComplete(id, auctioneer, admin ,account, title, date), delay);
+            BackgroundJob.Schedule(() => NotifyAuctionComplete(id, auctioneer, admin, account, title, date, idadmin, idauction), delay);
         }
         /// <summary>
         /// Notifies the auction complete.
@@ -61,8 +66,12 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="auctioneer">The auctioneer.</param>
         /// <param name="admin">The admin.</param>
+        /// <param name="account">The account.</param>
+        /// <param name="title">The title.</param>
         /// <param name="date">The date.</param>
-        public async void NotifyAuctionComplete(int id, string auctioneer, string admin, string account, string title, DateTime date)
+        /// <param name="idadmin">The idadmin.</param>
+        /// <param name="idauction">The idauction.</param>
+        public async void NotifyAuctionComplete(int id, string auctioneer, string admin, string account, string title, DateTime date, string idadmin, string idauction)
         {
             var check = await RegistAuctionDAO.Instance.SecondCheckUsertoPayment(id);
 
@@ -83,6 +92,22 @@ namespace DataAccess.Service
                     Description = "Bạn đã không thanh toán đúng hẹn và bạn sẽ chịu phạt nếu đủ 3 lần tài khoản bạn sẽ bị khóa tài khoản"
                 };
                 await NotificationDAO.Instance.AddNotification(notifications);
+                var adminNotification = new Notification
+                {
+                    AccountID = idadmin,
+                    Title = $"Kết quả buổi đấu giá: {result.Title}",
+                    Description = $"Người thứ 2 không thanh toán nên sản phẩm đấu giá thất bại"
+                };
+                await NotificationDAO.Instance.AddNotification(adminNotification);
+
+                // Thông báo cho auctioneer
+                var auctioneerNotification = new Notification
+                {
+                    AccountID = idauction,
+                    Title = $"Kết quả buổi đấu giá: {result.Title}",
+                    Description = $"Người thứ 2 không thanh toán nên sản phẩm đấu giá thất bại"
+                };
+                await NotificationDAO.Instance.AddNotification(auctioneerNotification);
                 // Gửi email thông báo đấu giá thất bại cho Auctioneer
                 if (result.AuctioneerEmail != null)
                 {
@@ -111,31 +136,35 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="date">The date.</param>
+        /// <param name="account">The account.</param>
         public async void NotifyAuctionComplete(int id, DateTime date, string account)
         {
             var check = await RegistAuctionDAO.Instance.checkusertopayment(id);
+            var result = new SetTimeForBatch
+            {
+                EmailAdmin = check.EmailAdmin,
+                AuctioneerEmail = check.AuctioneerEmail,
+                BidderEmail = check?.BidderEmail,
+                endTime = date,
+                Price = check.Price,
+                AccountId = check?.AccountId,
+                Title = check.Title,
+                AccountAdminId = check?.AccountAdminId,
+                AccountAuctionId = check?.AccountAuctionId
+            };
 
             if (check.status != true)
             {
-                var result = new SetTimeForBatch
-                {
-                    EmailAdmin = check.EmailAdmin,
-                    AuctioneerEmail = check.AuctioneerEmail,
-                    BidderEmail = check.BidderEmail,
-                    endTime = date,
-                    Price = check.Price,
-                    AccountId= check.AccountId,
-                    Title= check.Title,
-                };
+
                 // Kiểm tra BidderEmail
                 if (result.BidderEmail != null)
                 {
                     // Gửi email cho Bidder
                     await MailUtils.SendMailGoogleSmtp(
-                    fromEmail: "nguyenanh0978638@gmail.com",
-                    toEmail: result.BidderEmail,
-                    subject: "Auction Results - Success",
-                    body: GenerateSecondBidderEmailBody(result)
+                        fromEmail: "nguyenanh0978638@gmail.com",
+                        toEmail: result.BidderEmail,
+                        subject: "Auction Results - Success",
+                        body: GenerateSecondBidderEmailBody(result)
                     );
 
                     // Gửi email cho Auctioneer
@@ -153,26 +182,61 @@ namespace DataAccess.Service
                         subject: "Auction Results - Success",
                         body: GenerateSecondAdminEmailBody(result)
                     );
-                    var Description = new StringBuilder();
-                    Description.AppendLine("Chúc mừng! Bạn đã thắng cuộc đấu giá.");
-                    Description.AppendLine($"Giá đấu thành công: {result.Price}");
-                    Description.AppendLine("Yêu cầu thanh toán trong vòng 2 ngày. Nếu không thanh toán, bạn sẽ bị nhường lại cho người khác.");
-                    Description.AppendLine("Xin lưu ý: Nếu bạn không thanh toán quá 3 lần, tài khoản của bạn sẽ bị khóa.");
-                    var notification = new Notification
-                    {
-                        AccountID = result.AccountId,
-                        Title = $"Kết quả buổi đấu giá: {result.Title}",
-                        Description = Description.ToString()
-                    };
-                    await NotificationDAO.Instance.AddNotification(notification);
+
+                    // Thông báo cho người không thanh toán
                     var notifications = new Notification
                     {
                         AccountID = account,
                         Title = $"Cảnh báo không thanh toán: {result.Title}",
-                        Description = "Bạn đã không thanh toán đúng hẹn và bạn sẽ chịu phạt nếu đủ 3 lần tài khoản bạn sẽ bị khóa tài khoản"
+                        Description = "Bạn đã không thanh toán đúng hẹn và bạn sẽ chịu phạt nếu đủ 3 lần tài khoản bạn sẽ bị khóa."
                     };
                     await NotificationDAO.Instance.AddNotification(notifications);
-                    CreateAuction(id, DateTime.Now.AddDays(2), result.AuctioneerEmail, result.EmailAdmin, result.AccountId, result.Title, date);
+                    var secondBidderNotification = new Notification
+                    {
+                        AccountID = result.AccountId,
+                        Title = $"Bạn đã trúng đấu giá: {result.Title}",
+                        Description = $"Người đầu tiên đã không thanh toán, bạn là người thắng cuộc với giá: {result.Price}."
+                    };
+                    await NotificationDAO.Instance.AddNotification(secondBidderNotification);
+                    var adminNotification = new Notification
+                    {
+                        AccountID = result.AccountAdminId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Người thắng cuộc thay đổi qua người đặt giá cao thứ 2 bởi vì người thứ nhất không thanh toán: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n"
+                    };
+                    await NotificationDAO.Instance.AddNotification(adminNotification);
+
+                    // Thông báo cho auctioneer
+                    var auctioneerNotification = new Notification
+                    {
+                        AccountID = result.AccountAuctionId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Người thắng cuộc thay đổi qua người đặt giá cao thứ 2 bởi vì người thứ nhất không thanh toán: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n"
+                    };
+                    await NotificationDAO.Instance.AddNotification(auctioneerNotification);
+                    // Gửi email thông báo cho Auctioneer về người thắng cuộc
+                    if (result.AuctioneerEmail != null)
+                    {
+                        await MailUtils.SendMailGoogleSmtp(
+                            fromEmail: "nguyenanh0978638@gmail.com",
+                            toEmail: result.AuctioneerEmail,
+                            subject: "Thông báo trúng đấu giá",
+                            body: $"Chúc mừng! {result.BidderEmail} đã trúng đấu giá với giá: {result.Price}."
+                        );
+                    }
+
+                    // Gửi email thông báo cho Admin về người thắng cuộc
+                    if (result.EmailAdmin != null)
+                    {
+                        await MailUtils.SendMailGoogleSmtp(
+                            fromEmail: "nguyenanh0978638@gmail.com",
+                            toEmail: result.EmailAdmin,
+                            subject: "Thông báo trúng đấu giá",
+                            body: $"Chúc mừng! {result.BidderEmail} đã trúng đấu giá với giá: {result.Price}."
+                        );
+                    }
+
+                    CreateAuction(id, DateTime.Now.AddDays(2), result.AuctioneerEmail, result.EmailAdmin, result.AccountId, result.Title, date, result.AccountAdminId, result.AuctioneerEmail);
                 }
                 else
                 {
@@ -197,9 +261,27 @@ namespace DataAccess.Service
                             body: GenerateAdminFailureEmailBody(result)
                         );
                     }
+                    var adminNotification = new Notification
+                    {
+                        AccountID = result.AccountAuctionId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Đấu giá thất bại bởi vì không có người tham gia"
+                    };
+                    await NotificationDAO.Instance.AddNotification(adminNotification);
+
+                    // Thông báo cho auctioneer
+                    var auctioneerNotification = new Notification
+                    {
+                        AccountID = result.AccountAdminId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Đấu giá thất bại bởi vì không có người tham gia"
+                    };
+                    await NotificationDAO.Instance.AddNotification(auctioneerNotification);
                 }
             }
         }
+
+
         /// <summary>
         /// Notifies the auction complete.
         /// </summary>
@@ -214,11 +296,17 @@ namespace DataAccess.Service
                 if (result.BidderEmail != null)
                 {
                     // Gửi email cho Bidder
+                    var bidderSuccessBody = new StringBuilder();
+                    bidderSuccessBody.AppendLine("Chúc mừng! Bạn đã thắng cuộc đấu giá.");
+                    bidderSuccessBody.AppendLine($"Giá đấu thành công: {result.Price}");
+                    bidderSuccessBody.AppendLine("Yêu cầu thanh toán trong vòng 2 ngày. Nếu không thanh toán, bạn sẽ bị nhường lại cho người khác.");
+                    bidderSuccessBody.AppendLine("Xin lưu ý: Nếu bạn không thanh toán quá 3 lần, tài khoản của bạn sẽ bị khóa.");
+
                     await MailUtils.SendMailGoogleSmtp(
                         fromEmail: "nguyenanh0978638@gmail.com",
                         toEmail: result.BidderEmail,
                         subject: "Auction Results - Success",
-                        body: GenerateBidderEmailBody(result)
+                        body: bidderSuccessBody.ToString()
                     );
 
                     // Gửi email cho Auctioneer
@@ -250,34 +338,36 @@ namespace DataAccess.Service
                             {
                                 AccountID = item,
                                 Title = $"Kết quả buổi đấu giá: {result.Title}",
-                                Description = "Xin chia buồn với bạn đã không đấu giá được sản phẩm với mức giá mong muốn"
+                                Description = "Xin chia buồn với bạn đã không đấu giá được sản phẩm với mức giá mong muốn."
                             };
                             await NotificationDAO.Instance.AddNotification(notifications);
                         }
                     }
                     else
                     {
-                        var description = new StringBuilder();
-                        description.AppendLine("Chúc mừng! Bạn đã thắng cuộc đấu giá.");
-                        description.AppendLine($"Giá đấu thành công: {result.Price}");
-                        description.AppendLine("Yêu cầu thanh toán trong vòng 2 ngày. Nếu không thanh toán, bạn sẽ bị nhường lại cho người khác.");
-                        description.AppendLine("Xin lưu ý: Nếu bạn không thanh toán quá 3 lần, tài khoản của bạn sẽ bị khóa.");
+                        var notificationForBidder = new Notification
+                        {
+                            AccountID = result.AccountId,
+                            Title = $"Kết quả buổi đấu giá: {result.Title}",
+                            Description = bidderSuccessBody.ToString()
+                        };
+                        await NotificationDAO.Instance.AddNotification(notificationForBidder);
 
-                        // Thông báo cho admin về người thắng và giá thắng
+                        // Thông báo cho admin
                         var adminNotification = new Notification
                         {
                             AccountID = result.AccountAdminId,
                             Title = $"Kết quả buổi đấu giá: {result.Title}",
-                            Description = $"Người thắng cuộc: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n{description}"
+                            Description = $"Người thắng cuộc: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n{bidderSuccessBody}"
                         };
                         await NotificationDAO.Instance.AddNotification(adminNotification);
 
                         // Thông báo cho auctioneer
                         var auctioneerNotification = new Notification
                         {
-                            AccountID = result.AccountId,
+                            AccountID = result.AccountAuctionId,
                             Title = $"Kết quả buổi đấu giá: {result.Title}",
-                            Description = $"Người thắng cuộc: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n{description}"
+                            Description = $"Người thắng cuộc: {result.BidderEmail}\nGiá thắng cuộc: {result.Price}\n{bidderSuccessBody}"
                         };
                         await NotificationDAO.Instance.AddNotification(auctioneerNotification);
 
@@ -310,9 +400,26 @@ namespace DataAccess.Service
                             body: $"{failureMessage} Thông tin chi tiết: {GenerateAdminEmailBody(result)}"
                         );
                     }
+                    var adminNotification = new Notification
+                    {
+                        AccountID = result.AccountAuctionId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Đấu giá thất bại bởi vì không có người tham gia"
+                    };
+                    await NotificationDAO.Instance.AddNotification(adminNotification);
+
+                    // Thông báo cho auctioneer
+                    var auctioneerNotification = new Notification
+                    {
+                        AccountID = result.AccountAdminId,
+                        Title = $"Kết quả buổi đấu giá: {result.Title}",
+                        Description = $"Đấu giá thất bại bởi vì không có người tham gia"
+                    };
+                    await NotificationDAO.Instance.AddNotification(auctioneerNotification);
                 }
             }
         }
+
 
         /// <summary>
         /// Generates the second bidder email body.

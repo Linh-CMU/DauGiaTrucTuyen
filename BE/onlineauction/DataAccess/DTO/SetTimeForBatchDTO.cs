@@ -18,5 +18,7 @@ namespace DataAccess.DTO
         public bool status { get; set; }
         public string AccountId { get; set; }
         public string Title { get; set; }
+        public string AccountAdminId { get; set; }
+        public string AccountAuctionId { get; set; }
     }
 }
