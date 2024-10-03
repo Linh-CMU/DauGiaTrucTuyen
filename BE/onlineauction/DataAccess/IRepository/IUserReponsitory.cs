@@ -52,7 +52,7 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        Task<ResponseDTO> Auctionroom(int id);
+        Task<AuctionRoomDTO> Auctionroom(int id);
         /// <summary>
         /// Withdraws the specified identifier.
         /// </summary>

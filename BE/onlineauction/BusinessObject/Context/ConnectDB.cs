@@ -77,6 +77,11 @@ namespace BusinessObject.Context
                 .WithMany(r => r.ManagedAuctions)
                 .HasForeignKey(p => p.Manager)
                 .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Deposit>()
+                .HasOne(p => p.RegistAuctions)
+                .WithMany(r => r.Deposits)
+                .HasForeignKey(p => p.RAID)
+                .OnDelete(DeleteBehavior.NoAction);
             var adminRoleId = Guid.NewGuid().ToString();
             modelBuilder.Entity<IdentityRole>().HasData(
               new IdentityRole { Id = adminRoleId, Name = "admin", NormalizedName = "ADMIN" },

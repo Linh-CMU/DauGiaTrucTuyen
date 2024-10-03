@@ -82,7 +82,7 @@ namespace CapstoneAuctioneerAPI.Controller
                 signatureImg = signatureImg,
                 image = imageVerification
             };
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _userService.RegiterAuctioneer(userId, register);
             if (!result.IsSucceed)
             {
@@ -114,12 +114,12 @@ namespace CapstoneAuctioneerAPI.Controller
             var update = new UDAuctionDTO
             {
                 AuctionID = auctionID,
-                Image= imageAuction,
+                Image = imageAuction,
                 NameAuction = nameAuctionItem,
                 Description = description,
                 StartingPrice = startingPrice
             };
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _userService.UpdateAuctioneer(userId, update);
             if (!result.IsSucceed)
             {
@@ -245,17 +245,34 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Policy = "USER")]
-        [Route("auctionroom")]
+        [Route("joinRoomAuction")]
         public async Task<ActionResult> Auctionroom(int id)
         {
-            var result = await _userService.Auctionroom(id);
-            if (!result.IsSucceed)
+            if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                return BadRequest(result);
-            }
+                using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
+                {
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        var AuctionDetails = await _userService.Auctionroom(id);
+                        // Chuyển đổi chuỗi thành qua kiểu json
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
+                        // Chuyển đổi thời gian còn lại thành mảng byte
+                        var bytes = Encoding.UTF8.GetBytes(jsonString);
+                        await webSocket.SendAsync(new ArraySegment<byte>(bytes),
+                            WebSocketMessageType.Text, true, CancellationToken.None);
+                        await Task.Delay(1000); // Gửi dữ liệu mỗi 1 giây
+                    }
 
-            return Ok(result);
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed by the server", CancellationToken.None);
+                    return new EmptyResult(); // Kết thúc WebSocket
+                }
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
+            }
         }
         /// <summary>
         /// Views the bid history.

@@ -41,20 +41,16 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> Auctionroom(int id)
+        public async Task<AuctionRoomDTO> Auctionroom(int id)
         {
             try
             {
                 var result = await AuctionDAO.Instance.Auctionroom(id);
-                if (result != null)
-                {
-                    return new ResponseDTO { IsSucceed = true, Result = result, Message = "Successfully" };
-                }
-                return new ResponseDTO { IsSucceed = true, Message = "IsEmpty" };
+                return result;
             }
-            catch
+            catch(Exception ex) 
             {
-                return new ResponseDTO { IsSucceed = false, Message = "Failed" };
+                throw new Exception(ex.Message);
             }
         }
 

@@ -114,7 +114,7 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> Auctionroom(int id)
+        public async Task<AuctionRoomDTO> Auctionroom(int id)
         {
             var result = await _userReponsitory.Auctionroom(id);
             return result;

@@ -23,7 +23,7 @@ namespace DataAccess.Service
         /// Initializes a new instance of the <see cref="AuctionService"/> class.
         /// </summary>
         /// <param name="auctioneerRepository">The auctioneer repository.</param>
-        public AuctionService(IAuctioneerRepository auctioneerRepository) 
+        public AuctionService(IAuctioneerRepository auctioneerRepository)
         {
             _auctioneerRepository = auctioneerRepository;
         }
@@ -32,30 +32,84 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<AutionDTO> AuctionDetail(int id)
+        public async Task<ResponseDTO> AuctionDetail(int id)
         {
-            var result = await _auctioneerRepository.AuctionDetail(id);
-            return result;
+            try
+            {
+                var result = await _auctioneerRepository.AuctionDetail(id);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Lists the auctioneer.
         /// </summary>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> ListAuctioneer(int status)
+        public async Task<ResponseDTO> ListAuctioneer(int status)
         {
-            var result = await _auctioneerRepository.ListAuctioneer(status);
-            return result;
+            try
+            {
+                var result = await _auctioneerRepository.ListAuctioneer(status);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Searchs the auctioneer.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> SearchAuctioneer(string content)
+        public async Task<ResponseDTO> SearchAuctioneer(string content)
         {
-            var result = await _auctioneerRepository.SearchAuctioneer(content);
-            return result;
+            try
+            {
+                var result = await _auctioneerRepository.SearchAuctioneer(content);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Auctioneers the fl category.
@@ -63,10 +117,28 @@ namespace DataAccess.Service
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> AuctioneerFlCategory(int category, int status)
+        public async Task<ResponseDTO> AuctioneerFlCategory(int category, int status)
         {
-            var result = await _auctioneerRepository.AuctioneerFlCategory(category, status);
-            return result;
+            try
+            {
+                var result = await _auctioneerRepository.AuctioneerFlCategory(category, status);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Listofregisteredbidderses the specified userid.
@@ -75,10 +147,28 @@ namespace DataAccess.Service
         /// <param name="status">The status.</param>
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction)
+        public async Task<ResponseDTO> Listofregisteredbidders(string userid, int status, bool? statusauction)
         {
-            var result = await _auctioneerRepository.Listofregisteredbidders(userid, status, statusauction);
-            return result;
+            try
+            {
+                var result = await _auctioneerRepository.Listofregisteredbidders(userid, status, statusauction);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Totals the pay.

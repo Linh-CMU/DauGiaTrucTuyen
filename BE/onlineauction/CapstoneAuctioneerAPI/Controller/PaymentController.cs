@@ -108,13 +108,13 @@ namespace CapstoneAuctioneerAPI.Controller
             try
             {
                 var refundResponse = await _paypalClient.RefundOrder(orderID);
-                var payment = new Payment
-                {
-                    PaymentType = "paypal",
-                    AuctionId = auctionId,
-                    Status = "Refunded"
-                };
-                _auctionService.UpdatePaymentStatus(payment);
+                //var payment = new Payment
+                //{
+                //    PaymentType = "paypal",
+                //    AuctionId = auctionId,
+                //    Status = "Refunded"
+                //};
+                //_auctionService.UpdatePaymentStatus(payment);
 
                 return Ok(refundResponse);
             }

@@ -27,9 +27,9 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="adminRepository">The admin repository.</param>
         /// <param name="accountRepository">The account repository.</param>
-        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository) 
+        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository)
         {
-            _adminRepository= adminRepository;
+            _adminRepository = adminRepository;
             _accountRepository = accountRepository;
         }
         /// <summary>
@@ -89,10 +89,16 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> ListAuction(string id, int status)
+        public async Task<ResponseDTO> ListAuction(string id, int status)
         {
             var result = await _adminRepository.ListAuction(id, status);
-            return result;
+            var response = new ResponseDTO()
+            {
+                Result = result,
+                IsSucceed = true,
+                Message = "Success"
+            };
+            return response;
         }
 
         /// <summary>
@@ -131,10 +137,16 @@ namespace DataAccess.Service
         /// <param name="status">The status.</param>
         /// <param name="category">The category.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> ListYourAuctioneerCategoryAdmin(string id, int status, int category)
+        public async Task<ResponseDTO> ListYourAuctioneerCategoryAdmin(string id, int status, int category)
         {
             var result = await _adminRepository.ListYourAuctioneerCategoryAdmin(id, status, category);
-            return result;
+            var response = new ResponseDTO()
+            {
+                Result = result,
+                IsSucceed = true,
+                Message = "Success"
+            };
+            return response;
         }
         /// <summary>
         /// Searchs the auctioneer admin.
@@ -142,10 +154,16 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> SearchAuctioneerAdmin(string id, string content)
+        public async Task<ResponseDTO> SearchAuctioneerAdmin(string id, string content)
         {
             var result = await _adminRepository.SearchAuctioneerAdmin(id, content);
-            return result;
+            var response = new ResponseDTO()
+            {
+                Result = result,
+                IsSucceed = true,
+                Message = "Success"
+            };
+            return response;
         }
         /// <summary>
         /// Auctions the detail batch job.
