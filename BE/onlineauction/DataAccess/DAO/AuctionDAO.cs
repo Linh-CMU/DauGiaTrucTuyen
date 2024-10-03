@@ -343,7 +343,8 @@ namespace DataAccess.DAO
                                                         Imange = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={i.Imange}"
                                                     },
                                                     WinBidder = winner,
-                                                    StatusAuction = a.StatusAuction == true ? "Approved" : a.StatusAuction == false ? "Reject" : "Not approved yet"
+                                                    StatusAuction = a.StatusAuction == true ? "Approved" : a.StatusAuction == false ? "Reject" : "Not approved yet",
+                                                    MoneyDeposit = a.MoneyDeposit
                                                 }).FirstOrDefaultAsync();
                     return auctioneerList;
                 }

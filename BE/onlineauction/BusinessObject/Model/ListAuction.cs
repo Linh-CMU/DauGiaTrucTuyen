@@ -20,7 +20,7 @@ namespace BusinessObject.Model
         public string? Manager { get; set; }
         public string Image { get; set; }
         public string NameAuction { get; set; }
-        public decimal Deposit { get; set; }
+        public decimal MoneyDeposit { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public bool? StatusAuction { get; set; }

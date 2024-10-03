@@ -175,9 +175,9 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="acutionId">The acution identifier.</param>
         /// <returns></returns>
-        public decimal TotalPay(int acutionId)
+        public async Task<InforPayMentDTO> TotalPay(int acutionId, string uid)
         {
-            var result = _auctioneerRepository.TotalPay(acutionId);
+            var result = await _auctioneerRepository.TotalPay(acutionId, uid);
             return result;
         }
         /// <summary>

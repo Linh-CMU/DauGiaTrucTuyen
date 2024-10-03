@@ -139,5 +139,20 @@ namespace DataAccess.Service
             var result = await _userReponsitory.ViewBidHistory(id);
             return result;
         }
+        public async Task<bool> PaymentForDeposit(Deposit deposit)
+        {
+            var result = await _userReponsitory.PaymentForDeposit(deposit);
+            return result;
+        }
+        public async Task<int> getIdRegisterAuction(int id)
+        {
+            var result = await _userReponsitory.getIdRegisterAuction(id);
+            return result;
+        }
+        public async Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid)
+        {
+            var result = await _userReponsitory.TotalPayDeposit(acutionId, uid);
+            return result;
+        }
     }
 }

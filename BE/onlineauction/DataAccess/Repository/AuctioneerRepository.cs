@@ -66,6 +66,7 @@ namespace DataAccess.Repository
                 {
                     ListAuctionID = result.ID,
                     Image = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={result.Image}",
+                    moneyDeposit = result.MoneyDeposit,
                     NameAuction = result.NameAuction,
                     Description = result.Description,
                     StartingPrice = result.StartingPrice,
@@ -328,9 +329,9 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="acutionId">The acution identifier.</param>
         /// <returns></returns>
-        public decimal TotalPay(int acutionId)
+        public async Task<InforPayMentDTO> TotalPay(int acutionId, string uid)
         {
-            return RegistAuctionDAO.Instance.TotalPay(acutionId);
+            return await RegistAuctionDAO.Instance.TotalPay(acutionId, uid);
         }
 
         /// <summary>

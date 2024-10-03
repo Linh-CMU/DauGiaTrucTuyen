@@ -1,10 +1,16 @@
-﻿using BusinessObject.Model;
+﻿using Azure;
+using BusinessObject.Model;
+using DataAccess.DTO;
 using DataAccess.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Net.payOS;
+using Net.payOS.Types;
 using System.Globalization;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CapstoneAuctioneerAPI.Controller
 {
@@ -25,14 +31,22 @@ namespace CapstoneAuctioneerAPI.Controller
         /// </summary>
         private readonly AuctionService _auctionService;
         /// <summary>
-        /// Initializes a new instance of the <see cref="PaymentController"/> class.
+        /// The user service
+        /// </summary>
+        private readonly UserService _userService;
+        private readonly PayOS _payOS;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PaymentController" /> class.
         /// </summary>
         /// <param name="paypalClient">The paypal client.</param>
         /// <param name="auctionService">The auction service.</param>
-        public PaymentController(PaypalClient paypalClient, AuctionService auctionService)
+        /// <param name="userService">The user service.</param>
+        public PaymentController(PaypalClient paypalClient, AuctionService auctionService, UserService userService, PayOS payOS)
         {
             _paypalClient = paypalClient;
             _auctionService = auctionService;
+            _userService = userService;
+            _payOS = payOS;
         }
         /// <summary>
         /// Creates the payment.
@@ -45,48 +59,115 @@ namespace CapstoneAuctioneerAPI.Controller
         [Route("createPayment")]
         public async Task<IActionResult> createPayment(CancellationToken cancellationToken, int auctionId)
         {
-            var totalInVND = _auctionService.TotalPay(auctionId);
-            // Set the currency to USD
-            var currency = "USD";
-            // Create a unique order code using a timestamp
-            var orderCode = "DH" + DateTime.Now.Ticks.ToString();
-
             try
             {
-                var total = totalInVND / 24000;
-                // Call the PayPal client's CreateOrder method
-                var response = await _paypalClient.CreateOrder(FormatDecimal(total), currency, orderCode);
-
-                // Return the response from PayPal
-                return Ok(response);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var payment = await _auctionService.TotalPay(auctionId, userId);
+                ItemData item = new ItemData(payment.nameAuction, 1, payment.priceAuction);
+                List<ItemData> items = new List<ItemData>();
+                items.Add(item);
+                PaymentData paymentData = new PaymentData(payment.IdResgiter, payment.priceAuction, "Thanh Toán", items, "https://localhost:3000/cancel", "https://localhost:3000/success");
+                CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+                return Ok(createPayment);
             }
             catch (Exception ex)
             {
-                // Handle any errors and throw the exception with a meaningful message
                 throw new Exception("Error while creating payment: " + ex.Message);
             }
         }
-        /// <summary>
-        /// Captures the paypal order.
-        /// </summary>
-        /// <param name="orderID">The order identifier.</param>
-        /// <param name="auctionId">The auction identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        [HttpPost("/capture-paypal-order")]
+        [HttpPost]
+        [Route("createPaymentDeposit")]
         [Authorize]
-        public async Task<IActionResult> CapturePaypalOrder(string orderID, int auctionId, CancellationToken cancellationToken)
+        public async Task<IActionResult> createPaymentDeposit(int auctionId)
+        {
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var deposit = await _userService.TotalPayDeposit(auctionId, userId);
+                ItemData item = new ItemData(deposit.nameAuction, 1, deposit.priceAuction);
+                List<ItemData> items = new List<ItemData>();
+                items.Add(item);
+                PaymentData paymentData = new PaymentData(deposit.IdResgiter, deposit.priceAuction, "Tiền Cọc", items, "https://localhost:3000/cancel", "https://localhost:3000/success");
+                CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+                return Ok(createPayment.checkoutUrl);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+        [HttpGet]
+        [Route("checkorder")]
+        public async Task<IActionResult> GetOrder(int orderId)
+        {
+            try
+            {
+                PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInformation(orderId);
+                return Ok(paymentLinkInformation);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+
+        }
+        [HttpPut]
+        [Route("cancelOrder")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                PaymentLinkInformation paymentLinkInformation = await _payOS.cancelPaymentLink(orderId);
+                return Ok(paymentLinkInformation);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+
+        }
+        [HttpPost("confirm-webhook")]
+        public async Task<IActionResult> ConfirmWebhook(ConfirmWebhook body)
+        {
+            try
+            {
+                await _payOS.confirmWebhook(body.webhook_url);
+                return Ok("Successfully");
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+
+        }
+
+        [HttpPost("/capture-paypal-deposit")]
+        [Authorize]
+        public async Task<IActionResult> CapturePaypalDeposit(string orderID, int auctionId, CancellationToken cancellationToken)
         {
             try
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var response = await _paypalClient.CaptureOrder(orderID);
-                var payment = new Payment
+                var result = await _userService.UserRegisterAuction(userId, auctionId);
+                var id = await _userService.getIdRegisterAuction(auctionId);
+                var deposit = new Deposit
                 {
-                    PaymentType = "paypal"
+                    DID = orderID,
+                    RAID = id,
+                    PaymentType = "Deposit",
+                    PaymentDate = DateTime.Now.ToString(),
+                    status = "paid"
                 };
-                var a = _auctionService.CheckPayMent(payment, auctionId, userId);
-
+                var pay = await _userService.PaymentForDeposit(deposit);
+                if (pay != true)
+                {
+                    return BadRequest(StatusCodes.Status500InternalServerError);
+                }
                 return Ok(response);
             }
             catch (Exception ex)
@@ -103,18 +184,12 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <returns></returns>
         [HttpPost("/refund-paypal-order")]
         [Authorize]
-        public async Task<IActionResult> RefundPaypalOrder(string orderID, int auctionId)
+        public async Task<IActionResult> RefundPaypalOrder()
         {
             try
             {
-                var refundResponse = await _paypalClient.RefundOrder(orderID);
-                //var payment = new Payment
-                //{
-                //    PaymentType = "paypal",
-                //    AuctionId = auctionId,
-                //    Status = "Refunded"
-                //};
-                //_auctionService.UpdatePaymentStatus(payment);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var refundResponse = await _paypalClient.RefundOrder("55V60077YF134424F");
 
                 return Ok(refundResponse);
             }

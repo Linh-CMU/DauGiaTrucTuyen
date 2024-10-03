@@ -65,5 +65,23 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<List<ViewBidHistoryDTO>> ViewBidHistory(int id);
+        /// <summary>
+        /// Payments for deposit.
+        /// </summary>
+        /// <param name="deposit">The deposit.</param>
+        /// <returns></returns>
+        Task<bool> PaymentForDeposit(Deposit deposit);
+        /// <summary>
+        /// Gets the identifier register auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<int> getIdRegisterAuction(int id);
+        /// <summary>
+        /// Totals the pay deposit.
+        /// </summary>
+        /// <param name="acutionId">The acution identifier.</param>
+        /// <returns></returns>
+        Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid);
     }
 }

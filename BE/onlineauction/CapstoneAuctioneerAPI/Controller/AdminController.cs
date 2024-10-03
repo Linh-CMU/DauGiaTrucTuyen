@@ -1,5 +1,4 @@
-﻿using BusinessObject.Model;
-using DataAccess.DTO;
+﻿using DataAccess.DTO;
 using DataAccess.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -47,19 +46,30 @@ namespace CapstoneAuctioneerAPI.Controller
         [Authorize(Policy = "ADMIN")]
         public async Task<ActionResult> ListAuction(int status)
         {
-            try
+            if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _adminService.ListAuction(userId, status);
-                if (result.IsSucceed)
+                using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
                 {
-                    return Ok(result);
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        var AuctionDetails = await _adminService.ListAuction(userId, status);
+                        // Chuyển đổi chuỗi thành qua kiểu json
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
+                        // Chuyển đổi thời gian còn lại thành mảng byte
+                        var bytes = Encoding.UTF8.GetBytes(jsonString);
+                        await webSocket.SendAsync(new ArraySegment<byte>(bytes),
+                            WebSocketMessageType.Text, true, CancellationToken.None);
+                        await Task.Delay(1000); // Gửi dữ liệu mỗi 1 giây
+                    }
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed by the server", CancellationToken.None);
+                    return new EmptyResult(); // Kết thúc WebSocket
                 }
-                return BadRequest(result);
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { Message = ex.Message });
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
         /// <summary>
@@ -73,19 +83,30 @@ namespace CapstoneAuctioneerAPI.Controller
         [Authorize(Policy = "ADMIN")]
         public async Task<ActionResult> ListYourAuctioneerCategoryAdmin(int status, int category)
         {
-            try
+            if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _adminService.ListYourAuctioneerCategoryAdmin(userId, status, category);
-                if (result.IsSucceed)
+                using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
                 {
-                    return Ok(result);
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        var AuctionDetails = await _adminService.ListYourAuctioneerCategoryAdmin(userId, status, category);
+                        // Chuyển đổi chuỗi thành qua kiểu json
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
+                        // Chuyển đổi thời gian còn lại thành mảng byte
+                        var bytes = Encoding.UTF8.GetBytes(jsonString);
+                        await webSocket.SendAsync(new ArraySegment<byte>(bytes),
+                            WebSocketMessageType.Text, true, CancellationToken.None);
+                        await Task.Delay(1000); // Gửi dữ liệu mỗi 1 giây
+                    }
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed by the server", CancellationToken.None);
+                    return new EmptyResult(); // Kết thúc WebSocket
                 }
-                return BadRequest(result);
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { Message = ex.Message });
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
         /// <summary>
@@ -98,19 +119,30 @@ namespace CapstoneAuctioneerAPI.Controller
         [Authorize(Policy = "ADMIN")]
         public async Task<ActionResult> SearchAuctioneerAdmin(string content)
         {
-            try
+            if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _adminService.SearchAuctioneerAdmin(userId, content);
-                if (result.IsSucceed)
+                using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
                 {
-                    return Ok(result);
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        var AuctionDetails = await _adminService.SearchAuctioneerAdmin(userId, content);
+                        // Chuyển đổi chuỗi thành qua kiểu json
+                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
+                        // Chuyển đổi thời gian còn lại thành mảng byte
+                        var bytes = Encoding.UTF8.GetBytes(jsonString);
+                        await webSocket.SendAsync(new ArraySegment<byte>(bytes),
+                            WebSocketMessageType.Text, true, CancellationToken.None);
+                        await Task.Delay(1000); // Gửi dữ liệu mỗi 1 giây
+                    }
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed by the server", CancellationToken.None);
+                    return new EmptyResult(); // Kết thúc WebSocket
                 }
-                return BadRequest(result);
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { Message = ex.Message });
+                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
             }
         }
         /// <summary>
@@ -220,9 +252,9 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
                 var result = await _adminService.AcceptAuctioneerForAdmin(autioneer, userId);
-                if (autioneer.Status == true)
+                if(autioneer.Status == true)
                 {
                     var results = await _adminService.AuctionDetailBatchJob(autioneer.AutioneerID);
                     var enddate = ConvertToDateTime(results.EndDay, results.EndTime);

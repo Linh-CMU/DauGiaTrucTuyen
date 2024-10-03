@@ -26,7 +26,7 @@ namespace DataAccess.Repository
         /// </summary>
         private readonly IUploadRepository _upload;
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserReponsitory"/> class.
+        /// Initializes a new instance of the <see cref="UserReponsitory" /> class.
         /// </summary>
         /// <param name="accountManager">The account manager.</param>
         /// <param name="upload">The upload.</param>
@@ -48,7 +48,7 @@ namespace DataAccess.Repository
                 var result = await AuctionDAO.Instance.Auctionroom(id);
                 return result;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -159,7 +159,8 @@ namespace DataAccess.Repository
                 Image =  await _upload.SaveFileAsync(register.Image, "ListAuctioneer", userID),
                 NameAuction = register.NameAuction,
                 Description = register.Description,
-                StartingPrice = register.StartingPrice
+                StartingPrice = register.StartingPrice,
+                MoneyDeposit = register.StartingPrice * 0.2m
             };
             try
             {
@@ -269,6 +270,29 @@ namespace DataAccess.Repository
         public async Task<List<ViewBidHistoryDTO>> ViewBidHistory(int id)
         {
             var result = await RegistAuctionDAO.Instance.ViewBidHistory(id);
+            return result;
+        }
+
+        /// <summary>
+        /// Payments for deposit.
+        /// </summary>
+        /// <param name="deposit">The deposit.</param>
+        /// <returns></returns>
+        public async Task<bool> PaymentForDeposit(Deposit deposit)
+        {
+            var result = await RegistAuctionDAO.Instance.PaymentForDeposit(deposit);
+            return result;
+        }
+
+        public async Task<int> getIdRegisterAuction(int id)
+        {
+            var result = await RegistAuctionDAO.Instance.getIdRegisterAuction(id);
+            return result;
+        }
+
+        public async Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid)
+        {
+            var result = await RegistAuctionDAO.Instance.TotalPayDeposit(acutionId, uid);
             return result;
         }
     }

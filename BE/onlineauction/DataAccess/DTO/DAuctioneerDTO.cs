@@ -29,5 +29,6 @@ namespace DataAccess.DTO
         public object TImange { get; set; }
         public object WinBidder { get; set; }
         public string StatusAuction { get; set; }
+        public decimal MoneyDeposit { get; set; }
     }
 }

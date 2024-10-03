@@ -11,6 +11,7 @@ namespace DataAccess.DTO
         public int ListAuctionID { get; set; }
         public string Image { get; set; }
         public string NameAuction { get; set; }
+        public decimal moneyDeposit { get; set; }
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public string StatusAuction { get; set; }

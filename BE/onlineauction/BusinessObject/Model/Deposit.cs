@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Model
 {
+    [Table("Deposit")]
     public class Deposit
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string DID { get; set; }
         [ForeignKey("RegistAuction")]
         public int RAID { get; set; }
