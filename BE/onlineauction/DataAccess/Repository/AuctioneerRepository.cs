@@ -4,9 +4,11 @@ using DataAccess.DTO;
 using DataAccess.IRepository;
 using DataAccess.Service;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,42 +104,34 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> ListAuctioneer(int status)
+        public async Task<List<ListAuctioneerDTO>> ListAuctioneer(int status, string uid)
         {
-            var auctioneerList = new List<WSKAuctionnerDTO>();
-            var result = await AuctionDAO.Instance.ListAuctioneer(status);
-            foreach (var item in result)
+            List<ListAuctioneerDTO> auction = null;
+            var result = await AuctionDAO.Instance.ListAuctioneer(uid);
+            if (status == 0)
             {
-                // Determine if we should use Start or End day/time
-                var isOngoing = DateTime.ParseExact(item.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
-                    TimeSpan.Parse(item.StartTime) <= DateTime.Now.TimeOfDay;
-                var auctionDate = isOngoing ? item.EndDay : item.StartDay;
-                var auctionTime = isOngoing ? item.EndTime : item.StartTime;
-
-                // Parse both the date and time together
-                if (DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
-                                            System.Globalization.DateTimeStyles.None, out var startDateTime))
-                {
-                    var currentTime = DateTime.Now;
-                    var auctioneer = new WSKAuctionnerDTO(); // Create a new object in each iteration
-
-                    string formattedTimeRemaining = "";
-                    if (startDateTime > currentTime)
-                    {
-                        var timeRemaining = startDateTime - currentTime;
-                        formattedTimeRemaining = FormatTimeSpan(timeRemaining);
-                    }
-
-                    auctioneer.ID = item.Id;
-                    auctioneer.Img = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Img}";
-                    auctioneer.Name = item.Name;
-                    auctioneer.Time = formattedTimeRemaining;
-                    auctioneer.PriceStart = item.PriceStart;
-
-                    auctioneerList.Add(auctioneer); // Add to the list
-                }
+                auction = result;
             }
-            return auctioneerList; // Return the list of auctioneer DTOs
+            else if (status == 1)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+            }
+            else if (status == 2)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+            }
+            else if (status == 3)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+            }
+            return auction; // Return the list of auctioneer DTOs
         }
 
         /// <summary>
@@ -191,92 +185,46 @@ namespace DataAccess.Repository
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> AuctioneerFlCategory(int category, int status)
+        public async Task<List<ListAuctioneerDTO>> AuctioneerFlCategory(int category, int status, string uid)
         {
-            var auctioneerList = new List<WSKAuctionnerDTO>();
-            var result = await AuctionDAO.Instance.AuctioneerFlCategory(category, status);
-
-            foreach (var item in result)
+            var auction = new List<ListAuctioneerDTO>();
+            var result = await AuctionDAO.Instance.AuctioneerFlCategory(category, uid);
+            if (status == 0)
             {
-                // Xác định phiên đấu giá đang diễn ra hay chưa bắt đầu
-                var isOngoing = DateTime.ParseExact(item.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
-                                TimeSpan.Parse(item.StartTime) <= DateTime.Now.TimeOfDay;
-                var auctionDate = isOngoing ? item.EndDay : item.StartDay;
-                var auctionTime = isOngoing ? item.EndTime : item.StartTime;
-
-                // Kết hợp ngày và giờ để tạo ra thời gian đầy đủ
-                if (DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
-                                            System.Globalization.DateTimeStyles.None, out var auctionDateTime))
-                {
-                    var currentTime = DateTime.Now;
-                    var auctioneer = new WSKAuctionnerDTO(); // Tạo đối tượng mới cho từng item
-
-                    // Xử lý định dạng thời gian còn lại
-                    string formattedTimeRemaining = "";
-                    if (auctionDateTime > currentTime)
-                    {
-                        var timeRemaining = auctionDateTime - currentTime;
-                        formattedTimeRemaining = FormatTimeSpan(timeRemaining); // Định dạng khoảng thời gian còn lại
-                    }
-
-                    // Gán các giá trị cho đối tượng DTO
-                    auctioneer.ID = item.Id;
-                    auctioneer.Img = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Img}";
-                    auctioneer.Name = item.Name;
-                    auctioneer.Time = formattedTimeRemaining; // Thời gian còn lại (nếu có)
-                    auctioneer.PriceStart = item.PriceStart;
-
-                    auctioneerList.Add(auctioneer); // Thêm vào danh sách kết quả
-                }
+                auction = await AuctionDAO.Instance.ListAuctioneer(uid);
+            }
+            else if (status == 1)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+            }
+            else if (status == 2)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+            }
+            else if (status == 3)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
             }
 
-            return auctioneerList; // Trả về danh sách các DTO
+            return auction; // Trả về danh sách các DTO
         }
         /// <summary>
         /// Searchs the auctioneer.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> SearchAuctioneer(string content)
+        public async Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid)
         {
-            var auctioneerList = new List<WSKAuctionnerDTO>();
-            var result = await AuctionDAO.Instance.SearchAuctioneer(content);
+            var result = await AuctionDAO.Instance.SearchAuctioneer(content, uid);
 
-            foreach (var item in result)
-            {
-                // Xác định phiên đấu giá đang diễn ra hay chưa bắt đầu
-                var isOngoing = DateTime.ParseExact(item.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
-                                TimeSpan.Parse(item.StartTime) <= DateTime.Now.TimeOfDay;
-                var auctionDate = isOngoing ? item.EndDay : item.StartDay;
-                var auctionTime = isOngoing ? item.EndTime : item.StartTime;
-
-                // Kết hợp ngày và giờ để tạo ra thời gian đầy đủ
-                if (DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
-                                            System.Globalization.DateTimeStyles.None, out var auctionDateTime))
-                {
-                    var currentTime = DateTime.Now;
-                    var auctioneer = new WSKAuctionnerDTO(); // Tạo đối tượng mới cho từng item
-
-                    // Xử lý định dạng thời gian còn lại
-                    string formattedTimeRemaining = "";
-                    if (auctionDateTime > currentTime)
-                    {
-                        var timeRemaining = auctionDateTime - currentTime;
-                        formattedTimeRemaining = FormatTimeSpan(timeRemaining); // Định dạng khoảng thời gian còn lại
-                    }
-
-                    // Gán các giá trị cho đối tượng DTO
-                    auctioneer.ID = item.Id;
-                    auctioneer.Img = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Img}";
-                    auctioneer.Name = item.Name;
-                    auctioneer.Time = formattedTimeRemaining; // Thời gian còn lại (nếu có)
-                    auctioneer.PriceStart = item.PriceStart;
-
-                    auctioneerList.Add(auctioneer); // Thêm vào danh sách kết quả
-                }
-            }
-
-            return auctioneerList; // Trả về danh sách các DTO
+            return result; // Trả về danh sách các DTO
         }
 
         /// <summary>
@@ -286,42 +234,34 @@ namespace DataAccess.Repository
         /// <param name="status">The status.</param>
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
-        public async Task<List<WSKAuctionnerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction)
+        public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction)
         {
-            var auctioneerList = new List<WSKAuctionnerDTO>();
-            var result = await RegistAuctionDAO.Instance.Listofregisteredbidders(userid, status, statusauction);
-            foreach (var item in result)
+            var auction = new List<ListAuctioneerDTO>();
+            var result = await RegistAuctionDAO.Instance.Listofregisteredbidders(userid, statusauction);
+            if (status == 0)
             {
-                // Determine if we should use Start or End day/time
-                var isOngoing = DateTime.ParseExact(item.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
-                    TimeSpan.Parse(item.StartTime) <= DateTime.Now.TimeOfDay;
-                var auctionDate = isOngoing ? item.EndDay : item.StartDay;
-                var auctionTime = isOngoing ? item.EndTime : item.StartTime;
-
-                // Parse both the date and time together
-                if (DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
-                                            System.Globalization.DateTimeStyles.None, out var startDateTime))
-                {
-                    var currentTime = DateTime.Now;
-                    var auctioneer = new WSKAuctionnerDTO(); // Create a new object in each iteration
-
-                    string formattedTimeRemaining = "";
-                    if (startDateTime > currentTime)
-                    {
-                        var timeRemaining = startDateTime - currentTime;
-                        formattedTimeRemaining = FormatTimeSpan(timeRemaining);
-                    }
-
-                    auctioneer.ID = item.Id;
-                    auctioneer.Img = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={item.Img}";
-                    auctioneer.Name = item.Name;
-                    auctioneer.Time = formattedTimeRemaining;
-                    auctioneer.PriceStart = item.PriceStart;
-
-                    auctioneerList.Add(auctioneer); // Add to the list
-                }
+                auction = result;
             }
-            return auctioneerList; // Return the list of auctioneer DTOs
+            else if (status == 1)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+            }
+            else if (status == 2)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+            }
+            else if (status == 3)
+            {
+                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+            }
+            return auction; // Return the list of auctioneer DTOs
         }
 
         /// <summary>

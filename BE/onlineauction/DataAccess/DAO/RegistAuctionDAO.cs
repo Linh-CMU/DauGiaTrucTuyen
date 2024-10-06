@@ -89,7 +89,7 @@ namespace DataAccess.DAO
         /// <param name="status">The status.</param>
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
-        public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction)
+        public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, bool? statusauction)
         {
             using (var context = new ConnectDB())
             {
@@ -107,11 +107,16 @@ namespace DataAccess.DAO
                                                 StartTime = ad.StartTime,
                                                 EndDay = ad.EndDay,
                                                 EndTime = ad.EndTime,
-                                                PriceStart = a.StartingPrice
+                                                PriceStart = a.StartingPrice,
+                                                winningBid = context.Bets
+                                                                                    .Where(b => b.RAID == r.RAID)
+                                                                                    .OrderByDescending(b => b.PriceBit)
+                                                                                    .Select(b => b.PriceBit) // Get the highest bid price
+                                                                                    .FirstOrDefault(),
                                             }).ToListAsync();
 
 
-                return FilterAuctioneersByStatus(auctioneerList, status);
+                return auctioneerList;
             }
         }
         /// <summary>
@@ -492,7 +497,7 @@ namespace DataAccess.DAO
                                             join c in context.Accounts on a.Creator equals c.Id
                                             join u in context.Accounts on r.AccountID equals u.Id into userGroup // sử dụng into để tạo nhóm
                                             from u in userGroup.DefaultIfEmpty() // left join
-                                            where r.ListAuctionID == query.ListAuctionID && r.RAID != id
+                                            where r.ListAuctionID == query.ListAuctionID && r.RAID == id
                                             orderby b.PriceBit descending
                                             select new SetTimeForBatchDTO
                                             {
@@ -518,9 +523,6 @@ namespace DataAccess.DAO
                         context.Entry(account).State = EntityState.Modified;
                         query.AuctionStatus = false;
                         context.Entry(query).State = EntityState.Modified;
-                        change.RegistAuctioneer.AuctionStatus = true;
-                        change.RegistAuctioneer.PaymentTerm = DateTime.Now.AddDays(2).ToString();
-                        context.Entry(change).State = EntityState.Modified;
                         await context.SaveChangesAsync();
                         if (account.Warning >= 3)
                         {

@@ -1,8 +1,10 @@
 ﻿using BusinessObject.Model;
 using DataAccess.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -63,7 +65,8 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
-                var result = await _auctionService.ListAuctioneer(status);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _auctionService.ListAuctioneer(status, userId);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -87,7 +90,8 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
-                var result = await _auctionService.AuctioneerFlCategory(category, status);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _auctionService.AuctioneerFlCategory(category, status, userId);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -109,7 +113,8 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
-                var result = await _auctionService.SearchAuctioneer(content);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _auctionService.SearchAuctioneer(content, userId);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -129,11 +134,13 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
         [HttpGet("listofregisteredbidders")]
-        public async Task<IActionResult> Listofregisteredbidders(string userid, int status, bool? statusauction)
+        [Authorize(Policy = "USER")]
+        public async Task<IActionResult> Listofregisteredbidders(int status, bool? statusauction)
         {
             try
             {
-                var result = await _auctionService.Listofregisteredbidders(userid, status, statusauction);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _auctionService.Listofregisteredbidders(userId, status, statusauction);
                 if (result.IsSucceed)
                 {
                     return Ok(result);

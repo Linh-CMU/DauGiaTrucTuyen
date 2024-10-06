@@ -1,9 +1,11 @@
 ﻿using BusinessObject.Model;
 using DataAccess.DTO;
 using DataAccess.IRepository;
+using DataAccess.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,10 +91,28 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> ListAuction(string id, int status)
+        public async Task<ResponseDTO> ListAuction(string id, int status)
         {
-            var result = await _adminRepository.ListAuction(id, status);
-            return result;
+            try
+            {
+                var result = await _adminRepository.ListAuction(id, status);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
 
         /// <summary>
@@ -131,10 +151,28 @@ namespace DataAccess.Service
         /// <param name="status">The status.</param>
         /// <param name="category">The category.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> ListYourAuctioneerCategoryAdmin(string id, int status, int category)
+        public async Task<ResponseDTO> ListYourAuctioneerCategoryAdmin(string id, int status, int category)
         {
-            var result = await _adminRepository.ListYourAuctioneerCategoryAdmin(id, status, category);
-            return result;
+            try
+            {
+                var result = await _adminRepository.ListYourAuctioneerCategoryAdmin(id, status, category);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Searchs the auctioneer admin.
@@ -142,10 +180,28 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<List<AuctionnerAdminDTO>> SearchAuctioneerAdmin(string id, string content)
+        public async Task<ResponseDTO> SearchAuctioneerAdmin(string id, string content)
         {
-            var result = await _adminRepository.SearchAuctioneerAdmin(id, content);
-            return result;
+            try
+            {
+                var result = await _adminRepository.SearchAuctioneerAdmin(id, content);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
         /// <summary>
         /// Auctions the detail batch job.
@@ -155,6 +211,11 @@ namespace DataAccess.Service
         public async Task<DAuctioneerDTO> AuctionDetailBatchJob(int id)
         {
             var result = await _adminRepository.AuctionDetailBatchJob(id);
+            return result;
+        }
+        public async Task<ResponseDTO> ReUpAuction(int id)
+        {
+            var result = await _adminRepository.ReUpAuction(id);
             return result;
         }
     }

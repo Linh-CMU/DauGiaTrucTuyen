@@ -19,14 +19,14 @@ namespace DataAccess.IRepository
         /// <param name="accountID">The account identifier.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        Task<List<AuctionnerAdminDTO>> ListAuction(string accountID, int status);
+        Task<List<AuctionDetailDTO>> ListAuction(string accountID, int status);
         /// <summary>
         /// Searchs the auctioneer admin.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        Task<List<AuctionnerAdminDTO>> SearchAuctioneerAdmin(string id, string content);
+        Task<List<AuctionDetailDTO>> SearchAuctioneerAdmin(string id, string content);
         /// <summary>
         /// Lists your auctioneer category admin.
         /// </summary>
@@ -34,7 +34,7 @@ namespace DataAccess.IRepository
         /// <param name="status">The status.</param>
         /// <param name="category">The category.</param>
         /// <returns></returns>
-        Task<List<AuctionnerAdminDTO>> ListYourAuctioneerCategoryAdmin(string id, int status, int category);
+        Task<List<AuctionDetailDTO>> ListYourAuctioneerCategoryAdmin(string id, int status, int category);
         /// <summary>
         /// Adds the category.
         /// </summary>
@@ -85,6 +85,12 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<DAuctioneerDTO> AuctionDetailBatchJob(int id);
+        /// <summary>
+        /// Res up auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> ReUpAuction(int id);
 
     }
 }

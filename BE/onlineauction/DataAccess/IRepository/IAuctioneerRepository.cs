@@ -24,7 +24,7 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        Task<List<WSKAuctionnerDTO>> ListAuctioneer(int status);
+        Task<List<ListAuctioneerDTO>> ListAuctioneer(int status, string uid);
         /// <summary>
         /// Updates the auction.
         /// </summary>
@@ -44,13 +44,13 @@ namespace DataAccess.IRepository
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        Task<List<WSKAuctionnerDTO>> AuctioneerFlCategory(int category, int status);
+        Task<List<ListAuctioneerDTO>> AuctioneerFlCategory(int category, int status, string uid);
         /// <summary>
         /// Searchs the auctioneer.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        Task<List<WSKAuctionnerDTO>> SearchAuctioneer(string content);
+        Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid);
         /// <summary>
         /// Listofregisteredbidderses the specified userid.
         /// </summary>
@@ -58,7 +58,7 @@ namespace DataAccess.IRepository
         /// <param name="status">The status.</param>
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
-        Task<List<WSKAuctionnerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction);
+        Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction);
         /// <summary>
         /// Totals the pay.
         /// </summary>

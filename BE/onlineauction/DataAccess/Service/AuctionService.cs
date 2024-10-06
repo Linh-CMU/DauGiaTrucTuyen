@@ -60,11 +60,11 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> ListAuctioneer(int status)
+        public async Task<ResponseDTO> ListAuctioneer(int status, string uid)
         {
             try
             {
-                var result = await _auctioneerRepository.ListAuctioneer(status);
+                var result = await _auctioneerRepository.ListAuctioneer(status, uid);
                 var response = new ResponseDTO()
                 {
                     Result = result,
@@ -88,11 +88,11 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> SearchAuctioneer(string content)
+        public async Task<ResponseDTO> SearchAuctioneer(string content, string uid)
         {
             try
             {
-                var result = await _auctioneerRepository.SearchAuctioneer(content);
+                var result = await _auctioneerRepository.SearchAuctioneer(content, uid);
                 var response = new ResponseDTO()
                 {
                     Result = result,
@@ -117,11 +117,11 @@ namespace DataAccess.Service
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> AuctioneerFlCategory(int category, int status)
+        public async Task<ResponseDTO> AuctioneerFlCategory(int category, int status, string uid)
         {
             try
             {
-                var result = await _auctioneerRepository.AuctioneerFlCategory(category, status);
+                var result = await _auctioneerRepository.AuctioneerFlCategory(category, status, uid);
                 var response = new ResponseDTO()
                 {
                     Result = result,
