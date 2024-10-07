@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Card, CardActionArea, CardMedia } from '@mui/material';
 import CountdownTimer from '../coutdown-timer/CountdownTimer';
 import news from '../../../public/news.webp';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +7,10 @@ import { useNavigate } from 'react-router-dom';
 interface CardListProps {
   id: string,
   isProperties: boolean;
+  // imgSrc: string,
+  // title: string,
+  // priceStart: string,
+
 }
 
 const CardList = ({ isProperties = true, id }: CardListProps) => {
@@ -15,7 +18,7 @@ const CardList = ({ isProperties = true, id }: CardListProps) => {
      const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/tieude/${id}`);
+    navigate(`/thong-tin-chi-tiet/${id}`);
   };
 
   return (
@@ -26,7 +29,7 @@ const CardList = ({ isProperties = true, id }: CardListProps) => {
         onClick={handleDetailClick}
         >
           {isProperties ? (
-            <img className="w-full mb-4" src="https://picsum.photos/90/50" alt="img-properties" />
+            <img className="w-full mb-4" src="http://capstoneauctioneer.runasp.net/api/read?filePath=ListAuctioneer/1dd89b64-6060-44a3-b67e-4ed1d719849d_20241006164359_26082024102501739DewQXfcxrgPw3ca3.png" alt="img-properties" />
           ): (
               <img className="w-full mb-4" src={news} alt="img-properties" />
           )}
