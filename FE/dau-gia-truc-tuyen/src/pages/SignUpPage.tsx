@@ -28,7 +28,7 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100">
+    <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
       <div className="bg-white p-6 rounded shadow-md w-[25rem]">
         <h2 className="text-2xl font-bold mb-4 text-center">Đăng Ký</h2>
         <form onSubmit={handleSubmit}>
