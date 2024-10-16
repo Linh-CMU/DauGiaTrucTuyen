@@ -9,12 +9,13 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => {
     // Assuming you want to handle success messages globally
+    
     return response;
   },
   (error) => {
     // Handle error messages globally
-    const { setMessage } = useMessage();
-    setMessage(error.message || 'An unknown error occurred');
+    const { setErrorMessage } = useMessage();
+    setErrorMessage(error.message || 'An unknown error occurred');
     return Promise.reject(error);
   }
 );
