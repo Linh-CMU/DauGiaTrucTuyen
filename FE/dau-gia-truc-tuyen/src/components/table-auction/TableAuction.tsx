@@ -9,6 +9,7 @@ import {
 import { ApproveModal, CancelModal, UserModal } from '../../components/modalAccept/ApproveModal'; // Import modal
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const TableAuction = ({ tabValue }: { tabValue: number }) => {
   const [listAllAuction, setListAllAuction] = useState<any[]>([]);
@@ -103,7 +104,7 @@ const TableAuction = ({ tabValue }: { tabValue: number }) => {
   const handleModalCancelClose = () => {
     setApproveModalCancelOpen(false); // Close cancel modal
   };
-
+  const navigate = useNavigate();
   const handleCategoryClick = async (category: number) => {
     const response = await getCategoryId(category, tabValue);
     console.log(response, 'data');
@@ -147,7 +148,7 @@ const TableAuction = ({ tabValue }: { tabValue: number }) => {
           <tbody>
             {listAllAuction.length > 0 ? (
               listAllAuction.map((auction, index) => (
-                <tr key={index} className="border-b hover:bg-gray-100">
+                <tr key={index} className="border-b hover:bg-gray-100" onClick={() => navigate(`/auctionDetail/${auction.listAuctionID}`)}>
                   <td className="px-4 py-2 text-center w-96">{auction.nameAuction}</td>
                   <td className="px-4 py-2 text-center">
                     <img
@@ -176,7 +177,10 @@ const TableAuction = ({ tabValue }: { tabValue: number }) => {
                     {auction.statusAuction == 'Approved' ? (
                       <>
                         <Button
-                          onClick={() => handleUser(auction.listAuctionID)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
+                            handleUser(auction.listAuctionID);
+                          }}
                           className="bg-green-500 text-white px-2 py-1 rounded mr-2"
                           color="success"
                         >
@@ -186,7 +190,10 @@ const TableAuction = ({ tabValue }: { tabValue: number }) => {
                     ) : (
                       <>
                         <button
-                          onClick={() => handleApprove(auction.listAuctionID)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
+                            handleApprove(auction.listAuctionID);
+                          }}
                           className="bg-green-500 text-white px-2 py-1 rounded mr-2"
                         >
                           Duyệt
@@ -195,7 +202,10 @@ const TableAuction = ({ tabValue }: { tabValue: number }) => {
                     )}
 
                     <button
-                      onClick={() => handleReject(auction.listAuctionID)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
+                        handleReject(auction.listAuctionID);
+                      }}
                       className="bg-red-500 text-white px-2 py-1 rounded"
                     >
                       Từ chối
