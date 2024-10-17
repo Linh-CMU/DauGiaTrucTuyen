@@ -4,6 +4,9 @@ import MessageModal from '@common/message-modal/MessageModal';
 import ProtectedRoute from '@common/protected-route/ProtectedRoute';
 import { LoadingProvider, useLoading } from '@contexts/LoadingContext';
 import { MessageProvider } from '@contexts/MessageContext';
+import AddInfo from '@pages/admin/AddInfo';
+import ListAccountPage from '@pages/admin/ListAccountPage';
+import Profile from '@pages/admin/Profile';
 import { HomePage, LoginPage, SignUpPage, DetailPage, ListAuction, AuctionDetail, ForgotPage, ResetPasswordPage, ChangePasswordPage } from '@pages/index';
 import { Route, Routes } from 'react-router-dom';
 
@@ -23,10 +26,12 @@ const AppRoutes: React.FC = () => {
         <Route path="/listAuction" element={<ListAuction />} />
         <Route path="/auctionDetail" element={<AuctionDetail />} />
         <Route path="/sign-up" element={<SignUpPage />} />
+        <Route  path='/listuser' element={<ListAccountPage />}/>
+        <Route  path='/add-info' element={<AddInfo />}/>
+        <Route  path='/profile' element={<Profile />}/>
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />
-        
       </Routes>
     </>
   );
