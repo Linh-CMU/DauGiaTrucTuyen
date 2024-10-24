@@ -183,7 +183,7 @@ const AuctionDetail = () => {
                     Hình ảnh chữ ký
                   </Typography>
                   <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.image}`}
+                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.signatureImg}`}
                     alt={detailAuction.signatureImg}
                     className="absolute ml-[9%] h-96 pt-3"
                   />

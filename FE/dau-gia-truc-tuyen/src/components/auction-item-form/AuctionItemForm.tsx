@@ -1,16 +1,17 @@
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import axios from 'axios';
+import { getCategory } from '../../queries/index';
 
 // Define the interface for the form data
 interface AuctionItemFormData {
-  nameAuctioneer: string;
+  nameAuction: string;
   description: string;
   startingPrice: number;
   categoryID: string;
-  image: FileList | null;
-  file: FileList | null;
+  imageAuction: FileList | null;
+  imageVerification: FileList | null;
   signatureImg: FileList | null;
 }
 
@@ -22,58 +23,73 @@ const AuctionItemForm: React.FC = () => {
     reset,
   } = useForm<AuctionItemFormData>({
     defaultValues: {
-      nameAuctioneer: '',
+      nameAuction: '',
       description: '',
       startingPrice: 0,
       categoryID: '',
-      image: null,
-      file: null,
+      imageAuction: null,
+      imageVerification: null,
       signatureImg: null,
     },
   });
 
+  const [listCategory, setCategory] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchListCategory = async () => {
+    try {
+      const response = await getCategory();
+      if (response?.isSucceed) {
+        setCategory(response?.result);
+      } else {
+        console.error('Failed to fetch categories');
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchListCategory();
+  }, []);
+
   const onSubmit: SubmitHandler<AuctionItemFormData> = async (data) => {
     try {
-      // Create a FormData object to handle file uploads
       const formData = new FormData();
-      formData.append('nameAuctioneer', data.nameAuctioneer);
+      formData.append('nameAuction', data.nameAuction);
       formData.append('description', data.description);
       formData.append('startingPrice', data.startingPrice.toString());
       formData.append('categoryID', data.categoryID);
 
-      // Add files to FormData if they exist
-      if (data.image && data.image.length > 0) {
-        formData.append('image', data.image[0]);
+      if (data.imageAuction && data.imageAuction.length > 0) {
+        formData.append('imageAuction', data.imageAuction[0]);
       }
 
-      if (data.file && data.file.length > 0) {
-        formData.append('file', data.file[0]);
+      if (data.imageVerification && data.imageVerification.length > 0) {
+        formData.append('imageVerification', data.imageVerification[0]);
       }
 
       if (data.signatureImg && data.signatureImg.length > 0) {
         formData.append('signatureImg', data.signatureImg[0]);
       }
+      console.log('signatureImg', data.signatureImg);
 
-      // Send the form data to the API endpoint
-      const response = await axios.post('/api/auction-items', formData, {
+      const response = await axios.post('/api/addAuctionItem', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Handle success response
       console.log('Auction item created successfully:', response.data);
-
-      // Reset the form after successful submission
       reset();
     } catch (error) {
-      // Handle error response
       console.error('Error creating auction item:', error);
     }
   };
 
   return (
-    <Box sx={{ p: 3, height: "90vh" }}>
+    <Box sx={{ p: 3, height: '90vh' }}>
       <Typography variant="h4" gutterBottom>
         Create Auction Item
       </Typography>
@@ -82,7 +98,7 @@ const AuctionItemForm: React.FC = () => {
           {/* NameAuctioneer */}
           <Grid item xs={12}>
             <Controller
-              name="nameAuctioneer"
+              name="nameAuction"
               control={control}
               rules={{ required: 'Name is required' }}
               render={({ field }) => (
@@ -90,8 +106,8 @@ const AuctionItemForm: React.FC = () => {
                   {...field}
                   label="Name Auctioneer"
                   fullWidth
-                  error={!!errors.nameAuctioneer}
-                  helperText={errors.nameAuctioneer?.message}
+                  error={!!errors.nameAuction}
+                  helperText={errors.nameAuction?.message}
                 />
               )}
             />
@@ -141,61 +157,72 @@ const AuctionItemForm: React.FC = () => {
             <Controller
               name="categoryID"
               control={control}
-              rules={{ required: 'Category ID is required' }}
+              rules={{ required: 'Category is required' }}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Category ID"
+                  label="Category"
                   select
                   fullWidth
                   error={!!errors.categoryID}
                   helperText={errors.categoryID?.message}
+                  disabled={loading}
                 >
-                  <MenuItem value="1">Category 1</MenuItem>
-                  <MenuItem value="2">Category 2</MenuItem>
+                  {listCategory.map((category) => (
+                    <MenuItem key={category.categoryID} value={category.categoryID}>
+                      {category.nameCategory}
+                    </MenuItem>
+                  ))}
                 </TextField>
               )}
             />
           </Grid>
 
-          {/* Image */}
+          {/* Image Auction */}
           <Grid item xs={6}>
             <Controller
-              name="image"
+              name="imageAuction"
               control={control}
               rules={{ required: 'Image is required' }}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Image"
+                  label="Image Auction"
                   type="file"
                   fullWidth
-                  error={!!errors.image}
-                  helperText={errors.image?.message}
+                  error={!!errors.imageAuction}
+                  helperText={errors.imageAuction?.message}
                   InputLabelProps={{
                     shrink: true,
                   }}
                   inputProps={{
                     accept: 'image/*',
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      field.onChange(e.target.files),
                   }}
                 />
               )}
             />
           </Grid>
 
-          {/* File */}
+          {/* Image Verification */}
           <Grid item xs={6}>
             <Controller
-              name="file"
+              name="imageVerification"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="File"
+                  label="Image Verification"
                   type="file"
                   fullWidth
                   InputLabelProps={{
                     shrink: true,
+                  }}
+                  inputProps={{
+                    accept: 'image/*',
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      field.onChange(e.target.files),
                   }}
                 />
               )}
@@ -218,6 +245,8 @@ const AuctionItemForm: React.FC = () => {
                   }}
                   inputProps={{
                     accept: 'image/*',
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      field.onChange(e.target.files),
                   }}
                 />
               )}
