@@ -128,3 +128,17 @@ export const profileUser = async () => {
         throw new Error('Error fetching user profile'); 
     }
 };
+
+export const inforUser = async (id?: string) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user profile'); 
+    }
+};

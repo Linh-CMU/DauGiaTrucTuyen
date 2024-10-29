@@ -1,20 +1,80 @@
 import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getDetailAuctionAdmin } from '../../queries/index';
+import { approveAuction, getDetailAuctionAdmin, getListUserAdmin } from '../../queries/index';
 import { Grid } from '@material-ui/core';
 import CountdownTimer from '../../common/coutdown-timer/CountdownTimer';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { ApproveModal, CancelModal, UserModal } from '@components/modalAccept/ApproveModal';
 
 const AuctionDetail = () => {
   const [detailAuction, setDetailAuction] = useState<any | null>(null); // Khởi tạo với null
   const [loading, setLoading] = useState<boolean>(true); // Biến trạng thái để theo dõi quá trình tải
   const [error, setError] = useState<string | null>(null); // Biến trạng thái để lưu lỗi
+  const [isApproveModalOpen, setApproveModalOpen] = useState(false); // Modal state
+  const [isUserModalOpen, setUserModalOpen] = useState(false); // Modal state
+  const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false); // Modal cancel state
+  const [price, setPrice] = useState<number | null>(null);
+  const [listUser, setUser] = useState<any[]>([]);
   const targetDate = new Date('2024-12-31T23:59:59');
-  const {id} = useParams();
+  const { id } = useParams();
   useEffect(() => {
     fetchDetailAuction();
+    fetchListUser();
   }, []);
+  const fetchListUser = async () => {
+    const response = await getListUserAdmin(Number(id));
+    console.log(response, 'data');
+    if (response?.isSucceed) {
+      setUser(response?.result);
+      console.log('ds', listUser);
+    } else {
+      console.error('fetch list fail');
+    }
+  };
+  const handleApprove = () => {
+    setApproveModalOpen(true); // Open approval modal
+  };
+  const handleUser = () => {
+    setUserModalOpen(true); // Open approval modal
+  };
 
+  const handleReject = () => {
+    setApproveModalCancelOpen(true); // Open cancel modal
+  };
+
+  const handleModalApprove = async () => {
+    if (id) {
+      const response = await approveAuction(Number(id), true, price);
+      if (response.isSucceed) {
+        fetchDetailAuction();
+        alert('Bạn đã phê duyệt thành công');
+      }
+    }
+    setApproveModalOpen(false);
+  };
+  const handleModalUser = async () => {
+    setUserModalOpen(false);
+  };
+  const handleModalReject = async () => {
+    if (id) {
+      const response = await approveAuction(Number(id), false, price);
+      if (response.isSucceed) {
+        fetchDetailAuction();
+        alert('Bạn đã từ chối với đơn hàng đấu giá này');
+      }
+    }
+    setApproveModalOpen(false);
+  };
+
+  const handleModalClose = () => {
+    setApproveModalOpen(false); // Close approval modal
+  };
+  const handleModalUserClose = () => {
+    setUserModalOpen(false); // Close approval modal
+  };
+  const handleModalCancelClose = () => {
+    setApproveModalCancelOpen(false); // Close cancel modal
+  };
   const fetchDetailAuction = async () => {
     try {
       const response = await getDetailAuctionAdmin(Number(id)); // Sử dụng id từ props
@@ -105,13 +165,15 @@ const AuctionDetail = () => {
                   </Typography>
                 </Box>
                 <Box className="w-1/2 ml-auto text-right mt-2">
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.user.fullName}
-                  </Typography>
+                  <Link to={`/inforUser/${detailAuction.user.accountId}`}> 
+                    <Typography fontWeight="bold" className="pt-4">
+                      {detailAuction.user.fullName}
+                    </Typography>
+                  </Link>
                   <Typography fontWeight="bold" className="pt-4">
                     {detailAuction.winBidder == null
                       ? 'Chưa có người trúng thầu'
-                      : detailAuction.winBidder}
+                      : detailAuction.winBidder.nameUser}
                   </Typography>
                   <Typography fontWeight="bold" className="pt-4">
                     {detailAuction.startingPrice
@@ -122,12 +184,14 @@ const AuctionDetail = () => {
                       .replace('₫', 'VNĐ')}
                   </Typography>
                   <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.priceStep
-                      .toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })
-                      .replace('₫', 'VNĐ')}
+                    {detailAuction.priceStep == null
+                      ? 'Chưa có bước giá'
+                      : detailAuction.priceStep
+                          .toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })
+                          .replace('₫', 'VNĐ')}
                   </Typography>
                   <Typography fontWeight="bold" className="pt-4">
                     {detailAuction.moneyDeposit
@@ -152,15 +216,42 @@ const AuctionDetail = () => {
                 </Box>
               </Box>
               <Box className="pt-3 flex justify-end h-14 mr-24">
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">Duyệt</button>
                 <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">ReUp</button>
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
-                  Xem người đăng ký
-                </button>
+
+                {detailAuction.statusAuction == 'Approved' ? (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        handleUser();
+                      }}
+                      className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                    >
+                      Xem người đăng ký
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        handleApprove();
+                      }}
+                      className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                    >
+                      Duyệt
+                    </button>
+                  </>
+                )}
                 <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
                   Tải file thông tin
                 </button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded">Từ chối</button>
+                <button
+                  onClick={(e) => {
+                    handleReject();
+                  }}
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  Từ chối
+                </button>
               </Box>
             </Box>
           </Grid>
@@ -205,6 +296,25 @@ const AuctionDetail = () => {
           </Box>
         </Box>
       </Box>
+      <ApproveModal
+        open={isApproveModalOpen}
+        onClose={handleModalClose}
+        setPrice={setPrice}
+        onConfirm={handleModalApprove} // Ensure this is correct
+      />
+      <CancelModal
+        open={isApproveModalCancelOpen} // Use the correct state for the cancel modal
+        onClose={handleModalCancelClose}
+        setPrice={setPrice}
+        onConfirm={handleModalReject} // Ensure this is correct
+      />
+      <UserModal
+        open={isUserModalOpen}
+        onClose={handleModalUserClose}
+        users={listUser} // Pass the list of users
+        setPrice={setPrice}
+        onConfirm={handleModalUser}
+      />
     </Box>
   );
 };

@@ -9,7 +9,7 @@ import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
 import AddActionPage from '@pages/User/AddActionPage';
 import { HomePage, LoginPage, SignUpPage, 
-  DetailPage, ListAuction, AuctionDetail, ForgotPage, 
+  DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser,
   ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
 import { Route, Routes } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const AppRoutes: React.FC = () => {
         </Route>
         <Route path="/add-auction" element={<AddActionPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/listAuction" element={<ListAuction />} />
+        <Route path="/listAuction/:id?/:name?" element={<ListAuction />} />
         <Route path="/auctionDetail/:id" element={<AuctionDetail />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route  path='/listuser' element={<ListAccountPage />}/>
@@ -38,6 +38,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />
         <Route path="/listYourAuction" element={<ListYourAuction />} />
+        <Route path="/inforUser/:id" element={<InforUser />} />
       </Routes>
     </>
   );

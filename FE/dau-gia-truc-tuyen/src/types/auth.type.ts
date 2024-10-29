@@ -45,6 +45,7 @@ export interface wardResponse {
 }
 
 export interface profileResponse {
+  accountId: string,
   fullName: string;
   phone: string;
   city: string;

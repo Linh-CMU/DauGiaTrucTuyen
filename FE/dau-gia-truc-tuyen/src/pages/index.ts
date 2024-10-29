@@ -10,4 +10,5 @@ export { default as ListAuction } from './Admin/listAuction';
 export { default as AuctionDetail } from './Admin/auctionDetail';
 export { default as ListYourAuction } from './User/ListYourAuction';
 export { default as AuctionRoom } from './Admin/AuctionRoom';
+export { default as InforUser } from './Admin/InforUser';
 
