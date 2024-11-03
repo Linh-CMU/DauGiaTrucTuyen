@@ -8,7 +8,7 @@ import AddInfo from '@pages/Admin/AddInfo';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
 import AddActionPage from '@pages/User/AddActionPage';
-import { HomePage, LoginPage, SignUpPage, 
+import { HomePage, LoginPage, SignUpPage, Contract,
   DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser,
   ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
 import { Route, Routes } from 'react-router-dom';
@@ -27,6 +27,7 @@ const AppRoutes: React.FC = () => {
         </Route>
         <Route path="/add-auction" element={<AddActionPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/contract" element={<Contract />} />
         <Route path="/listAuction/:id?/:name?" element={<ListAuction />} />
         <Route path="/auctionDetail/:id" element={<AuctionDetail />} />
         <Route path="/sign-up" element={<SignUpPage />} />

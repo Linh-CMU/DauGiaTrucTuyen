@@ -1,41 +1,14 @@
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import axios from 'axios';
-import { getCategory } from '../../queries/index';
-
-// Define the interface for the form data
-interface AuctionItemFormData {
-  nameAuction: string;
-  description: string;
-  startingPrice: number;
-  categoryID: string;
-  imageAuction: FileList | null;
-  imageVerification: FileList | null;
-  signatureImg: FileList | null;
-}
+import { Controller, useForm } from 'react-hook-form';
+import { getCategory, submitAuctionForm } from '../../queries/index';
+import ContractModal, { AuctionItemFormData } from '../modal-contract/ContractModal';
 
 const AuctionItemForm: React.FC = () => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<AuctionItemFormData>({
-    defaultValues: {
-      nameAuction: '',
-      description: '',
-      startingPrice: 0,
-      categoryID: '',
-      imageAuction: null,
-      imageVerification: null,
-      signatureImg: null,
-    },
-  });
 
   const [listCategory, setCategory] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  // Lấy danh sách danh mục
   const fetchListCategory = async () => {
     try {
       const response = await getCategory();
@@ -50,52 +23,49 @@ const AuctionItemForm: React.FC = () => {
       setLoading(false);
     }
   };
+  const { handleSubmit, control, formState: { errors } } = useForm<AuctionItemFormData>();
+  const [previewImageAuction, setPreviewImageAuction] = useState('');
+  const [previewImageVerification, setPreviewImageVerification] = useState('/path/to/default-image-verification.jpg');
+  const [previewSignatureImg, setPreviewSignatureImg] = useState('/path/to/default-signature-image.jpg');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<AuctionItemFormData | null>(null);
+
+  const handleImageClick = (field: any, setFieldValue: any) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e: any) => {
+      const files = e.target.files;
+      if (files && files[0]) {
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          setFieldValue(event.target.result);
+          field.onChange(files[0]);
+        };
+        reader.readAsDataURL(files[0]);
+      }
+    };
+    input.click();
+  };
+  
+
   useEffect(() => {
     fetchListCategory();
   }, []);
 
-  const onSubmit: SubmitHandler<AuctionItemFormData> = async (data) => {
-    try {
-      const formData = new FormData();
-      formData.append('nameAuction', data.nameAuction);
-      formData.append('description', data.description);
-      formData.append('startingPrice', data.startingPrice.toString());
-      formData.append('categoryID', data.categoryID);
-
-      if (data.imageAuction && data.imageAuction.length > 0) {
-        formData.append('imageAuction', data.imageAuction[0]);
-      }
-
-      if (data.imageVerification && data.imageVerification.length > 0) {
-        formData.append('imageVerification', data.imageVerification[0]);
-      }
-
-      if (data.signatureImg && data.signatureImg.length > 0) {
-        formData.append('signatureImg', data.signatureImg[0]);
-      }
-      console.log('signatureImg', data.signatureImg);
-
-      const response = await axios.post('/api/addAuctionItem', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      console.log('Auction item created successfully:', response.data);
-      reset();
-    } catch (error) {
-      console.error('Error creating auction item:', error);
-    }
+  const onSubmits = (data: AuctionItemFormData) => {
+    setFormData(data);
+    setIsModalOpen(true);
   };
 
   return (
-    <Box sx={{ p: 3, height: '90vh' }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: 4, height: '90vh', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#3f51b5' }}>
         Create Auction Item
       </Typography>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={2}>
-          {/* NameAuctioneer */}
+      <Box component="form" onSubmit={handleSubmit(onSubmits)} noValidate autoComplete="off">
+        <Grid container spacing={3} justifyContent="center">
+          {/* Name Auction */}
           <Grid item xs={12}>
             <Controller
               name="nameAuction"
@@ -108,6 +78,11 @@ const AuctionItemForm: React.FC = () => {
                   fullWidth
                   error={!!errors.nameAuction}
                   helperText={errors.nameAuction?.message}
+                  sx={{
+                    borderRadius: 1,
+                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
+                    '.MuiInputBase-input': { padding: 1.5 },
+                  }}
                 />
               )}
             />
@@ -128,12 +103,17 @@ const AuctionItemForm: React.FC = () => {
                   fullWidth
                   error={!!errors.description}
                   helperText={errors.description?.message}
+                  sx={{
+                    borderRadius: 1,
+                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
+                    '.MuiInputBase-input': { padding: 1.5 },
+                  }}
                 />
               )}
             />
           </Grid>
 
-          {/* StartingPrice */}
+          {/* Starting Price */}
           <Grid item xs={6}>
             <Controller
               name="startingPrice"
@@ -147,12 +127,17 @@ const AuctionItemForm: React.FC = () => {
                   fullWidth
                   error={!!errors.startingPrice}
                   helperText={errors.startingPrice?.message}
+                  sx={{
+                    borderRadius: 1,
+                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
+                    '.MuiInputBase-input': { padding: 1.5 },
+                  }}
                 />
               )}
             />
           </Grid>
 
-          {/* CategoryID */}
+          {/* Category */}
           <Grid item xs={6}>
             <Controller
               name="categoryID"
@@ -167,6 +152,11 @@ const AuctionItemForm: React.FC = () => {
                   error={!!errors.categoryID}
                   helperText={errors.categoryID?.message}
                   disabled={loading}
+                  sx={{
+                    borderRadius: 1,
+                    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
+                    '.MuiInputBase-input': { padding: 1.5 },
+                  }}
                 >
                   {listCategory.map((category) => (
                     <MenuItem key={category.categoryID} value={category.categoryID}>
@@ -179,88 +169,85 @@ const AuctionItemForm: React.FC = () => {
           </Grid>
 
           {/* Image Auction */}
-          <Grid item xs={6}>
-            <Controller
-              name="imageAuction"
-              control={control}
-              rules={{ required: 'Image is required' }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Image Auction"
-                  type="file"
-                  fullWidth
-                  error={!!errors.imageAuction}
-                  helperText={errors.imageAuction?.message}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    accept: 'image/*',
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      field.onChange(e.target.files),
-                  }}
-                />
-              )}
-            />
-          </Grid>
+           <Grid container spacing={2} justifyContent="space-between" className="mb-4">
+            {/* Image Auction */}
+            <Grid item xs={4}>
+              <Typography variant="subtitle1" gutterBottom>
+                Image Auction
+              </Typography>
+              <Controller
+                name="imageAuction"
+                control={control}
+                rules={{ required: 'Image is required' }}
+                render={({ field }) => (
+                  <div 
+                    onClick={() => handleImageClick(field, setPreviewImageAuction)} 
+                    className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
+                    <img 
+                      style={{height : '200px'}}
+                      src={previewImageAuction} 
+                      alt="Image Auction Preview" 
+                      className="w-full h-full object-cover rounded" 
+                    />
+                  </div>
+                )}
+              />
+            </Grid>
 
-          {/* Image Verification */}
-          <Grid item xs={6}>
-            <Controller
-              name="imageVerification"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Image Verification"
-                  type="file"
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    accept: 'image/*',
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      field.onChange(e.target.files),
-                  }}
-                />
-              )}
-            />
-          </Grid>
+            {/* Image Verification */}
+            <Grid item xs={4}>
+              <Typography variant="subtitle1" gutterBottom>
+                Image Verification
+              </Typography>
+              <Controller
+                name="imageVerification"
+                control={control}
+                render={({ field }) => (
+                  <div 
+                    onClick={() => handleImageClick(field, setPreviewImageVerification)} 
+                    className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
+                    <img 
+                      style={{height : '200px'}}
+                      src={previewImageVerification} 
+                      alt="Image Verification Preview" 
+                      className="w-full h-full object-cover rounded" 
+                    />
+                  </div>
+                )}
+              />
+            </Grid>
 
-          {/* Signature Image */}
-          <Grid item xs={6}>
-            <Controller
-              name="signatureImg"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Signature Image"
-                  type="file"
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    accept: 'image/*',
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      field.onChange(e.target.files),
-                  }}
-                />
-              )}
-            />
+            {/* Signature Image */}
+            <Grid item xs={4}>
+              <Typography variant="subtitle1" gutterBottom>
+                Signature Image
+              </Typography>
+              <Controller
+                name="signatureImg"
+                control={control}
+                render={({ field }) => (
+                  <div 
+                    onClick={() => handleImageClick(field, setPreviewSignatureImg)} 
+                    className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
+                    <img 
+                      style={{height : '200px'}}
+                      src={previewSignatureImg} 
+                      alt="Signature Image Preview" 
+                      className="w-full h-full object-cover rounded" 
+                    />
+                  </div>
+                )}
+              />
+            </Grid>
           </Grid>
-
-          {/* Submit Button */}
           <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              Create Auction Item
-            </Button>
+            <Button type="submit" variant="contained" color="primary">Create Auction Item</Button>
+            {formData && (
+              <ContractModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} />
+            )}
           </Grid>
         </Grid>
-      </form>
+      </Box>
     </Box>
   );
 };

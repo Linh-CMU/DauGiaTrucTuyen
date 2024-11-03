@@ -1,4 +1,5 @@
 
+import { AuctionItemFormData } from '@components/auction-item-form/AuctionItemForm';
 import axiosInstance from '@services/axiosInstance';
 
 // Fetch user profile data
@@ -118,3 +119,41 @@ export const approveAuction = async (autioneerID: number, status: boolean, price
     throw new Error('Failed to approve auction');
   }
 };
+
+export const submitAuctionForm = async (data: AuctionItemFormData) => {
+  try {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append('nameAuction', data.nameAuction);
+    formData.append('description', data.description);
+    formData.append('startingPrice', data.startingPrice.toString());
+    formData.append('categoryID', data.categoryID);
+
+    if (data.imageAuction) {
+      formData.append('imageAuction', data.imageAuction);
+    }
+
+    if (data.imageVerification) {
+      formData.append('imageVerification', data.imageVerification);
+    }
+
+    if (data.signatureImg) {
+      formData.append('signatureImg', data.signatureImg);
+    }
+    console.log('signatureImg', data.signatureImg);
+    
+    const response = await axiosInstance.post('/api/addAuctionItem', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log('Auction item created successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating auction item:', error);
+    throw new Error('Failed to create auction item');
+  }
+};
+

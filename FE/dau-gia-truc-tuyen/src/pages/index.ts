@@ -4,6 +4,7 @@ export { default as LoginPage } from './LoginPage';
 export { default as SignUpPage } from './SignUpPage';
 export { default as DetailPage } from './DetailPage';
 export { default as ForgotPage } from './Forgot';
+export { default as Contract } from './Contract';
 export { default as ResetPasswordPage } from './ResetPasswordPage';
 export { default as ChangePasswordPage } from './ChangePasswordPage';
 export { default as ListAuction } from './Admin/listAuction';
