@@ -1,5 +1,4 @@
-
-import { AuctionItemFormData } from '@components/auction-item-form/AuctionItemForm';
+import { AuctionItemFormData } from '@components/modal-contract/ContractModal';
 import axiosInstance from '@services/axiosInstance';
 
 // Fetch list of auctions with status as a parameter (default to 0)
@@ -13,8 +12,6 @@ export const getListAuction = async (status: string = "0") => {
     throw new Error('Failed to fetch auction list');
   }
 };
-<<<<<<< HEAD
-
 export const getDetailAuction = async (id: string = "0") => {
   try {
     // Update the URL to include the status query parameter
@@ -26,7 +23,6 @@ export const getDetailAuction = async (id: string = "0") => {
     throw new Error('Failed to fetch auction list');
   }
 };
-=======
 export const getListAuctionAdmin = async (status: number) => {
   try {
     const token = localStorage.getItem("token");
@@ -171,5 +167,3 @@ export const submitAuctionForm = async (data: AuctionItemFormData) => {
     throw new Error('Failed to create auction item');
   }
 };
-
->>>>>>> bf79ec031b28b845e73e1e696f7158a08dbb48f8

@@ -16,7 +16,19 @@ export const getListAccount = async () => {
         throw new Error('Failed to fetch list account');
     }
 }
-
+export const inforUser = async (id?: string) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user profile'); 
+    }
+};
 // fetch lock user
 export const lockUser = async (accountId: string) => {
     if (!accountId) {
@@ -92,17 +104,8 @@ export const getWard = async () => {
 
 export const addUserInformation = async (formData: FormData) => {
     try {
-        const token = localStorage.getItem('token');
-
-        const fullName = formData.get('fullName') as string;
-        const phone = formData.get('phone') as string;
-        const city = formData.get('city') as string;
-        const ward = formData.get('ward') as string;
-        const district = formData.get('district') as string;
-        const address = formData.get('address') as string;
-        console.log(formData.get('frontCCCD'));
-        console.log(formData.get('avatar'));
-        const response = await axiosInstance.put(`api/UserOrAdmin/addInformation?fullName=${fullName}&phone=${phone}&city=${city}&ward=${ward}&district=${district}&address=${address}`, formData, {
+        const token = localStorage.getItem('token');    
+        const response = await axiosInstance.put('api/UserOrAdmin/addInformation', formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -119,20 +122,6 @@ export const profileUser = async () => {
     try {
         const token = localStorage.getItem('token');
         const response = await axiosInstance.get('/api/UserOrAdmin/profile', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        throw new Error('Error fetching user profile'); 
-    }
-};
-
-export const inforUser = async (id?: string) => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

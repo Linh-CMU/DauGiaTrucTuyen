@@ -1,20 +1,47 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { resetPass } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMessage } from '@contexts/MessageContext';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
+  const { token } = useParams(); 
+  const { gmail } = useParams(); 
+  const navigate = useNavigate();
+  const {setSuccessMessage, setErrorMessage} = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Check if passwords match
+    
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setErrorMessage('Passwords do not match');
       return;
     }
+  
+    if (!gmail || !token) {
+      setErrorMessage('Invalid or missing reset token or email');
+      return;
+    }
+  
+    try {
+      const data = {
+        usernameOrEmail: gmail,
+        resetToken: token,
+        newPassword: password,
+      };
+  
+      const response = await resetPass(data);
+      console.log(response, 'Password reset response');
+      setSuccessMessage('Password has been reset successfully!');
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+      setErrorMessage('Failed to reset password. Please try again.');
+    }
   };
-
+  
   return (
     <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
       <div className="bg-white p-6 rounded shadow-md w-[25rem]">

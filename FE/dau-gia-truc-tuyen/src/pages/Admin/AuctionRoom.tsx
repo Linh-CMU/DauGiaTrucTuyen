@@ -110,9 +110,9 @@ const AuctionRoom = () => {
                     {detailAuction.user.fullName}
                   </Typography>
                   <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.winBidder == null
+                    {detailAuction.winBidder.nameUser == null
                       ? 'Chưa có người trúng thầu'
-                      : detailAuction.winBidder}
+                      : detailAuction.winBidder.nameUser}
                   </Typography>
                   <Typography fontWeight="bold" className="pt-4">
                     {detailAuction.manager == null

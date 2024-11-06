@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { getCategory, submitAuctionForm } from '../../queries/index';
 import ContractModal, { AuctionItemFormData } from '../modal-contract/ContractModal';
+import avt from '../../../public/2937095.png'
 
 const AuctionItemForm: React.FC = () => {
 
@@ -25,8 +26,8 @@ const AuctionItemForm: React.FC = () => {
   };
   const { handleSubmit, control, formState: { errors } } = useForm<AuctionItemFormData>();
   const [previewImageAuction, setPreviewImageAuction] = useState('');
-  const [previewImageVerification, setPreviewImageVerification] = useState('/path/to/default-image-verification.jpg');
-  const [previewSignatureImg, setPreviewSignatureImg] = useState('/path/to/default-signature-image.jpg');
+  const [previewImageVerification, setPreviewImageVerification] = useState('');
+  const [previewSignatureImg, setPreviewSignatureImg] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<AuctionItemFormData | null>(null);
 
@@ -170,7 +171,6 @@ const AuctionItemForm: React.FC = () => {
 
           {/* Image Auction */}
            <Grid container spacing={2} justifyContent="space-between" className="mb-4">
-            {/* Image Auction */}
             <Grid item xs={4}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Auction
@@ -185,7 +185,7 @@ const AuctionItemForm: React.FC = () => {
                     className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
                     <img 
                       style={{height : '200px'}}
-                      src={previewImageAuction} 
+                      src={previewImageAuction ? previewImageAuction : avt} 
                       alt="Image Auction Preview" 
                       className="w-full h-full object-cover rounded" 
                     />
@@ -208,7 +208,7 @@ const AuctionItemForm: React.FC = () => {
                     className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
                     <img 
                       style={{height : '200px'}}
-                      src={previewImageVerification} 
+                      src={previewImageVerification ? previewImageVerification : avt} 
                       alt="Image Verification Preview" 
                       className="w-full h-full object-cover rounded" 
                     />
@@ -231,7 +231,7 @@ const AuctionItemForm: React.FC = () => {
                     className="w-96 h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
                     <img 
                       style={{height : '200px'}}
-                      src={previewSignatureImg} 
+                      src={previewSignatureImg ? previewSignatureImg : avt} 
                       alt="Signature Image Preview" 
                       className="w-full h-full object-cover rounded" 
                     />
