@@ -1,5 +1,6 @@
 import { useAuth } from '@contexts/AuthContext';
 import { useLoading } from '@contexts/LoadingContext';
+import { useMessage } from '@contexts/MessageContext';
 import { Button, TextField } from '@mui/material';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { setIsLoading } = useLoading();
-
+  const {setSuccessMessage, setErrorMessage} = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -18,9 +19,9 @@ const LoginPage = () => {
     setIsLoading(false);
     if (success) {
       navigate('/');
-      console.log('Login successful!');
+      setSuccessMessage('Login successful!');
     } else {
-      console.error('Login failed!');
+      setErrorMessage('Login failed!');
     }
   };
   return (
@@ -46,6 +47,9 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+          <div className='ml-[65%] mb-4'>
+            <a href='/forgot'>Quên mật khẩu</a>
           </div>
           <Button fullWidth variant="contained" type="submit">
             ĐĂNG NHẬP

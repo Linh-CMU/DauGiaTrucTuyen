@@ -1,20 +1,44 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { resetPass } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const { token } = useParams(); 
+  const { gmail } = useParams(); 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Check if passwords match
+    
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
+  
+    if (!gmail || !token) {
+      alert('Invalid or missing reset token or email');
+      return;
+    }
+  
+    try {
+      const data = {
+        usernameOrEmail: gmail,
+        resetToken: token,
+        newPassword: password,
+      };
+  
+      const response = await resetPass(data);
+      console.log(response, 'Password reset response');
+      alert('Password has been reset successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to reset password. Please try again.');
+    }
   };
-
+  
   return (
     <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
       <div className="bg-white p-6 rounded shadow-md w-[25rem]">

@@ -65,6 +65,12 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           overflow: 'auto', // Cho phép cuộn khi nội dung dài
         }}
       >
+        <Typography variant="body1" align="center" sx={{ mb: 2, fontWeight: 'bold', textTransform: 'uppercase' }}>
+          Cộng hòa Xã hội Chủ nghĩa Việt Nam
+        </Typography>
+        <Typography variant="body1" align="center" sx={{ mb: 4, fontWeight: 'bold', textTransform: 'uppercase' }}>
+          Độc lập - Tự do - Hạnh phúc
+        </Typography>
         <Typography
           id="contract-modal-title"
           variant="h6"
@@ -81,7 +87,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           Thông Tin Các Bên
         </Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>
-          <strong>Bên A (Bên tạo đấu giá):</strong> Công ty XYZ
+          <strong>Bên A (Bên tạo đấu giá):</strong> Công ty Đấu giá trực tuyến
           <br />
           Địa chỉ: Số 123, Đường ABC, Quận 1, TP.HCM
           <br />
@@ -150,6 +156,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
               }}
             >
               Chữ ký và đóng dấu
+              <p className='font-bold'>Phòng đấu giá trực tuyến</p>
             </Box>
           </Grid>
           <Grid item xs={6}>

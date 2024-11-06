@@ -36,7 +36,7 @@ const AppRoutes: React.FC = () => {
         <Route  path='/profile' element={<Profile />}/>
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/auctionRoom" element={<AuctionRoom />} />
-        <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
+        <Route path="/resetPasswordPage/:token/:gmail" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />
         <Route path="/listYourAuction" element={<ListYourAuction />} />
         <Route path="/inforUser/:id" element={<InforUser />} />
