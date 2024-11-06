@@ -1,4 +1,5 @@
 
+import { AuctionItemFormData } from '@components/auction-item-form/AuctionItemForm';
 import axiosInstance from '@services/axiosInstance';
 
 // Fetch user profile data
@@ -15,6 +16,20 @@ export const getListAuctionAdmin = async (status: number) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axiosInstance.get(`api/Admin/ListAuctionAdmin?status=${status}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Truyền token vào đây
+      },
+    });
+    console.log(response?.data, "response");
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch auction list');
+  }
+};
+export const getListAuctionOfUser = async (id: string, status: number) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axiosInstance.get(`api/Admin/listAuctioneerByUser?iduser=${id}&status=${status}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Truyền token vào đây
       },
@@ -76,29 +91,69 @@ export const getCategoryId = async (id : number , status : number) => {
     throw new Error('Failed to fetch auction list');
   }
 };
-export const approveAuction = async (auctionID: number, price: number | null, status: boolean) => {
+export const approveAuction = async (autioneerID: number, status: boolean, priceStep: number | null) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axiosInstance.put(`api/Admin/ApproveorRejectAuction`, 
+    const response = await axiosInstance.put(
+      `api/Admin/ApproveorRejectAuction`,
       {
-        auctionID: auctionID,
+        autioneerID: autioneerID, // Corrected the property name
         status: status,
-        priceStep: price 
-      }, 
+        priceStep: priceStep, // Updated to match the provided JSON
+      },
       {
         headers: {
-          Authorization: `Bearer ${token}`, 
-          'Content-Type': 'application/json' 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       }
     );
+
     if (response.data.isSucceed) {
-      return { isSucceed: true, message: response.data.message }; 
+      return { isSucceed: true, message: response.data.message };
     } else {
-      throw new Error(response.data.message); 
+      throw new Error(response.data.message);
     }
   } catch (error) {
     console.error('Error approving auction:', error);
-    throw new Error('Failed to approve auction'); 
+    throw new Error('Failed to approve auction');
   }
 };
+
+export const submitAuctionForm = async (data: AuctionItemFormData) => {
+  try {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append('nameAuction', data.nameAuction);
+    formData.append('description', data.description);
+    formData.append('startingPrice', data.startingPrice.toString());
+    formData.append('categoryID', data.categoryID);
+
+    if (data.imageAuction) {
+      formData.append('imageAuction', data.imageAuction);
+    }
+
+    if (data.imageVerification) {
+      formData.append('imageVerification', data.imageVerification);
+    }
+
+    if (data.signatureImg) {
+      formData.append('signatureImg', data.signatureImg);
+    }
+    console.log('signatureImg', data.signatureImg);
+    
+    const response = await axiosInstance.post('/api/addAuctionItem', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log('Auction item created successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating auction item:', error);
+    throw new Error('Failed to create auction item');
+  }
+};
+
