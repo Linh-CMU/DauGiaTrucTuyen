@@ -2,16 +2,31 @@
 import { AuctionItemFormData } from '@components/auction-item-form/AuctionItemForm';
 import axiosInstance from '@services/axiosInstance';
 
-// Fetch user profile data
-export const getListAuction = async () => {
+// Fetch list of auctions with status as a parameter (default to 0)
+export const getListAuction = async (status: string = "0") => {
   try {
-    const response = await axiosInstance.get('api/auction/listAuctioneerforuser');
-    console.log(response?.data,"response")
+    // Update the URL to include the status query parameter
+    const response = await axiosInstance.get(`api/auction/listAuctioneerforuser?status=${status}`);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to fetch user profile');
+    console.error('Failed to fetch auction list', error);
+    throw new Error('Failed to fetch auction list');
   }
 };
+<<<<<<< HEAD
+
+export const getDetailAuction = async (id: string = "0") => {
+  try {
+    // Update the URL to include the status query parameter
+    const response = await axiosInstance.get(`api/auction/auctionDetailforuser?id=${id}`);
+    console.log(response?.data, "response");
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction list', error);
+    throw new Error('Failed to fetch auction list');
+  }
+};
+=======
 export const getListAuctionAdmin = async (status: number) => {
   try {
     const token = localStorage.getItem("token");
@@ -157,3 +172,4 @@ export const submitAuctionForm = async (data: AuctionItemFormData) => {
   }
 };
 
+>>>>>>> bf79ec031b28b845e73e1e696f7158a08dbb48f8

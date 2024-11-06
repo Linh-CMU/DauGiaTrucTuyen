@@ -33,7 +33,8 @@
       "@hooks/*": ["hooks/*"],
       "@services/*": ["services/*"],
       "@types/*": ["types/*"],
-      "@common/*": ["common/*"]
+      "@common/*": ["common/*"],
+      "@queries/*": ["queries/*"]
     }
   },
   "include": ["src"]

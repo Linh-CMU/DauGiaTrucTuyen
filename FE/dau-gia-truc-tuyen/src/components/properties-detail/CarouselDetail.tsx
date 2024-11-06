@@ -2,16 +2,16 @@ import React, { useState, useRef } from 'react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-const CarouselDetail = () => {
+interface CarouselDetailProps {
+  imgList?: string; // Make this optional if it may be undefined
+}
+
+const CarouselDetail: React.FC<CarouselDetailProps> = ({ imgList }) => {
+  
   // Image URLs (Replace with your actual image paths)
-  const images = [
-    'https://via.placeholder.com/400x300?text=Image+1',
-    'https://via.placeholder.com/400x300?text=Image+2',
-    'https://via.placeholder.com/400x300?text=Image+3',
-    'https://via.placeholder.com/400x300?text=Image+4',
-    'https://via.placeholder.com/400x300?text=Image+5',
-    'https://via.placeholder.com/400x300?text=Image+6',
-  ];
+ const images = [
+  `http://capstoneauctioneer.runasp.net/api/read?filePath=${imgList}`
+];
 
   const [selectedIndex, setSelectedIndex] = useState(0); // Start with the first image
   const [isZoomed, setIsZoomed] = useState(false); // State to manage zoom modal visibility
@@ -55,8 +55,6 @@ const CarouselDetail = () => {
       });
     }
   };
-
-  console.log(selectedIndex,"selectedIndex");
 
   return (
     <div className="container flex flex-col items-center">

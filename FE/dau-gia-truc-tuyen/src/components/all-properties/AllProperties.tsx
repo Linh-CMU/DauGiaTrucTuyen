@@ -1,37 +1,28 @@
 import { useEffect, useState } from 'react';
 import CardList from '../../common/card-list/CardList';
-import {getListAuction} from '../../queries/index'
+import {Auction} from 'types';
+import {convertDate} from '@utils/helper';
 
-const AllProperties = (props: object) => {
-  const [listAllAuction, setListAllAuction] = useState()
-
-  useEffect(() => {
-    const fetchListAuction = async () => {
-      const response = await getListAuction(); // Call API function
-      console.log(response,"data") 
-      if(response?.isSucceed){
-        setListAllAuction(response?.result)
-      }else {
-        console.error("fetch list fail")
-      }
-    };
-    fetchListAuction();
-  }, []);
-  
-  const cards = Array.from({ length: 12 }, (_, index) => ({
-    id: index + 1, // Assuming the id is just the index + 1
-  }));
-
+interface AllPropertiesProps {
+  listAllAuction: Auction[]; // Use shared Auction type
+}
+const AllProperties = ({ listAllAuction }: AllPropertiesProps) => {
   return (
     <div className="grid grid-cols-4 gap-4">
-      {cards?.map((card) => (
+      {listAllAuction.map((card) => (
         <CardList
-          id={card.id.toString()} 
-          isProperties 
-          key={card.id} 
+          id={card.id.toString()}
+          isProperties
+          key={card.id}
+          imgSrc={card.img}
+          title={card.name}
+          priceStart={card.priceStart}
+          startDay={card.startDay}
+          targetDate={convertDate(card?.startTime, card?.endDay )}
         />
       ))}
     </div>
   );
 };
+
 export default AllProperties;
