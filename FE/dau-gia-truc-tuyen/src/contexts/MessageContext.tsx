@@ -8,17 +8,22 @@ import React, {
 } from 'react';
 
 interface MessageContextType {
-  message: string | null;
-  setMessage: Dispatch<SetStateAction<string | null>>;
+  successMessage: string | null;
+  errorMessage: string | null
+  setSuccessMessage: Dispatch<SetStateAction<string | null>>;
+  setErrorMessage: Dispatch<SetStateAction<string | null>>;
 }
 
 const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
 export const MessageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [message, setMessage] = useState<string | null>('HEHEHE');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   return (
-    <MessageContext.Provider value={{ message, setMessage }}>{children}</MessageContext.Provider>
+    <MessageContext.Provider value={{ successMessage, setSuccessMessage, errorMessage, setErrorMessage }}>
+      {children}
+    </MessageContext.Provider>
   );
 };
 
