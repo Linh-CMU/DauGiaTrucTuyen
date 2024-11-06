@@ -2,24 +2,26 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { resetPass } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMessage } from '@contexts/MessageContext';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { token } = useParams(); 
   const { gmail } = useParams(); 
-
+  const navigate = useNavigate();
+  const {setSuccessMessage, setErrorMessage} = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setErrorMessage('Passwords do not match');
       return;
     }
   
     if (!gmail || !token) {
-      alert('Invalid or missing reset token or email');
+      setErrorMessage('Invalid or missing reset token or email');
       return;
     }
   
@@ -32,10 +34,11 @@ const ResetPasswordPage = () => {
   
       const response = await resetPass(data);
       console.log(response, 'Password reset response');
-      alert('Password has been reset successfully!');
+      setSuccessMessage('Password has been reset successfully!');
+      navigate('/login');
     } catch (error) {
       console.error(error);
-      alert('Failed to reset password. Please try again.');
+      setErrorMessage('Failed to reset password. Please try again.');
     }
   };
   
