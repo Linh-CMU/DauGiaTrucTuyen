@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab, Typography, styled } from '@mui/material';
 import AllProperties from '../all-properties/AllProperties';
+import { getListAuction } from '@queries/index';
+import {Auction} from 'types';
 
 const StyledTabList = styled(TabList)({
   '& .MuiTabs-indicator': {
@@ -17,8 +19,22 @@ const StyledTabList = styled(TabList)({
   },
 });
 
+
 const PropertiesList = () => {
-  const [value, setValue] = useState('1');
+  const [value, setValue] = useState("0");
+   const [listAllAuction, setListAllAuction] = useState<Auction[]>([]); // Initialize as an empty array
+
+  useEffect(() => {
+    const fetchListAuction = async () => {
+      const response = await getListAuction(value || "0"); // Call API function
+      if (response?.isSucceed) {
+        setListAllAuction(response?.result || []); // Ensure result is an array
+      } else {
+        console.error("fetch list failed");
+      }
+    };
+    fetchListAuction();
+  }, [value]);
 
   const handleChange = (event: any, newValue: string) => {
     setValue(newValue);
@@ -32,18 +48,17 @@ const PropertiesList = () => {
         <TabContext value={value}>
           <Box>
             <StyledTabList onChange={handleChange} aria-label="lab">
-              <Tab label="Tất cả" value="1" />
-              <Tab label="Đang diễn ra" value="2" />
-              <Tab label="Sắp diễn ra" value="3" />
-              <Tab label="Đã kết thúc" value="4" />
+              <Tab label="Tất cả" value="0" />
+              <Tab label="Đang diễn ra" value="1" />
+              <Tab label="Sắp diễn ra" value="2" />
+              <Tab label="Đã kết thúc" value="3" />
             </StyledTabList>
           </Box>
-          <TabPanel value="1">
-            <AllProperties />
+          <TabPanel value={value}>
+            <AllProperties 
+              listAllAuction ={listAllAuction}
+            />
           </TabPanel>
-          <TabPanel value="2">Đang diễn ra</TabPanel>
-          <TabPanel value="3">Sắp diễn ra</TabPanel>
-          <TabPanel value="4">Đã kết thúc</TabPanel>
         </TabContext>
       </div>
     </>
