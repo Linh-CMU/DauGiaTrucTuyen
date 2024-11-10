@@ -1,1 +1,2 @@
-export * from "./AuctionAPI"
+export * from "./AuctionAPI";
+export * from "./AdminAPI"
