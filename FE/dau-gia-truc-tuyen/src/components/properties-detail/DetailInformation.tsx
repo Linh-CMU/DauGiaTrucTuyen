@@ -83,8 +83,8 @@ const DetailInformation: React.FC<DetailInformationProps> = ({ auctionDetailInfo
         {auctionInfo.map((item, index) => (
           <InfoRow key={index} label={item.label} value={item.value} />
         ))}
-        <div className='mt-8 ml-auto'>
-          <button className="bg-green-500 text-white px-2 py-1 rounded mr-2" onClick={handleNavigateToContract}>Đi tới hợp đồng</button>
+        <div className='mt-8 ml-auto mr-auto'>
+          <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2 w-56 h-10" onClick={handleNavigateToContract}>THAM GIA ĐẤU GIÁ</button>
         </div>
       </div>
     </div>

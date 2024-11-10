@@ -8,7 +8,7 @@ import AddInfo from '@pages/Admin/AddInfo';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
 import AddActionPage from '@pages/User/AddActionPage';
-import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,
+import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,OTPPage,
   DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser, CancelPage,
   ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
 import { Route, Routes } from 'react-router-dom';
@@ -37,6 +37,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/cancel" element={<CancelPage />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/otp" element={<OTPPage />} />
         <Route path="/auctionRoom" element={<AuctionRoom />} />
         <Route path="/resetPasswordPage/:token/:gmail" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />

@@ -38,12 +38,12 @@ const DetailPage = () => {
       <div className="flex gap-6 max-w-1/2">
         <CarouselDetail imgList={auctionDetailInfor?.image} />
         <div className="col-span-2 w-full">
-          <AuctionRoom auctionDetailInfor={auctionDetailInfor} userProfile={userProfile} />
-          {/* {auctionDetailInfor && (
+          {/* <AuctionRoom auctionDetailInfor={auctionDetailInfor} /> */}
+          {auctionDetailInfor && (
             <DetailInformation 
               auctionDetailInfor={auctionDetailInfor}
             />
-          )} */}
+          )}
         </div>
       </div>
       <DetailContent auctionDetailInfor={auctionDetailInfor} />
