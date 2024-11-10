@@ -186,6 +186,48 @@ namespace CapstoneAuctioneerAPI.Controller
             }
         }
         /// <summary>
+        /// Lists the auctioneer by user.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("listAuctioneerByUser")]
+        [Authorize(Policy = "ADMIN")]
+        public async Task<ActionResult> ListAuctioneerByUser(string iduser, int status)
+        {
+            try
+            {
+                var result = await _adminService.ListAuctioneerByUser(iduser, status);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        [HttpGet]
+        [Route("auctionRoom")]
+        public async Task<ActionResult> auctionRoom(int auctionId)
+        {
+            try
+            {
+                var result = await _adminService.AuctionRoomAdmin(auctionId);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        /// <summary>
         /// Adds the category.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -289,6 +331,11 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        /// <summary>
+        /// Res up auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpPut]
         [Route("reUpAuction")]
         public async Task<ActionResult> ReUpAuction(int id)
@@ -296,6 +343,29 @@ namespace CapstoneAuctioneerAPI.Controller
             try
             {
                 var result = await _adminService.ReUpAuction(id);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        /// <summary>
+        /// Lists the user in auction.
+        /// </summary>
+        /// <param name="auctionId">The auction identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("listBidderInAuction")]
+        public async Task<ActionResult> ListUserInAuction(int auctionId)
+        {
+            try
+            {
+                var result = await _adminService.listBidderInAuction(auctionId);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -318,7 +388,8 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             string combinedDateTime = $"{endDay} {endTime}";
 
-            if (DateTime.TryParseExact(combinedDateTime, "yyyy-MM-dd HH:mm:ss",
+            // Sử dụng định dạng phù hợp cho ngày và giờ
+            if (DateTime.TryParseExact(combinedDateTime, "dd/MM/yyyy HH:mm",
                                         System.Globalization.CultureInfo.InvariantCulture,
                                         System.Globalization.DateTimeStyles.None, out DateTime endDateTime))
             {

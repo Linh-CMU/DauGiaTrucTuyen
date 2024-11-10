@@ -41,46 +41,23 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <param name="description">The description.</param>
         /// <param name="startingPrice">The starting price.</param>
         /// <param name="categoryID">The category identifier.</param>
-        /// <param name="startDay">The start day.</param>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="endDay">The end day.</param>
-        /// <param name="endTime">The end time.</param>
-        /// <param name="fileOfAuction">The file of auction.</param>
         /// <param name="signatureImg">The signature img.</param>
         /// <param name="imageVerification">The image verification.</param>
         /// <returns></returns>
         [HttpPost]
         [Authorize(Policy = "USER")]
         [Route("addAuctionItem")]
-        public async Task<ActionResult> AddAuctionner(
-            IFormFile imageAuction,
-            string nameAuction,
-            string description,
-            decimal startingPrice,
-            int categoryID,
-            string startDay,
-            string startTime,
-            string endDay,
-            string endTime,
-            IFormFile fileOfAuction,
-            IFormFile signatureImg,
-            IFormFile imageVerification
-            )
+        public async Task<ActionResult> AddAuctionner([FromForm] FormAddAuctionDTO request)
         {
             var register = new RegisterAuctioneerDTO
             {
-                Image = imageAuction,
-                NameAuction = nameAuction,
-                Description = description,
-                StartingPrice = startingPrice,
-                CategoryID = categoryID,
-                StartDay = startDay,
-                StartTime = startTime,
-                EndDay = endDay,
-                EndTime = endTime,
-                file = fileOfAuction,
-                signatureImg = signatureImg,
-                image = imageVerification
+                Image = request.imageAuction,
+                NameAuction = request.nameAuction,
+                Description = request.description,
+                StartingPrice = request.startingPrice,
+                CategoryID = request.categoryID,
+                signatureImg = request.signatureImg,
+                image = request.imageVerification
             };
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _userService.RegiterAuctioneer(userId, register);
@@ -191,10 +168,10 @@ namespace CapstoneAuctioneerAPI.Controller
         [HttpPost]
         [Authorize(Policy = "USER")]
         [Route("placeBid")]
-        public async Task<ActionResult> placeBid(int auctionId)
+        public async Task<ActionResult> placeBid(RaiseDTO auction)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _userService.PlaceBid(userId, auctionId);
+            var result = await _userService.PlaceBid(userId, auction);
             if (!result.IsSucceed)
             {
                 return BadRequest(result);
@@ -248,31 +225,14 @@ namespace CapstoneAuctioneerAPI.Controller
         [Route("joinRoomAuction")]
         public async Task<ActionResult> Auctionroom(int id)
         {
-            if (HttpContext.WebSockets.IsWebSocketRequest)
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _userService.Auctionroom(id, userId);
+            if (!result.IsSucceed)
             {
-                using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
-                {
-                    while (webSocket.State == WebSocketState.Open)
-                    {
-                        var AuctionDetails = await _userService.Auctionroom(id);
-                        // Chuyển đổi chuỗi thành qua kiểu json
-                        string jsonString = JsonSerializer.Serialize(AuctionDetails);
-                        // Chuyển đổi thời gian còn lại thành mảng byte
-                        var bytes = Encoding.UTF8.GetBytes(jsonString);
-                        await webSocket.SendAsync(new ArraySegment<byte>(bytes),
-                            WebSocketMessageType.Text, true, CancellationToken.None);
-                        await Task.Delay(1000); // Gửi dữ liệu mỗi 1 giây
-                    }
+                return BadRequest(result);
+            }
 
-                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed by the server", CancellationToken.None);
-                    return new EmptyResult(); // Kết thúc WebSocket
-                }
-            }
-            else
-            {
-                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                return new BadRequestResult(); // Trả về mã trạng thái lỗi nếu không phải yêu cầu WebSocket
-            }
+            return Ok(result);
         }
         /// <summary>
         /// Views the bid history.

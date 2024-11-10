@@ -2,10 +2,14 @@
 using DataAccess.DAO;
 using DataAccess.DTO;
 using DataAccess.IRepository;
+using DataAccess.Service;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +25,7 @@ namespace DataAccess.Repository
         /// The account manager
         /// </summary>
         private readonly UserManager<Account> _accountManager;
+        private readonly DigitalSignatureHelper _signatureHelper;
         /// <summary>
         /// The upload
         /// </summary>
@@ -30,10 +35,11 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="accountManager">The account manager.</param>
         /// <param name="upload">The upload.</param>
-        public UserReponsitory(UserManager<Account> accountManager, IUploadRepository upload)
+        public UserReponsitory(UserManager<Account> accountManager, IUploadRepository upload, DigitalSignatureHelper signatureHelper)
         {
             _accountManager = accountManager;
             _upload = upload;
+            _signatureHelper = signatureHelper;
         }
 
         /// <summary>
@@ -41,11 +47,11 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<AuctionRoomDTO> Auctionroom(int id)
+        public async Task<AuctionRoomDTO> Auctionroom(int id, string userId)
         {
             try
             {
-                var result = await AuctionDAO.Instance.Auctionroom(id);
+                var result = await AuctionDAO.Instance.Auctionroom(id, userId);
                 return result;
             }
             catch (Exception ex)
@@ -106,29 +112,29 @@ namespace DataAccess.Repository
         /// <param name="userid">The userid.</param>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> PlaceBid(string userid, int id)
+        public async Task<ResponseDTO> PlaceBid(string userid, RaiseDTO auction)
         {
             try
             {
-                var check = await RegistAuctionDAO.Instance.BetAsync(id);
-                var idauction = await RegistAuctionDAO.Instance.SelectId(userid, id);
+                var check = await RegistAuctionDAO.Instance.BetAsync(auction.auctionId);
+                var idauction = await RegistAuctionDAO.Instance.SelectId(userid, auction.auctionId);
                 if (check != null)
                 {
-                    var bet = new Bet
+                    var bet = new PlacingABid
                     {
                         PriceBit= check.PriceBit,
                         RAID = idauction
                     };
-                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet);
+                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price);
                     return result;
                 }
                 else
                 {
-                    var bet = new Bet
+                    var bet = new PlacingABid
                     {
                         RAID = idauction
                     };
-                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet);
+                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price);
                     return result;
                 }
                 
@@ -172,10 +178,6 @@ namespace DataAccess.Repository
                     {
                         ListAuctionID = id,
                         CategoryID = register.CategoryID,
-                        StartDay = register.StartDay,
-                        StartTime = register.StartTime,
-                        EndDay = register.EndDay,
-                        EndTime = register.EndTime,
                         NumberofAuctionRounds = 1,
                         TimePerLap = "1",
                         PaymentMethod = "bid up"
@@ -183,11 +185,31 @@ namespace DataAccess.Repository
                     var resultdetail = await AuctionDAO.Instance.AddAuctionDetail(detailauctioneer);
                     if(resultdetail)
                     {
-                        var fileAttach = new FileAttachments
+                        var keys = _signatureHelper.GenerateKeys();
+                        if (register.signatureImg == null || register.signatureImg.Length == 0)
+                        {
+                            return new ResponseDTO { IsSucceed = false, Message = "Hình ảnh chữ ký không được để trống." };
+                        }
+
+                        // Chuyển đổi IFormFile sang Base64
+                        string base64SignatureImage;
+
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await register.signatureImg.CopyToAsync(memoryStream);
+                            byte[] imageBytes = memoryStream.ToArray();
+                            base64SignatureImage = Convert.ToBase64String(imageBytes);
+                        }
+                        var signature = _signatureHelper.SignData(base64SignatureImage, keys.privateKey);
+                        var fileAttach = new DigitalSignature
                         {
                             ListAuctionID = id,
-                            FileAuctioneer = await _upload.SaveFileAsync(register.file, "FileAttachments", userID),
-                            SignatureImg = await _upload.SaveFileAsync(register.signatureImg, "FileAttachments", userID),
+                            Base64SignatureImage= base64SignatureImage,
+                            SignatureImg = await _upload.SaveFileAsync(register.signatureImg, "DigitalSignature", userID),
+                            Signature = signature,
+                            PublicKey = keys.publicKey,
+                            PrivateKey = keys.privateKey,
+                            CreatedAt = DateTime.Now,
                         };
                         var resultfile = await FileAttachmentsDAO.Instance.AddFileAttachment(fileAttach);
                         if (resultfile)
@@ -293,6 +315,12 @@ namespace DataAccess.Repository
         public async Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid)
         {
             var result = await RegistAuctionDAO.Instance.TotalPayDeposit(acutionId, uid);
+            return result;
+        }
+
+        public async Task<ResponseDTO> UpdatePayment(int id, string status)
+        {
+            var result = await RegistAuctionDAO.Instance.UpdatePayment(id, status);
             return result;
         }
     }

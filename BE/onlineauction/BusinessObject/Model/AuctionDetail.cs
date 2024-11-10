@@ -15,16 +15,16 @@ namespace BusinessObject.Model
         public int ListAuctionID { get; set; }
         [ForeignKey("Category")]
         public int? CategoryID { get; set; }
-        public string StartDay { get; set; }
-        public string StartTime { get; set; }
-        public string EndDay { get; set; }
-        public string EndTime { get; set; }
-        public int NumberofAuctionRounds { get; set; }
-        public string TimePerLap { get; set; }
+        public string? StartDay { get; set; }
+        public string? StartTime { get; set; }
+        public string? EndDay { get; set; }
+        public string? EndTime { get; set; }
+        public int? NumberofAuctionRounds { get; set; }
+        public string? TimePerLap { get; set; }
         public decimal? PriceStep { get; set; }
-        public string PaymentMethod { get; set; }
+        public string? PaymentMethod { get; set; }
         public virtual ListAuction ListAuctions { get; set; }
         public virtual Category Categorys { get; set; }
-        public virtual ICollection<FileAttachments> FileAttachments { get; set; } = new List<FileAttachments>();
+        public virtual ICollection<DigitalSignature> FileAttachments { get; set; } = new List<DigitalSignature>();
     }
 }

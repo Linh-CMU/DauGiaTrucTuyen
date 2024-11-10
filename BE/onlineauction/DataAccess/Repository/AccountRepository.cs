@@ -3,6 +3,7 @@ using BusinessObject.Model;
 using DataAccess.DAO;
 using DataAccess.DTO;
 using DataAccess.IRepository;
+using DataAccess.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -165,7 +166,7 @@ namespace DataAccess.Repository
                 Email = account.Email,
                 Warning = 0,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                Status = false,
+                Status = true,
             };
 
             var createUserResult = await _accountManager.CreateAsync(createAccount, account.Password);
@@ -189,6 +190,16 @@ namespace DataAccess.Repository
             }
 
             await _accountManager.AddToRoleAsync(createAccount, StaticUserRoles.USER);
+            if (createUserResult.Succeeded)
+            {
+                var otpResult = await SendOtp(createAccount);
+                if (!otpResult)
+                {
+                    await _accountManager.DeleteAsync(createAccount);
+                    await AccountDAO.Instance.RemoveAccount(createAccount.Id);
+                    return new ResponseDTO() { IsSucceed = false, Message = "Failed to send OTP. Please try again." };
+                }
+            }
             return new ResponseDTO() { IsSucceed = true, Message = "User created successfully" };
         }
 
@@ -197,18 +208,10 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="changepassDTO">The changepass dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> ChangePassWord(ChangepassDTO changepassDTO)
+        public async Task<ResponseDTO> ChangePassWord(string userId, ChangepassDTO changepassDTO)
         {
             Account account = null;
-
-            if (changepassDTO.username.Contains('@'))
-            {
-                account = await _accountManager.FindByEmailAsync(changepassDTO.username);
-            }
-            else
-            {
-                account = await _accountManager.FindByNameAsync(changepassDTO.username);
-            }
+            account = await _accountManager.FindByIdAsync(userId);
             if (account == null)
             {
                 return new ResponseDTO { IsSucceed = false, Message = "Account not found" };
@@ -254,9 +257,9 @@ namespace DataAccess.Repository
             {
                 AccountId = account.Id,
                 UserName = account.UserName,
-                Avatar = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.Avatar}",
-                FrontCCCD = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.FrontCCCD}",
-                BacksideCCCD = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.BacksideCCCD}",
+                Avatar = accountDetail.Avatar,
+                FrontCCCD = accountDetail.FrontCCCD,
+                BacksideCCCD = accountDetail.BacksideCCCD,
                 Email = account.Email,
                 FullName = accountDetail.FullName,
                 Phone = accountDetail.Phone,
@@ -266,7 +269,12 @@ namespace DataAccess.Repository
                 Address = accountDetail.Address,
                 Warning = account.Warning,
                 Status = account.Status,
-                Role = role
+                Role = role,
+                birthdate = accountDetail.Birthdate,
+                gender = accountDetail.Gender,
+                dateOfIssue = accountDetail.DateOfIssue,
+                placeOfIssue = accountDetail.PlaceOfIssue,
+                placeOfResidence = accountDetail.PlaceOfResidence,
             };
             return new ResponseDTO { Result = profileDTO, IsSucceed = true, Message = "Successfully" };
         }
@@ -295,6 +303,39 @@ namespace DataAccess.Repository
                             </html>";
             return emailContent;
         }
+        private async Task<bool> SendOtp(Account user)
+        {
+            var otp = GenerateOtp(5);
+            var otpContent = GetOtpEmailContent(otp);
+
+            // Send OTP to user's email using an email service (MailUtils.SendMailGoogleSmtp)
+            var emailSent = await MailUtils.SendMailGoogleSmtp(
+                fromEmail: "nguyenanh0978638@gmail.com", // Sender email (consider moving to config)
+                toEmail: user.Email,
+                subject: "Your OTP for Account Verification",
+                body: otpContent
+            );
+            if (emailSent)
+            {
+                await AccountDAO.Instance.StoreOtpForUser(user, otp, DateTime.UtcNow.AddMinutes(1));  // OTP expires in 10 minutes.
+            }
+
+            return emailSent;
+        }
+        
+        // Helper method to generate the OTP email content
+        private string GetOtpEmailContent(string otp)
+        {
+            return $@"
+                <p>Hello,</p>
+                <p>We received a request to verify your email address. Use the OTP below to complete the verification:</p>
+                <p><strong>Your OTP is: {otp}</strong></p>
+                <p>This OTP will expire in 10 minutes.</p>
+                <p>If you did not request this, please ignore this email.</p>
+                <p>Best regards,<br />Your Company Name</p>
+            ";
+        }
+
         /// <summary>
         /// Forgots the password.
         /// </summary>
@@ -324,7 +365,7 @@ namespace DataAccess.Repository
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
             // Tạo đường link đặt lại mật khẩu
-            var resetLink = $"https://www.hienmaugiotmauhong.online/resetpassword/{code}/{account.Email}";
+            var resetLink = $"http://localhost:5173/resetPasswordPage/{code}/{account.Email}";
 
             // Gửi email chứa đường link đặt lại mật khẩu
             await MailUtils.SendMailGoogleSmtp(
@@ -379,7 +420,7 @@ namespace DataAccess.Repository
         /// <param name="userID">The user identifier.</param>
         /// <param name="uProfileDTO">The u profile dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> AddInformation(string userID, AddInformationDTO uProfileDTO)
+        public async Task<ResponseDTO> AddInformation(string userID, AddInforUserDTO uProfileDTO)
         {
             var account = await AccountDAO.Instance.ProfileDAO(userID);
             if (account == null)
@@ -390,15 +431,20 @@ namespace DataAccess.Repository
             var accountDetail = new AccountDetail
             {
                 AccountID = userID,
-                FullName = uProfileDTO.FullName,
-                Phone = uProfileDTO.Phone,
-                City = uProfileDTO.City,
-                Ward = uProfileDTO.Ward,
-                District = uProfileDTO.District,
-                Address = uProfileDTO.Address,
-                Avatar = uProfileDTO.Avatar != null ? await _upload.SaveFileAsync(uProfileDTO.Avatar, "avatars", userID) : account.Avatar,
-                FrontCCCD = uProfileDTO.FrontCCCD != null ? await _upload.SaveFileAsync(uProfileDTO.FrontCCCD, "cccd/front", userID) : account.FrontCCCD,
-                BacksideCCCD = uProfileDTO.BacksideCCCD != null ? await _upload.SaveFileAsync(uProfileDTO.BacksideCCCD, "cccd/back", userID) : account.BacksideCCCD
+                FullName = uProfileDTO.fullName,
+                Phone = uProfileDTO.phone,
+                City = uProfileDTO.city,
+                Ward = uProfileDTO.ward,
+                District = uProfileDTO.district,
+                Address = uProfileDTO.address,
+                Avatar = uProfileDTO.avatar != null ? await _upload.SaveFileAsync(uProfileDTO.avatar, "avatars", userID) : account.Avatar,
+                FrontCCCD = uProfileDTO.frontCCCD != null ? await _upload.SaveFileAsync(uProfileDTO.frontCCCD, "cccd/front", userID) : account.FrontCCCD,
+                BacksideCCCD = uProfileDTO.backsideCCCD != null ? await _upload.SaveFileAsync(uProfileDTO.backsideCCCD, "cccd/back", userID) : account.BacksideCCCD,
+                Birthdate = uProfileDTO.birthdate,
+                Gender = uProfileDTO.gender,
+                PlaceOfResidence = uProfileDTO.placeOfResidence,
+                PlaceOfIssue = uProfileDTO.placeOfIssue,
+                DateOfIssue = uProfileDTO.dateOfIssue,
             };
 
             try
@@ -547,7 +593,12 @@ namespace DataAccess.Repository
                         BacksideCCCD = item.accDetail.BacksideCCCD,
                         Warning = item.acc.Warning,
                         Status = item.acc.Status,
-                        Role = string.Join(", ", roles) // Nối các vai trò thành chuỗi
+                        Role = string.Join(", ", roles), // Nối các vai trò thành chuỗi
+                        birthdate = item.accDetail.Birthdate,
+                        gender = item.accDetail.Gender,
+                        dateOfIssue = item.accDetail.DateOfIssue,
+                        placeOfIssue = item.accDetail.PlaceOfIssue,
+                        placeOfResidence = item.accDetail.PlaceOfResidence,
                     });
                 }
 
@@ -626,6 +677,19 @@ namespace DataAccess.Repository
                 // Xử lý lỗi chi tiết hoặc ghi log
                 return new ResponseDTO { IsSucceed = false, Message = "Account lock failed: " + ex.Message };
             }
+        }
+        private string GenerateOtp(int length)
+        {
+            var random = new Random();
+            var otp = string.Empty;
+
+            // Generate OTP consisting of 5 random digits
+            for (int i = 0; i < length; i++)
+            {
+                otp += random.Next(0, 10).ToString(); // Random number between 0 and 9
+            }
+
+            return otp;
         }
     }
 }

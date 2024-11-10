@@ -25,7 +25,16 @@ namespace DataAccess.Service
             Console.WriteLine($"{id} đã được tạo và sẽ kết thúc vào {endTime}.");
             DateTime notificationTime = endTime.AddMinutes(15);
             TimeSpan delay = notificationTime - DateTime.Now;
-            BackgroundJob.Schedule(() => NotifyAuctionComplete(id), delay);
+
+            // Kiểm tra xem delay có nhỏ hơn 0 không, nếu có thì không tạo job
+            if (delay.TotalMilliseconds > 0)
+            {
+                BackgroundJob.Schedule(() => NotifyAuctionComplete(id), delay);
+            }
+            else
+            {
+                Console.WriteLine("Thời gian thông báo không hợp lệ.");
+            }
         }
         /// <summary>
         /// Creates the auction.
@@ -39,7 +48,14 @@ namespace DataAccess.Service
             Console.WriteLine($"{id} đã được tạo và sẽ kết thúc vào {endTime}.");
             DateTime notificationTime = endTime.AddMinutes(15);
             TimeSpan delay = notificationTime - DateTime.Now;
-            BackgroundJob.Schedule(() => NotifyAuctionComplete(id, date, account), delay);
+            if (delay.TotalMilliseconds > 0)
+            {
+                BackgroundJob.Schedule(() => NotifyAuctionComplete(id, date, account), delay);
+            }
+            else
+            {
+                Console.WriteLine("Thời gian thông báo không hợp lệ.");
+            }
         }
         /// <summary>
         /// Notifies the auction complete.
@@ -47,7 +63,7 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="date">The date.</param>
         /// <param name="account">The account.</param>
-        public async void NotifyAuctionComplete(int id, DateTime date, string account)
+        public async Task NotifyAuctionComplete(int id, DateTime date, string account)
         {
             var check = await RegistAuctionDAO.Instance.checkusertopayment(id);
             var result = new SetTimeForBatch
@@ -144,7 +160,7 @@ namespace DataAccess.Service
         /// Notifies the auction complete.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        public async void NotifyAuctionComplete(int id)
+        public async Task NotifyAuctionComplete(int id)
         {
             var result = await AuctionDAO.Instance.GetInforSendMail(id);
 

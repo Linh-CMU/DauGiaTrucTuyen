@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class AuctioneerDDTO
+    public class UpdatePaymentDTO
     {
+        public string status { get; set; }
     }
 }

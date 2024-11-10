@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DataAccess.DAO
 {
@@ -63,7 +64,7 @@ namespace DataAccess.DAO
             {
                 using (var context = new ConnectDB())
                 {
-                    var check = context.RegistAuctioneers.Where(x => x.ListAuctionID == registAuction.ListAuctionID).ToList();
+                    var check = context.RegistAuctioneers.Where(x => x.ListAuctionID == registAuction.ListAuctionID && x.AccountID == registAuction.AccountID).ToList();
                     if (check.Any())
                     {
                         return new ResponseDTO { IsSucceed = false, Message = "You have registered for this auction." };
@@ -97,7 +98,7 @@ namespace DataAccess.DAO
                                             join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                             join r in context.RegistAuctioneers on a.ListAuctionID equals r.ListAuctionID
                                             join d in context.Deposits on r.RAID equals d.RAID
-                                            where r.AccountID == userid && (statusauction == true || statusauction == false ? r.AuctionStatus == statusauction : a.StatusAuction == true)
+                                            where r.AccountID == userid && d.status == "success"
                                             select new ListAuctioneerDTO
                                             {
                                                 Id = a.ListAuctionID,
@@ -113,6 +114,7 @@ namespace DataAccess.DAO
                                                                                     .OrderByDescending(b => b.PriceBit)
                                                                                     .Select(b => b.PriceBit) // Get the highest bid price
                                                                                     .FirstOrDefault(),
+                                                status = r.AuctionStatus == true ? "chúc mừng" : "Chia buồn",
                                             }).ToListAsync();
 
 
@@ -174,7 +176,7 @@ namespace DataAccess.DAO
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<Bet> BetAsync(int id)
+        public async Task<PlacingABid> BetAsync(int id)
         {
             using (var context = new ConnectDB())
             {
@@ -214,7 +216,7 @@ namespace DataAccess.DAO
         /// <param name="bet">The bet.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task<ResponseDTO> PlaceBid(Bet bet)
+        public async Task<ResponseDTO> PlaceBid(PlacingABid bet, decimal price)
         {
             try
             {
@@ -232,13 +234,13 @@ namespace DataAccess.DAO
                     if (bet.BetID != 0)
                     {
                         // Existing bet found, so update it
-                        bet.PriceBit = check.ListAuction.StartingPrice + check.AuctionDetail.PriceStep ?? 0;
+                        bet.PriceBit = check.ListAuction.StartingPrice + price;
                         bet.BidTime = DateTime.Now.ToString("dd/MM/yyyy : HH:mm:ss");
                         context.Bets.Add(bet);  // Add the new bet
                     }
                     else
                     {
-                        bet.PriceBit = bet.PriceBit + check.AuctionDetail.PriceStep ?? 0;
+                        bet.PriceBit = bet.PriceBit + price;
                         bet.BidTime = DateTime.Now.ToString("dd/MM/yyyy : HH:mm:ss");
                         context.Bets.Add(bet);  // Add the new bet
                     }
@@ -255,6 +257,49 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<ResponseDTO> UpdatePayment(int id, string status)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    // Tìm kiếm các bản ghi tương ứng với `RAID` trong hai bảng
+                    var re = await context.RegistAuctioneers.FirstOrDefaultAsync(rg => rg.RAID == id);
+                    var find = await context.Deposits.FirstOrDefaultAsync(rg => rg.RAID == id);
+
+                    // Kiểm tra trạng thái "cancel" và thực hiện xóa nếu phù hợp
+                    if (status == "cancel")
+                    {
+                        if (find != null) context.Deposits.Remove(find);
+                        if (re != null) context.RegistAuctioneers.Remove(re);
+                        await context.SaveChangesAsync();
+                        return new ResponseDTO { IsSucceed = true, Message = "Update successful - records deleted" };
+                    }
+                    else if (find != null && re != null)
+                    {
+                        find.status = status;
+                        context.Entry(find).State = EntityState.Modified;
+                        await context.SaveChangesAsync();
+                        return new ResponseDTO { IsSucceed = true, Message = "Update successful - status updated" };
+                    }
+                    else
+                    {
+                        // Trả về thông báo nếu không tìm thấy bản ghi
+                        return new ResponseDTO { IsSucceed = false, Message = "Record not found" };
+                    }
+                }
+            }
+            catch (DbUpdateException)
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Database update failed" };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO { IsSucceed = false, Message = ex.Message };
+            }
+        }
+
+
         /// <summary>
         /// Withdraws the specified identifier.
         /// </summary>
@@ -316,6 +361,7 @@ namespace DataAccess.DAO
                                 select new ViewBidHistoryDTO
                                 {
                                     ID = b.BetID,
+                                    userId = r.AccountID,
                                     Price = b.PriceBit,
                                     DateAndTime = b.BidTime
                                 };

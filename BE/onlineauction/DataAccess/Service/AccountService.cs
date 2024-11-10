@@ -56,9 +56,9 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="changepassDTO">The changepass dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> ChangePassWordAsync(ChangepassDTO changepassDTO)
+        public async Task<ResponseDTO> ChangePassWordAsync(string userId, ChangepassDTO changepassDTO)
         {
-            var changepassword = await _accountRepository.ChangePassWord(changepassDTO);
+            var changepassword = await _accountRepository.ChangePassWord(userId, changepassDTO);
             return changepassword;
         }
         /// <summary>
@@ -108,7 +108,7 @@ namespace DataAccess.Service
         /// <param name="userid">The userid.</param>
         /// <param name="uProfileDTO">The u profile dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> AddInformation(string userid, AddInformationDTO uProfileDTO)
+        public async Task<ResponseDTO> AddInformation(string userid, AddInforUserDTO uProfileDTO)
         {
             var updateProfile = await _accountRepository.AddInformation(userid, uProfileDTO);
             return updateProfile;

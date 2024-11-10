@@ -30,7 +30,7 @@ namespace DataAccess.Repository
         /// </summary>
         private readonly UserManager<Account> _accountManager;
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuctioneerRepository"/> class.
+        /// Initializes a new instance of the <see cref="AuctioneerRepository" /> class.
         /// </summary>
         /// <param name="accountManager">The account manager.</param>
         /// <param name="upload">The upload.</param>
@@ -47,27 +47,40 @@ namespace DataAccess.Repository
         public async Task<AutionDTO> AuctionDetail(int id)
         {
             var result = await AuctionDAO.Instance.AuctionDetail(id);
-            var isOngoing = DateTime.ParseExact(result.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
-                    TimeSpan.Parse(result.StartTime) <= DateTime.Now.TimeOfDay;
-            var auctionDate = isOngoing ? result.EndDay : result.StartDay;
-            var auctionTime = isOngoing ? result.EndTime : result.StartTime;
-
-            // Parse both the date and time together
-            if (DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
-                                        System.Globalization.DateTimeStyles.None, out var startDateTime))
+            if(result.StatusAuction != "Not approved yet")
             {
-                var currentTime = DateTime.Now;
+                bool hasStartDay = !string.IsNullOrEmpty(result.StartDay);
+                bool hasStartTime = !string.IsNullOrEmpty(result.StartTime);
+                bool hasEndDay = !string.IsNullOrEmpty(result.EndDay);
+                bool hasEndTime = !string.IsNullOrEmpty(result.EndTime);
+
+                var isOngoing = hasStartDay && hasStartTime &&
+                                DateTime.ParseExact(result.StartDay, "dd/MM/yyyy", null) <= DateTime.Today &&
+                                TimeSpan.Parse(result.StartTime) <= DateTime.Now.TimeOfDay;
+
+                var auctionDate = isOngoing ? result.EndDay : result.StartDay;
+                var auctionTime = isOngoing ? result.EndTime : result.StartTime;
 
                 string formattedTimeRemaining = "";
-                if (startDateTime > currentTime)
+
+                // Kiểm tra nếu cả ngày và giờ đều có giá trị
+                if (!string.IsNullOrEmpty(auctionDate) && !string.IsNullOrEmpty(auctionTime) &&
+                    DateTime.TryParseExact($"{auctionDate} {auctionTime}", "dd/MM/yyyy HH:mm", null,
+                                           System.Globalization.DateTimeStyles.None, out var startDateTime))
                 {
-                    var timeRemaining = startDateTime - currentTime;
-                    formattedTimeRemaining = FormatTimeSpan(timeRemaining);
+                    var currentTime = DateTime.Now;
+
+                    if (startDateTime > currentTime)
+                    {
+                        var timeRemaining = startDateTime - currentTime;
+                        formattedTimeRemaining = FormatTimeSpan(timeRemaining);
+                    }
                 }
+
                 var auction = new AutionDTO()
                 {
                     ListAuctionID = result.ID,
-                    Image = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={result.Image}",
+                    Image = result.Image,
                     moneyDeposit = result.MoneyDeposit,
                     NameAuction = result.NameAuction,
                     Description = result.Description,
@@ -81,15 +94,18 @@ namespace DataAccess.Repository
                     TimePerLap = result.TimePerLap,
                     PriceStep = result.PriceStep,
                     PaymentMethod = result.PaymentMethod,
-                    FileAuctioneer = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={result.FileAuctioneer}",
-                    SignatureImg = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={result.SignatureImg}",
+                    FileAuctioneer = result.FileAuctioneer,
+                    SignatureImg = result.SignatureImg,
                     TImage = result.TImange,
-                    countdowntime = formattedTimeRemaining
+                    countdowntime = formattedTimeRemaining // Nếu không có ngày/giờ, giá trị sẽ là ""
                 };
+
                 return auction;
             }
             return null;
+            
         }
+
         /// <summary>
         /// Formats the time span.
         /// </summary>
@@ -103,6 +119,7 @@ namespace DataAccess.Repository
         /// Lists the auctioneer.
         /// </summary>
         /// <param name="status">The status.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         public async Task<List<ListAuctioneerDTO>> ListAuctioneer(int status, string uid)
         {
@@ -112,24 +129,37 @@ namespace DataAccess.Repository
             {
                 auction = result;
             }
-            else if (status == 1)
+            if (status == 1)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
             }
             else if (status == 2)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) &&
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
             }
             else if (status == 3)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndDay) && !string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
             }
             return auction; // Return the list of auctioneer DTOs
         }
@@ -184,6 +214,7 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         public async Task<List<ListAuctioneerDTO>> AuctioneerFlCategory(int category, int status, string uid)
         {
@@ -193,25 +224,39 @@ namespace DataAccess.Repository
             {
                 auction = await AuctionDAO.Instance.ListAuctioneer(uid);
             }
-            else if (status == 1)
+            if (status == 1)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
             }
             else if (status == 2)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) &&
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
             }
             else if (status == 3)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndDay) && !string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
             }
+
 
             return auction; // Trả về danh sách các DTO
         }
@@ -219,6 +264,7 @@ namespace DataAccess.Repository
         /// Searchs the auctioneer.
         /// </summary>
         /// <param name="content">The content.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         public async Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid)
         {
@@ -242,24 +288,37 @@ namespace DataAccess.Repository
             {
                 auction = result;
             }
-            else if (status == 1)
+            if (status == 1)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
             }
             else if (status == 2)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) && (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today || (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.StartDay) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) &&
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
             }
             else if (status == 3)
             {
-                auction = result.Where(ad => DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                             (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                             TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+                auction = result.Where(ad =>
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    (!string.IsNullOrEmpty(ad.EndDay) && !string.IsNullOrEmpty(ad.EndTime) &&
+                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
+                    TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
             }
             return auction; // Return the list of auctioneer DTOs
         }
@@ -268,6 +327,7 @@ namespace DataAccess.Repository
         /// Totals the pay.
         /// </summary>
         /// <param name="acutionId">The acution identifier.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         public async Task<InforPayMentDTO> TotalPay(int acutionId, string uid)
         {
@@ -285,9 +345,33 @@ namespace DataAccess.Repository
             return await RegistAuctionDAO.Instance.CheckPayMent(payment, id);
         }
 
+        /// <summary>
+        /// Sends the mail after paymet.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="uid">The uid.</param>
+        /// <returns></returns>
         public SetTimeForBatchDTO sendMailAfterPaymet(int id, string uid)
         {
             return RegistAuctionDAO.Instance.sendMailAfterPaymet(id, uid);
+        }
+
+        /// <summary>
+        /// Lists the auctioneer by user.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<ResponseDTO> ListAuctioneerByUser(string id, int status)
+        {
+            try
+            {
+                var result = await AuctionDAO.Instance.ListAuctioneerByUser(id, status);
+                return new ResponseDTO {Result = result, IsSucceed = true, Message = "Successfully" };
+            }
+            catch
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Failed" };
+            }
         }
     }
 }

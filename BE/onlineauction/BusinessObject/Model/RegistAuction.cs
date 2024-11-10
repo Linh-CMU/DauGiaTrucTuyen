@@ -25,7 +25,7 @@ namespace BusinessObject.Model
 
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<Deposit> Deposits { get; set; } = new List<Deposit>();
-        public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
+        public virtual ICollection<PlacingABid> Bets { get; set; } = new List<PlacingABid>();
 
         public virtual ListAuction ListAuctions { get; set; }
 

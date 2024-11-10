@@ -17,5 +17,6 @@ namespace DataAccess.DTO
         public string EndTime { get; set; }  
         public decimal PriceStart { get; set; }
         public decimal? winningBid { get; set; }
+        public string status { get; set; }
     }
 }

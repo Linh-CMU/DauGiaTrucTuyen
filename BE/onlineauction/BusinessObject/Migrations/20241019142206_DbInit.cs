@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class Indit : Migration
+    public partial class DbInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -209,6 +209,7 @@ namespace BusinessObject.Migrations
                     Manager = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NameAuction = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoneyDeposit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartingPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     StatusAuction = table.Column<bool>(type: "bit", nullable: true)
@@ -310,43 +311,47 @@ namespace BusinessObject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FileAttachments",
+                name: "DigitalSignature",
                 columns: table => new
                 {
                     FileAID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ListAuctionID = table.Column<int>(type: "int", nullable: false),
-                    FileAuctioneer = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SignatureImg = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Base64SignatureImage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SignatureImg = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Signature = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PublicKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrivateKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FileAttachments", x => x.FileAID);
+                    table.PrimaryKey("PK_DigitalSignature", x => x.FileAID);
                     table.ForeignKey(
-                        name: "FK_FileAttachments_AuctionDetail_ListAuctionID",
+                        name: "FK_DigitalSignature_AuctionDetail_ListAuctionID",
                         column: x => x.ListAuctionID,
                         principalTable: "AuctionDetail",
                         principalColumn: "ListAuctionID");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Bet",
+                name: "Deposit",
                 columns: table => new
                 {
-                    BetID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RAID = table.Column<int>(type: "int", nullable: false),
-                    PriceBit = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bet", x => x.BetID);
+                    table.PrimaryKey("PK_Deposit", x => x.DID);
                     table.ForeignKey(
-                        name: "FK_Bet_RegistAuction_RAID",
+                        name: "FK_Deposit_RegistAuction_RAID",
                         column: x => x.RAID,
                         principalTable: "RegistAuction",
-                        principalColumn: "RAID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "RAID");
                 });
 
             migrationBuilder.CreateTable(
@@ -396,6 +401,27 @@ namespace BusinessObject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PlacingABid",
+                columns: table => new
+                {
+                    BetID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RAID = table.Column<int>(type: "int", nullable: false),
+                    PriceBit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BidTime = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlacingABid", x => x.BetID);
+                    table.ForeignKey(
+                        name: "FK_PlacingABid_RegistAuction_RAID",
+                        column: x => x.RAID,
+                        principalTable: "RegistAuction",
+                        principalColumn: "RAID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TImage",
                 columns: table => new
                 {
@@ -408,9 +434,9 @@ namespace BusinessObject.Migrations
                 {
                     table.PrimaryKey("PK_TImage", x => x.TImageId);
                     table.ForeignKey(
-                        name: "FK_TImage_FileAttachments_FileAID",
+                        name: "FK_TImage_DigitalSignature_FileAID",
                         column: x => x.FileAID,
-                        principalTable: "FileAttachments",
+                        principalTable: "DigitalSignature",
                         principalColumn: "FileAID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -420,8 +446,8 @@ namespace BusinessObject.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "dfca1ec8-4c98-46a5-9215-fe75aa689218", null, "user", "USER" },
-                    { "f8c8702d-1daa-436a-8dd7-275d56ef30b6", null, "admin", "ADMIN" }
+                    { "4ee3c56c-818a-4d9d-8310-523a2acda174", null, "admin", "ADMIN" },
+                    { "aa723f91-f3c5-4703-852e-f4d129770cbc", null, "user", "USER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -469,19 +495,19 @@ namespace BusinessObject.Migrations
                 column: "CategoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bet_RAID",
-                table: "Bet",
+                name: "IX_Deposit_RAID",
+                table: "Deposit",
                 column: "RAID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DigitalSignature_ListAuctionID",
+                table: "DigitalSignature",
+                column: "ListAuctionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Feedback_AccountID",
                 table: "Feedback",
                 column: "AccountID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileAttachments_ListAuctionID",
-                table: "FileAttachments",
-                column: "ListAuctionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ListAuction_Creator",
@@ -501,6 +527,11 @@ namespace BusinessObject.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_RAID",
                 table: "Payment",
+                column: "RAID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlacingABid_RAID",
+                table: "PlacingABid",
                 column: "RAID");
 
             migrationBuilder.CreateIndex(
@@ -541,7 +572,7 @@ namespace BusinessObject.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Bet");
+                name: "Deposit");
 
             migrationBuilder.DropTable(
                 name: "Feedback");
@@ -553,6 +584,9 @@ namespace BusinessObject.Migrations
                 name: "Payment");
 
             migrationBuilder.DropTable(
+                name: "PlacingABid");
+
+            migrationBuilder.DropTable(
                 name: "TImage");
 
             migrationBuilder.DropTable(
@@ -562,7 +596,7 @@ namespace BusinessObject.Migrations
                 name: "RegistAuction");
 
             migrationBuilder.DropTable(
-                name: "FileAttachments");
+                name: "DigitalSignature");
 
             migrationBuilder.DropTable(
                 name: "AuctionDetail");

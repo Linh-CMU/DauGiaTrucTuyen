@@ -23,6 +23,7 @@ namespace DataAccess.IRepository
         /// Lists the auctioneer.
         /// </summary>
         /// <param name="status">The status.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         Task<List<ListAuctioneerDTO>> ListAuctioneer(int status, string uid);
         /// <summary>
@@ -43,12 +44,14 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="category">The category.</param>
         /// <param name="status">The status.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         Task<List<ListAuctioneerDTO>> AuctioneerFlCategory(int category, int status, string uid);
         /// <summary>
         /// Searchs the auctioneer.
         /// </summary>
         /// <param name="content">The content.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid);
         /// <summary>
@@ -63,6 +66,7 @@ namespace DataAccess.IRepository
         /// Totals the pay.
         /// </summary>
         /// <param name="acutionId">The acution identifier.</param>
+        /// <param name="uid">The uid.</param>
         /// <returns></returns>
         Task<InforPayMentDTO> TotalPay(int acutionId, string uid);
         /// <summary>
@@ -72,7 +76,19 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> CheckPayMent(Payment payment, int id);
+        /// <summary>
+        /// Sends the mail after paymet.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="uid">The uid.</param>
+        /// <returns></returns>
         SetTimeForBatchDTO sendMailAfterPaymet(int id, string uid);
+        /// <summary>
+        /// Lists the auctioneer by user.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> ListAuctioneerByUser(string id, int status);
 
     }
 }

@@ -33,7 +33,7 @@ namespace DataAccess.IRepository
         /// <param name="userid">The userid.</param>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        Task<ResponseDTO> PlaceBid(string userid, int id);
+        Task<ResponseDTO> PlaceBid(string userid, RaiseDTO auction);
         /// <summary>
         /// Lists your auctioneer.
         /// </summary>
@@ -52,7 +52,7 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        Task<AuctionRoomDTO> Auctionroom(int id);
+        Task<AuctionRoomDTO> Auctionroom(int id, string userId);
         /// <summary>
         /// Withdraws the specified identifier.
         /// </summary>
@@ -83,5 +83,7 @@ namespace DataAccess.IRepository
         /// <param name="acutionId">The acution identifier.</param>
         /// <returns></returns>
         Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid);
+
+        Task<ResponseDTO> UpdatePayment(int id, string status);
     }
 }

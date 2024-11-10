@@ -19,7 +19,7 @@ namespace DataAccess.DTO
         public string StartTime { get; set; }
         public string EndDay { get; set; }
         public string EndTime { get; set; }
-        public int NumberofAuctionRounds { get; set; }
+        public int? NumberofAuctionRounds { get; set; }
         public string TimePerLap { get; set; }
         public decimal? PriceStep { get; set; }
         public string PaymentMethod { get; set; }

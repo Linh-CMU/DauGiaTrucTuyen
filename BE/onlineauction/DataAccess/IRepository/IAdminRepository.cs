@@ -91,6 +91,13 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> ReUpAuction(int id);
+        /// <summary>
+        /// Lists the bidder in auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        Task<ResponseDTO> listBidderInAuction(int id);
+        Task<AuctionRoomAdminDTO> AuctionRoomAdmin(int id);
 
     }
 }

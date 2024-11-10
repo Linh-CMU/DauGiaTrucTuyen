@@ -66,7 +66,7 @@ namespace CapstoneAuctioneerAPI.Controller
                 ItemData item = new ItemData(payment.nameAuction, 1, payment.priceAuction);
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
-                PaymentData paymentData = new PaymentData(payment.IdResgiter, payment.priceAuction, "Thanh Toán", items, "https://localhost:3000/cancel", "https://localhost:3000/success");
+                PaymentData paymentData = new PaymentData(payment.IdResgiter, payment.priceAuction, "Thanh Toán", items, "http://localhost:5173/cancel", "http://localhost:5173/success");
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }
@@ -87,7 +87,20 @@ namespace CapstoneAuctioneerAPI.Controller
                 ItemData item = new ItemData(deposit.nameAuction, 1, deposit.priceAuction);
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
-                PaymentData paymentData = new PaymentData(deposit.IdResgiter, deposit.priceAuction, "Tiền Cọc", items, "https://localhost:3000/cancel", "https://localhost:3000/success");
+                var deposits = new Deposit
+                {
+                    DID = deposit.IdResgiter.ToString(),
+                    RAID = deposit.IdResgiter,
+                    PaymentType = "Payos",
+                    PaymentDate = DateTime.Now.ToString(),
+                    status = "paid"
+                };
+                var pay = await _userService.PaymentForDeposit(deposits);
+                if (pay != true)
+                {
+                    return BadRequest(StatusCodes.Status500InternalServerError);
+                }
+                PaymentData paymentData = new PaymentData(deposit.IdResgiter, deposit.priceAuction, "Tiền Cọc", items, "http://localhost:5173/cancel", "http://localhost:5173/success");
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment.checkoutUrl);
             }
@@ -103,16 +116,41 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
+                // Lấy thông tin thanh toán từ dịch vụ
                 PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInformation(orderId);
+
+                // Kiểm tra tính hợp lệ của thông tin thanh toán
+                if (paymentLinkInformation == null)
+                {
+                    return NotFound(new { Message = "Thông tin thanh toán không tìm thấy." });
+                }
+
+                // Trả về dữ liệu hợp lệ
                 return Ok(paymentLinkInformation);
             }
             catch (Exception ex)
             {
-                var error = new { ex.GetBaseException().Message };
-                return BadRequest(error);
-            }
+                // Log lỗi chi tiết để debug dễ dàng hơn
+                var errorDetails = new
+                {
+                    Message = ex.GetBaseException().Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message
+                };
 
+                // Log chi tiết vào console hoặc hệ thống log
+                Console.WriteLine("Lỗi khi lấy thông tin thanh toán: " + errorDetails.Message);
+                Console.WriteLine("StackTrace: " + errorDetails.StackTrace);
+
+                // Trả về thông tin lỗi chi tiết hơn
+                return BadRequest(new
+                {
+                    Error = "Không thể lấy thông tin thanh toán",
+                    Details = errorDetails
+                });
+            }
         }
+
         [HttpPut]
         [Route("cancelOrder")]
         public async Task<IActionResult> CancelOrder(int orderId)
@@ -169,6 +207,25 @@ namespace CapstoneAuctioneerAPI.Controller
                     return BadRequest(StatusCodes.Status500InternalServerError);
                 }
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new { ex.GetBaseException().Message };
+                return BadRequest(error);
+            }
+        }
+        [HttpPut]
+        [Route("update-payment/{id}")]
+        public async Task<IActionResult> UpdatePayment(int id, UpdatePaymentDTO status)
+       {
+            try
+            {
+                var pay = await _userService.UpdatePayment(id, status.status);
+                if (!pay.IsSucceed)
+                {
+                    return BadRequest(StatusCodes.Status500InternalServerError);
+                }
+                return Ok(pay);
             }
             catch (Exception ex)
             {

@@ -54,7 +54,7 @@ namespace DataAccess.DAO
         /// <param name="fileAttachments">The file attachments.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task<bool> AddFileAttachment(FileAttachments fileAttachments)
+        public async Task<bool> AddFileAttachment(DigitalSignature fileAttachments)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace DataAccess.DAO
         /// <param name="AuctioneerID">The auctioneer identifier.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task<FileAttachments> GetFileAttachments(int AuctioneerID)
+        public async Task<DigitalSignature> GetFileAttachments(int AuctioneerID)
         {
             try
             {

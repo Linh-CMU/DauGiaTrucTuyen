@@ -1,10 +1,12 @@
-﻿using BusinessObject.Model;
+﻿using Azure.Core;
+using BusinessObject.Model;
 using DataAccess.DTO;
 using DataAccess.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +22,7 @@ namespace DataAccess.Service
         /// The user reponsitory
         /// </summary>
         private readonly IUserReponsitory _userReponsitory;
+        private readonly DigitalSignatureHelper _signatureHelper;
         /// <summary>
         /// The auctioneer repository
         /// </summary>
@@ -29,10 +32,11 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="userReponsitory">The user reponsitory.</param>
         /// <param name="auctioneerRepository">The auctioneer repository.</param>
-        public UserService(IUserReponsitory userReponsitory, IAuctioneerRepository auctioneerRepository)
+        public UserService(IUserReponsitory userReponsitory, IAuctioneerRepository auctioneerRepository, DigitalSignatureHelper signatureHelper)
         {
-            _userReponsitory= userReponsitory;
+            _userReponsitory = userReponsitory;
             _auctioneerRepository = auctioneerRepository;
+            _signatureHelper = signatureHelper;
         }
         /// <summary>
         /// Regiters the auctioneer.
@@ -83,9 +87,9 @@ namespace DataAccess.Service
         /// <param name="userid">The userid.</param>
         /// <param name="auctionId">The auction identifier.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> PlaceBid(string userid, int auctionId)
+        public async Task<ResponseDTO> PlaceBid(string userid, RaiseDTO auction)
         {
-            var result = await _userReponsitory.PlaceBid(userid, auctionId);
+            var result = await _userReponsitory.PlaceBid(userid, auction);
             return result;
         }
         /// <summary>
@@ -114,10 +118,27 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<AuctionRoomDTO> Auctionroom(int id)
+        public async Task<ResponseDTO> Auctionroom(int id, string userId)
         {
-            var result = await _userReponsitory.Auctionroom(id);
-            return result;
+            try
+            {
+                var result = await _userReponsitory.Auctionroom(id, userId);
+
+                return new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Successfully"
+                };
+            }
+            catch
+            {
+                return new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "Fail"
+                };
+            }
         }
         /// <summary>
         /// Withdraws the specified identifier.
@@ -152,6 +173,11 @@ namespace DataAccess.Service
         public async Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid)
         {
             var result = await _userReponsitory.TotalPayDeposit(acutionId, uid);
+            return result;
+        }
+        public async Task<ResponseDTO> UpdatePayment(int id, string status)
+        {
+            var result = await _userReponsitory.UpdatePayment(id, status);
             return result;
         }
     }

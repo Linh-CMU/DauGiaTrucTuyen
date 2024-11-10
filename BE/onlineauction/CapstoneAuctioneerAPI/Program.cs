@@ -19,6 +19,8 @@ using System.Security.Claims;
 using System.Text.Unicode;
 using System.Globalization;
 using Net.payOS;
+using Hangfire;
+using CapstoneAuctioneerAPI.Controller;
 
 /// <summary>
 /// Initializes a new instance of the <see cref="$Program" /> class.
@@ -32,6 +34,9 @@ PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw ne
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+string connectionString = builder.Configuration.GetConnectionString("Capstone");
+builder.Services.AddHangfire(configuration =>
+    configuration.UseSqlServerStorage(connectionString));
 builder.Services.AddCors();
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson()
@@ -39,7 +44,11 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddSingleton(payOS);
 builder.Services.AddSession();
 builder.Services.AddControllers();
-
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(option =>
@@ -69,6 +78,12 @@ builder.Services.AddSwaggerGen(option =>
                         }
                     });
 });
+builder.Services.AddHttpClient<VerificationController>(client =>
+{
+    client.BaseAddress = new Uri("https://api.fpt.ai/vision/idr/vnm");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
 builder.Services.AddControllers().AddOData(option => option.Select().Filter().Count().OrderBy().Expand()
 .SetMaxTop(100).AddRouteComponents("odata", GetEdmModel()));
 builder.Services.AddDbContext<ConnectDB>();
@@ -77,6 +92,7 @@ builder.Services.AddIdentity<Account, IdentityRole>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<AuctionService>();
+builder.Services.AddScoped<DigitalSignatureHelper>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<BatchService>();
@@ -124,7 +140,7 @@ builder.Services
             ClockSkew = TimeSpan.Zero // Loại bỏ thời gian chênh lệch để tránh các vấn đề liên quan đến thời gian sống của token
         };
     });
-
+builder.Services.AddHangfireServer();
 // Cấu hình Authorization với các policy
 builder.Services.AddAuthorization(options =>
 {
@@ -143,6 +159,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+app.UseHangfireDashboard();
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("../swagger/v1/swagger.json", "Project v1"));
 app.UseHttpsRedirection();

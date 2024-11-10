@@ -24,5 +24,10 @@ namespace DataAccess.DTO
         public int Warning { get; set; }
         public bool? Status { get; set; }
         public string Role { get; set; }
+        public string? birthdate { get; set; }
+        public bool? gender { get; set; }
+        public string? placeOfResidence { get; set; }
+        public string? placeOfIssue { get; set; }
+        public string? dateOfIssue { get; set; }
     }
 }

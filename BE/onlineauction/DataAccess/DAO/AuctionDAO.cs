@@ -132,10 +132,10 @@ namespace DataAccess.DAO
                                                                     Id = a.ListAuctionID,
                                                                     Img = a.Image,
                                                                     Name = a.NameAuction,
-                                                                    StartDay = ad.StartDay,
-                                                                    StartTime = ad.StartTime,
-                                                                    EndDay = ad.EndDay,
-                                                                    EndTime = ad.EndTime,
+                                                                    StartDay = ad.StartDay ?? null,
+                                                                    StartTime = ad.StartTime ?? null,
+                                                                    EndDay = ad.EndDay ?? null,
+                                                                    EndTime = ad.EndTime ?? null,
                                                                     PriceStart = a.StartingPrice,
                                                                     winningBid = context.Bets
                                                                                 .Where(b => b.RAID == rg.RAID)
@@ -160,7 +160,7 @@ namespace DataAccess.DAO
                 var auctioneerList = await (from a in context.ListAuctions
                                             join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                             join r in context.RegistAuctioneers on a.ListAuctionID equals r.ListAuctionID into adGroup
-                                            from rg in adGroup.DefaultIfEmpty() 
+                                            from rg in adGroup.DefaultIfEmpty()
                                             where a.StatusAuction == true && a.NameAuction.ToLower().Contains(content.ToLower()) && (string.IsNullOrEmpty(uid) || a.Creator != uid)
                                             select new ListAuctioneerDTO
                                             {
@@ -207,10 +207,10 @@ namespace DataAccess.DAO
                                                                         Id = a.ListAuctionID,
                                                                         Img = a.Image,
                                                                         Name = a.NameAuction,
-                                                                        StartDay = ad.StartDay,
-                                                                        StartTime = ad.StartTime,
-                                                                        EndDay = ad.EndDay,
-                                                                        EndTime = ad.EndTime,
+                                                                        StartDay = ad.StartDay ?? null,
+                                                                        StartTime = ad.StartTime ?? null,
+                                                                        EndDay = ad.EndDay ?? null,
+                                                                        EndTime = ad.EndTime ?? null,
                                                                         PriceStart = a.StartingPrice,
                                                                         winningBid = context.Bets
                                                                                     .Where(b => b.RAID == rg.RAID)
@@ -246,13 +246,14 @@ namespace DataAccess.DAO
                                         join r in context.RegistAuctioneers on ac.Id equals r.AccountID
                                         join b in context.Bets on r.RAID equals b.RAID
                                         join a in context.ListAuctions on r.ListAuctionID equals a.ListAuctionID
+                                        join aud in context.AuctionDetails on a.ListAuctionID equals aud.ListAuctionID
                                         where a.ListAuctionID == id
                                         orderby b.PriceBit descending // Order by PriceBit in descending order
-                                        select new
+                                        select new Winner
                                         {
-                                            AccountDetails = ad,
-                                            Account = ac,
-                                            Bets = b
+                                            idUser = ac.Id,
+                                            nameUser = ad.FullName,
+                                            price = b.PriceBit
                                         }).FirstOrDefaultAsync(); // Take only the first entry with the highest PriceBit
 
 
@@ -260,12 +261,12 @@ namespace DataAccess.DAO
                                                 join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                                 join us in context.Accounts on a.Creator equals us.Id
                                                 join ct in context.Categorys on ad.CategoryID equals ct.CategoryID
-                                                join f in context.FileAttachments on ad.ListAuctionID equals f.ListAuctionID
-                                                join i in context.TImages on f.FileAID equals i.FileAID
+                                                join ds in context.FileAttachments on ad.ListAuctionID equals ds.ListAuctionID
+                                                join i in context.TImages on ds.FileAID equals i.FileAID
                                                 join ud in context.AccountDetails on us.Id equals ud.AccountID
                                                 join m in context.AccountDetails on a.Manager equals m.AccountID into adGroup
-                                                from m in adGroup.DefaultIfEmpty()
-                                                where a.StatusAuction == true
+                                                from m in adGroup.DefaultIfEmpty() // Sử dụng LEFT JOIN
+                                                where a.ListAuctionID == id
                                                 select new DAuctioneerDTO
                                                 {
                                                     ID = a.ListAuctionID,
@@ -291,26 +292,106 @@ namespace DataAccess.DAO
                                                     Image = a.Image,
                                                     NameAuction = a.NameAuction,
                                                     Description = a.Description,
-                                                    StartDay = ad.StartDay,
-                                                    StartTime = ad.StartTime,
-                                                    EndDay = ad.EndDay,
-                                                    EndTime = ad.EndTime,
+                                                    StartDay = ad.StartDay == null ? "" : ad.StartDay,
+                                                    StartTime = ad.StartTime == null ? "" : ad.StartTime,
+                                                    EndDay = ad.EndDay == null ? "" : ad.EndDay,
+                                                    EndTime = ad.EndTime == null ? "" : ad.EndTime,
                                                     StartingPrice = a.StartingPrice,
                                                     categoryName = ct.NameCategory,
                                                     NumberofAuctionRounds = ad.NumberofAuctionRounds,
                                                     TimePerLap = ad.TimePerLap,
                                                     PriceStep = ad.PriceStep,
                                                     PaymentMethod = ad.PaymentMethod,
-                                                    FileAuctioneer = f.FileAuctioneer,
-                                                    SignatureImg = f.SignatureImg,
+                                                    SignatureImg = ds.SignatureImg,
                                                     TImange = new TImage
                                                     {
                                                         TImageId = i.TImageId,
-                                                        Imange = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={i.Imange}"
+                                                        Imange = i.Imange
                                                     },
                                                     WinBidder = winner,
                                                     StatusAuction = a.StatusAuction == true ? "Approved" : a.StatusAuction == false ? "Reject" : "Not approved yet",
                                                     MoneyDeposit = a.MoneyDeposit
+                                                }).FirstOrDefaultAsync();
+
+                    return auctioneerList;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<AuctionRoomAdminDTO> AuctionRoomAdmin(int id)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    var winner = await (from ad in context.AccountDetails
+                                        join ac in context.Accounts on ad.AccountID equals ac.Id
+                                        join r in context.RegistAuctioneers on ac.Id equals r.AccountID
+                                        join b in context.Bets on r.RAID equals b.RAID
+                                        join a in context.ListAuctions on r.ListAuctionID equals a.ListAuctionID
+                                        join aud in context.AuctionDetails on a.ListAuctionID equals aud.ListAuctionID
+                                        where a.ListAuctionID == id
+                                        orderby b.PriceBit descending
+                                        select new Winner
+                                        {
+                                            idUser = ac.Id,
+                                            nameUser = ad.FullName,
+                                            price = b.PriceBit
+                                        }).FirstOrDefaultAsync();
+
+
+                    var money = await (from b in context.Bets
+                                       join r in context.RegistAuctioneers on b.RAID equals r.RAID
+                                       where r.ListAuctionID == id
+                                       select b).OrderByDescending(c => c.PriceBit).FirstOrDefaultAsync();
+                    var auctioneerList = await (from a in context.ListAuctions
+                                                join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
+                                                join us in context.Accounts on a.Creator equals us.Id
+                                                join ct in context.Categorys on ad.CategoryID equals ct.CategoryID
+                                                join ud in context.AccountDetails on us.Id equals ud.AccountID
+                                                join m in context.AccountDetails on a.Manager equals m.AccountID into adGroup
+                                                from m in adGroup.DefaultIfEmpty()
+                                                where a.StatusAuction == true
+                                                select new AuctionRoomAdminDTO
+                                                {
+                                                    id = a.ListAuctionID,
+                                                    user = new ProfileDTO
+                                                    {
+                                                        AccountId = us.Id,
+                                                        UserName = us.UserName,
+                                                        Avatar = ud.Avatar,
+                                                        FrontCCCD = ud.FrontCCCD,
+                                                        BacksideCCCD = ud.BacksideCCCD,
+                                                        Email = us.Email,
+                                                        FullName = ud.FullName,
+                                                        Phone = ud.Phone,
+                                                        City = ud.City,
+                                                        Ward = ud.Ward,
+                                                        District = ud.District,
+                                                        Address = ud.Address,
+                                                        Warning = us.Warning,
+                                                        Status = us.Status,
+                                                        Role = "User"
+                                                    },
+                                                    manager = a.Manager == null ? "No management yet" : m.FullName,
+                                                    image = a.Image,
+                                                    nameAuction = a.NameAuction,
+                                                    startDay = ad.StartDay,
+                                                    startTime = ad.StartTime,
+                                                    endDay = ad.EndDay,
+                                                    endTime = ad.EndTime,
+                                                    startingPrice = a.StartingPrice,
+                                                    categoryName = ct.NameCategory,
+                                                    priceStep = ad.PriceStep,
+                                                    paymentMethod = ad.PaymentMethod,
+                                                    winBidder = winner,
+                                                    StatusAuction = a.StatusAuction == true ? "Approved" : a.StatusAuction == false ? "Reject" : "Not approved yet",
+                                                    moneyDeposit = a.MoneyDeposit,
+                                                    bidMoney = money != null ? money.PriceBit : 0
                                                 }).FirstOrDefaultAsync();
                     return auctioneerList;
                 }
@@ -481,6 +562,13 @@ namespace DataAccess.DAO
                     }
 
                     // Update auctioneer status and details
+                    if (autioneer.Status == true)
+                    {
+                        existingAutioneerDetail.StartDay = DateTime.Now.AddDays(2).ToString("dd/MM/yyyy");
+                        existingAutioneerDetail.EndDay = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy");
+                        existingAutioneerDetail.StartTime = DateTime.Now.AddDays(2).ToString("HH:mm");
+                        existingAutioneerDetail.EndTime = DateTime.Now.AddDays(1).ToString("HH:mm");
+                    }
                     existingAutioneer.StatusAuction = autioneer.Status;
                     existingAutioneer.Manager = idManager;
                     existingAutioneerDetail.PriceStep = autioneer.PriceStep == null ? 0 : autioneer.PriceStep;
@@ -516,6 +604,67 @@ namespace DataAccess.DAO
         /// An unexpected error occurred: {ex.Message}
         /// </exception>
         public async Task<List<AuctionDetailDTO>> ListYourAuctioneer(string id, int status)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    // Base query
+                    var query = from a in context.ListAuctions
+                                join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
+                                join c in context.Categorys on ad.CategoryID equals c.CategoryID
+                                join m in context.AccountDetails on a.Manager equals m.AccountID into adGroup
+                                from m in adGroup.DefaultIfEmpty()
+                                where a.Creator == id
+                                select new AuctionDetailDTO
+                                {
+                                    ListAuctionID = a.ListAuctionID,
+                                    Category = c.NameCategory,
+                                    Name = a.Manager == null ? "No management yet" : m.FullName,
+                                    Image = a.Image,
+                                    NameAuction = a.NameAuction,
+                                    StartingPrice = a.StartingPrice,
+                                    StartDay = ad.StartDay,
+                                    StartTime = ad.StartTime,
+                                    EndDay = ad.EndDay,
+                                    EndTime = ad.EndTime,
+                                    StatusAuction = a.StatusAuction == null ? "Not approved yet"
+                                                : a.StatusAuction == false ? "Reject"
+                                                : "Approved"
+                                };
+
+                    // Filter based on status
+                    if (status == 0)
+                    {
+                        return await query.ToListAsync();
+                    }
+                    if (status == 1)
+                    {
+                        query = query.Where(a => a.StatusAuction == "Not approved yet");
+                    }
+                    else if (status == 2)
+                    {
+                        query = query.Where(a => a.StatusAuction == "Reject");
+                    }
+                    else if (status == 3)
+                    {
+                        query = query.Where(a => a.StatusAuction == "Approved");
+                    }
+
+                    // Execute and return result
+                    return await query.OrderByDescending(o => o.ListAuctionID).ToListAsync();
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while retrieving the auctioneer: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
+            }
+        }
+        public async Task<List<AuctionDetailDTO>> ListAuctioneerByUser(string id, int status)
         {
             try
             {
@@ -639,7 +788,7 @@ namespace DataAccess.DAO
         /// or
         /// An unexpected error occurred: {ex.Message}
         /// </exception>
-        public async Task<AuctionRoomDTO> Auctionroom(int id)
+        public async Task<AuctionRoomDTO> Auctionroom(int id, string userId)
         {
             try
             {
@@ -650,7 +799,7 @@ namespace DataAccess.DAO
                                              join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                              join r in context.RegistAuctioneers on a.ListAuctionID equals r.ListAuctionID
                                              join c in context.Categorys on ad.CategoryID equals c.CategoryID
-                                             where a.ListAuctionID == id
+                                             where a.ListAuctionID == id && r.AccountID == userId
                                              select new
                                              {
                                                  a.ListAuctionID,
@@ -661,9 +810,14 @@ namespace DataAccess.DAO
                                                  ad.StartDay,
                                                  ad.StartTime,
                                                  ad.EndDay,
+                                                 ad.PriceStep,
                                                  ad.EndTime,
                                                  r.AuctionStatus
                                              }).FirstOrDefaultAsync();
+                    var money = await(from b in context.Bets 
+                                      join r in context.RegistAuctioneers on b.RAID equals r.RAID 
+                                      where r.ListAuctionID == id
+                                      select b).OrderByDescending(c => c.PriceBit).FirstOrDefaultAsync();
 
                     if (auctionData == null)
                     {
@@ -714,6 +868,7 @@ namespace DataAccess.DAO
                         Image = auctionData.Image,
                         NameAuction = auctionData.NameAuction,
                         StartingPrice = auctionData.StartingPrice,
+                        stepMoney = auctionData.PriceStep,
                         StartDay = auctionData.StartDay,
                         StartTime = auctionData.StartTime,
                         EndDay = auctionData.EndDay,
@@ -768,10 +923,11 @@ namespace DataAccess.DAO
                                     Image = a.Image,
                                     NameAuction = a.NameAuction,
                                     StartingPrice = a.StartingPrice,
-                                    StartDay = ad.StartDay,
-                                    StartTime = ad.StartTime,
-                                    EndDay = ad.EndDay,
-                                    EndTime = ad.EndTime,
+                                    PriceDeposit = a.MoneyDeposit,
+                                    StartDay = ad.StartDay == null ? "" : ad.StartDay,
+                                    StartTime = ad.StartTime == null ? "" : ad.StartTime,
+                                    EndDay = ad.EndDay == null ? "" : ad.EndDay,
+                                    EndTime = ad.EndTime == null ? "" : ad.EndTime,
                                     StatusAuction = a.StatusAuction == null ? "Not approved yet"
                                                 : a.StatusAuction == false ? "Reject"
                                                 : "Approved"
@@ -835,10 +991,10 @@ namespace DataAccess.DAO
                                     Image = a.Image,
                                     NameAuction = a.NameAuction,
                                     StartingPrice = a.StartingPrice,
-                                    StartDay = ad.StartDay,
-                                    StartTime = ad.StartTime,
-                                    EndDay = ad.EndDay,
-                                    EndTime = ad.EndTime,
+                                    StartDay = ad.StartDay == null ? "" : ad.StartDay,
+                                    StartTime = ad.StartTime == null ? "" : ad.StartTime,
+                                    EndDay = ad.EndDay == null ? "" : ad.EndDay,
+                                    EndTime = ad.EndTime == null ? "" : ad.EndTime,
                                     StatusAuction = a.StatusAuction == null ? "Not approved yet"
                                                 : a.StatusAuction == false ? "Reject"
                                                 : "Approved"
@@ -887,10 +1043,10 @@ namespace DataAccess.DAO
                                     Image = a.Image,
                                     NameAuction = a.NameAuction,
                                     StartingPrice = a.StartingPrice,
-                                    StartDay = ad.StartDay,
-                                    StartTime = ad.StartTime,
-                                    EndDay = ad.EndDay,
-                                    EndTime = ad.EndTime,
+                                    StartDay = ad.StartDay == null ? "" : ad.StartDay,
+                                    StartTime = ad.StartTime == null ? "" : ad.StartTime,
+                                    EndDay = ad.EndDay == null ? "" : ad.EndDay,
+                                    EndTime = ad.EndTime == null ? "" : ad.EndTime,
                                     StatusAuction = a.StatusAuction == null ? "Not approved yet"
                                                 : a.StatusAuction == false ? "Reject"
                                                 : "Approved"
@@ -1084,7 +1240,7 @@ namespace DataAccess.DAO
         {
             try
             {
-                using(var context = new ConnectDB())
+                using (var context = new ConnectDB())
                 {
                     var auction = await (from a in context.AuctionDetails
                                          where a.ListAuctionID == id
@@ -1109,21 +1265,21 @@ namespace DataAccess.DAO
         {
             try
             {
-                using(var context = new ConnectDB())
+                using (var context = new ConnectDB())
                 {
-                    var user = await(from a in context.RegistAuctioneers
-                                     join u in context.AccountDetails on a.AccountID equals u.AccountID
-                                     join d in context.Deposits on a.RAID equals d.RAID
-                                     where a.ListAuctionID == id
-                                     select new AuctionnerAdminDTO
-                                     {
-                                         userID = u.AccountID,
-                                         userName = u.FullName
-                                     }).ToListAsync();
+                    var user = await (from a in context.RegistAuctioneers
+                                      join u in context.AccountDetails on a.AccountID equals u.AccountID
+                                      join d in context.Deposits on a.RAID equals d.RAID
+                                      where a.ListAuctionID == id && d.status == "success"
+                                      select new AuctionnerAdminDTO
+                                      {
+                                          userID = u.AccountID,
+                                          userName = u.FullName
+                                      }).ToListAsync();
                     return user;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

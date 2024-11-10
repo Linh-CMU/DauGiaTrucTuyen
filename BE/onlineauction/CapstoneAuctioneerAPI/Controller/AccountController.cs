@@ -13,6 +13,8 @@ using Azure;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Identity;
+using BusinessObject.Model;
 
 namespace CapstoneAuctioneerAPI.Controller
 {
@@ -28,14 +30,16 @@ namespace CapstoneAuctioneerAPI.Controller
         /// The account service
         /// </summary>
         private readonly AccountService _accountService;
+        private readonly UserManager<Account> _userManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountController"/> class.
         /// </summary>
         /// <param name="accountService">The account service.</param>
-        public AccountController(AccountService accountService)
+        public AccountController(AccountService accountService, UserManager<Account> userManager)
         {
             _accountService = accountService;
+            _userManager = userManager;
         }
         /// <summary>
         /// Logins the specified login.
@@ -60,13 +64,6 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-        [HttpGet]
-        [Route("acv")]
-        public IActionResult Gets()
-        {
-            var data = new { message = "Xin chào!" };
-            return Ok(data);
-        }
 
         /// <summary>
         /// Registers the specified account.
@@ -84,12 +81,40 @@ namespace CapstoneAuctioneerAPI.Controller
                 {
                     return Ok(result);
                 }
-                return BadRequest(result); // Return 400 with the error message
+                return BadRequest(result);
             }
             catch (Exception ex)
             {
                 // Log the exception (optional)
                 return StatusCode(500, new ResponseDTO() { IsSucceed = false, Message = "Internal server error: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        [Route("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(string email, string otp)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return NotFound("User not found.");
+
+            if (user.AccessFailedCount >= 3)
+            {
+                await _userManager.DeleteAsync(user);
+                return Unauthorized("Account deleted due to multiple failed verification attempts.");
+            }
+
+            var isValidOtp = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "OTP", otp);
+            if (isValidOtp)
+            {
+                user.EmailConfirmed = true;
+                user.AccessFailedCount = 0;
+                await _userManager.UpdateAsync(user);
+                return Ok("Email verified successfully.");
+            }
+            else
+            {
+                await _userManager.AccessFailedAsync(user); // Increment failed count
+                return Unauthorized("Invalid OTP. Please try again.");
             }
         }
         /// <summary>
@@ -129,7 +154,8 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             try
             {
-                var result = await _accountService.ChangePassWordAsync(changepassDTO);
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _accountService.ChangePassWordAsync(userId ,changepassDTO);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -154,6 +180,25 @@ namespace CapstoneAuctioneerAPI.Controller
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get user ID from claims
                 var result = await _accountService.ProfileUserAsync(userId);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        [HttpGet]
+        [Authorize]
+        [Route("Admin/userDetail")]
+        public async Task<ActionResult> UserDetail(string uid)
+        {
+            try
+            {
+                var result = await _accountService.ProfileUserAsync(uid);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -227,31 +272,11 @@ namespace CapstoneAuctioneerAPI.Controller
         [HttpPut("UserOrAdmin/addInformation")]
         [Authorize]
         public async Task<IActionResult> AddInformation(
-            IFormFile? avatar,
-            string? fullName,
-            string? phone,
-            IFormFile? frontCCCD,
-            IFormFile? backsideCCCD,
-            string? city,
-            string? ward,
-            string? district,
-            string? address
+           [FromForm] AddInforUserDTO addInforUserDTO
             )
         {
-            var uProfileDTO = new AddInformationDTO()
-            {
-                Avatar = avatar,
-                FullName = fullName,
-                Phone = phone,
-                FrontCCCD = frontCCCD,
-                BacksideCCCD = backsideCCCD,
-                City = city,
-                Ward = ward,
-                District = district,
-                Address = address
-            };
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get user ID from claims
-            var response = await _accountService.AddInformation(userId, uProfileDTO);
+            var response = await _accountService.AddInformation(userId, addInforUserDTO);
 
             if (!response.IsSucceed)
             {

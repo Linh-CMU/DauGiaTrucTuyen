@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class CreaterDTO
+    public class RaiseDTO
     {
-        public string accountID { get; set; }
-        public string name { get; set; }
+        public int auctionId { get; set; }
+        public decimal price { get; set; }
     }
 }

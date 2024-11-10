@@ -108,9 +108,15 @@ namespace BusinessObject.Migrations
                     b.Property<string>("BacksideCCCD")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Birthdate")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DateOfIssue")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("District")
                         .HasMaxLength(100)
@@ -123,9 +129,18 @@ namespace BusinessObject.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool?>("Gender")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PlaceOfIssue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOfResidence")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ward")
                         .HasMaxLength(100)
@@ -145,33 +160,27 @@ namespace BusinessObject.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("EndDay")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EndTime")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberofAuctionRounds")
+                    b.Property<int?>("NumberofAuctionRounds")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentMethod")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("PriceStep")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("StartDay")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StartTime")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimePerLap")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ListAuctionID");
@@ -179,31 +188,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("CategoryID");
 
                     b.ToTable("AuctionDetail");
-                });
-
-            modelBuilder.Entity("BusinessObject.Model.Bet", b =>
-                {
-                    b.Property<int>("BetID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BetID"));
-
-                    b.Property<string>("BidTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PriceBit")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RAID")
-                        .HasColumnType("int");
-
-                    b.HasKey("BetID");
-
-                    b.HasIndex("RAID");
-
-                    b.ToTable("Bet");
                 });
 
             modelBuilder.Entity("BusinessObject.Model.Category", b =>
@@ -251,6 +235,47 @@ namespace BusinessObject.Migrations
                     b.ToTable("Deposit");
                 });
 
+            modelBuilder.Entity("BusinessObject.Model.DigitalSignature", b =>
+                {
+                    b.Property<int>("FileAID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileAID"));
+
+                    b.Property<string>("Base64SignatureImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ListAuctionID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PrivateKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Signature")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SignatureImg")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("FileAID");
+
+                    b.HasIndex("ListAuctionID");
+
+                    b.ToTable("DigitalSignature");
+                });
+
             modelBuilder.Entity("BusinessObject.Model.Feedback", b =>
                 {
                     b.Property<int>("RAID")
@@ -277,32 +302,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("AccountID");
 
                     b.ToTable("Feedback");
-                });
-
-            modelBuilder.Entity("BusinessObject.Model.FileAttachments", b =>
-                {
-                    b.Property<int>("FileAID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileAID"));
-
-                    b.Property<string>("FileAuctioneer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ListAuctionID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SignatureImg")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("FileAID");
-
-                    b.HasIndex("ListAuctionID");
-
-                    b.ToTable("FileAttachments");
                 });
 
             modelBuilder.Entity("BusinessObject.Model.ListAuction", b =>
@@ -405,6 +404,31 @@ namespace BusinessObject.Migrations
                     b.ToTable("Payment");
                 });
 
+            modelBuilder.Entity("BusinessObject.Model.PlacingABid", b =>
+                {
+                    b.Property<int>("BetID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BetID"));
+
+                    b.Property<string>("BidTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PriceBit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RAID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BetID");
+
+                    b.HasIndex("RAID");
+
+                    b.ToTable("PlacingABid");
+                });
+
             modelBuilder.Entity("BusinessObject.Model.RegistAuction", b =>
                 {
                     b.Property<int>("RAID")
@@ -486,13 +510,13 @@ namespace BusinessObject.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b17bf8ec-3ade-41a2-95cf-b5c558a72137",
+                            Id = "e047a1e7-14e7-4c8a-bba8-9bd32a234f23",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "d0787343-eb9f-4329-9ffb-651f92843fa5",
+                            Id = "12538596-4e0b-44cc-b5f9-913c22b5ec00",
                             Name = "user",
                             NormalizedName = "USER"
                         });
@@ -631,17 +655,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("ListAuctions");
                 });
 
-            modelBuilder.Entity("BusinessObject.Model.Bet", b =>
-                {
-                    b.HasOne("BusinessObject.Model.RegistAuction", "RegistAuctioneer")
-                        .WithMany("Bets")
-                        .HasForeignKey("RAID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RegistAuctioneer");
-                });
-
             modelBuilder.Entity("BusinessObject.Model.Deposit", b =>
                 {
                     b.HasOne("BusinessObject.Model.RegistAuction", "RegistAuctions")
@@ -651,6 +664,17 @@ namespace BusinessObject.Migrations
                         .IsRequired();
 
                     b.Navigation("RegistAuctions");
+                });
+
+            modelBuilder.Entity("BusinessObject.Model.DigitalSignature", b =>
+                {
+                    b.HasOne("BusinessObject.Model.AuctionDetail", "AuctionDetails")
+                        .WithMany("FileAttachments")
+                        .HasForeignKey("ListAuctionID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("AuctionDetails");
                 });
 
             modelBuilder.Entity("BusinessObject.Model.Feedback", b =>
@@ -670,17 +694,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Accounts");
 
                     b.Navigation("RegistAuctions");
-                });
-
-            modelBuilder.Entity("BusinessObject.Model.FileAttachments", b =>
-                {
-                    b.HasOne("BusinessObject.Model.AuctionDetail", "AuctionDetails")
-                        .WithMany("FileAttachments")
-                        .HasForeignKey("ListAuctionID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("AuctionDetails");
                 });
 
             modelBuilder.Entity("BusinessObject.Model.ListAuction", b =>
@@ -722,6 +735,17 @@ namespace BusinessObject.Migrations
                     b.Navigation("RegistAuctions");
                 });
 
+            modelBuilder.Entity("BusinessObject.Model.PlacingABid", b =>
+                {
+                    b.HasOne("BusinessObject.Model.RegistAuction", "RegistAuctioneer")
+                        .WithMany("Bets")
+                        .HasForeignKey("RAID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RegistAuctioneer");
+                });
+
             modelBuilder.Entity("BusinessObject.Model.RegistAuction", b =>
                 {
                     b.HasOne("BusinessObject.Model.Account", "Accounts")
@@ -743,7 +767,7 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Model.TImage", b =>
                 {
-                    b.HasOne("BusinessObject.Model.FileAttachments", "FileAttachments")
+                    b.HasOne("BusinessObject.Model.DigitalSignature", "FileAttachments")
                         .WithMany("TImages")
                         .HasForeignKey("FileAID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -829,7 +853,7 @@ namespace BusinessObject.Migrations
                     b.Navigation("AuctionDetails");
                 });
 
-            modelBuilder.Entity("BusinessObject.Model.FileAttachments", b =>
+            modelBuilder.Entity("BusinessObject.Model.DigitalSignature", b =>
                 {
                     b.Navigation("TImages");
                 });

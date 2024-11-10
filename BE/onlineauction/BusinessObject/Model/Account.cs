@@ -28,5 +28,6 @@ namespace BusinessObject.Model
         public virtual ICollection<ListAuction> CreatedAuctions { get; set; } = new List<ListAuction>();
 
         public virtual ICollection<ListAuction> ManagedAuctions { get; set; } = new List<ListAuction>();
+        public virtual ICollection<UserOtp> UserOtp { get; set; } = new List<UserOtp>();
     }
 }

@@ -32,5 +32,11 @@ namespace BusinessObject.Model
 
         [StringLength(250)]
         public string? Address { get; set; }
+        public string? Birthdate { get; set; }
+        public bool? Gender { get; set; }
+        public string? PlaceOfResidence { get; set; }
+        public string? PlaceOfIssue { get; set; }
+        public string? DateOfIssue { get; set; }
+
     }
 }

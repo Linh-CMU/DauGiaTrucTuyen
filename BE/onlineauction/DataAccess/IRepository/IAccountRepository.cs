@@ -37,7 +37,7 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="changepassDTO">The changepass dto.</param>
         /// <returns></returns>
-        Task<ResponseDTO> ChangePassWord(ChangepassDTO changepassDTO);
+        Task<ResponseDTO> ChangePassWord(string userId, ChangepassDTO changepassDTO);
         /// <summary>
         /// Profiles the user.
         /// </summary>
@@ -80,7 +80,7 @@ namespace DataAccess.IRepository
         /// <param name="userID">The user identifier.</param>
         /// <param name="uProfileDTO">The u profile dto.</param>
         /// <returns></returns>
-        Task<ResponseDTO> AddInformation(string userID, AddInformationDTO uProfileDTO);
+        Task<ResponseDTO> AddInformation(string userID, AddInforUserDTO uProfileDTO);
         /// <summary>
         /// Uns the lock account.
         /// </summary>

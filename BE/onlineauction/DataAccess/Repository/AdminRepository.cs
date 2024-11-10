@@ -198,9 +198,9 @@ namespace DataAccess.Repository
             {
                 AccountId = account.Id,
                 UserName = account.UserName,
-                Avatar = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.Avatar}",
-                FrontCCCD = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.FrontCCCD}",
-                BacksideCCCD = $"http://capstoneauctioneer.runasp.net/api/Upload/read?filePath={accountDetail.BacksideCCCD}",
+                Avatar = accountDetail.Avatar,
+                FrontCCCD = accountDetail.FrontCCCD,
+                BacksideCCCD = accountDetail.BacksideCCCD,
                 Email = account.Email,
                 FullName = accountDetail.FullName,
                 Phone = accountDetail.Phone,
@@ -280,6 +280,26 @@ namespace DataAccess.Repository
                 return new ResponseDTO { IsSucceed = false, Message = "Failed" };
 
             }
+        }
+
+        public async Task<ResponseDTO> listBidderInAuction(int id)
+        {
+            var result = await AuctionDAO.Instance.listBidderInAuction(id);
+            if (result != null)
+            {
+                return new ResponseDTO {Result = result, IsSucceed = true, Message = "Successfully" };
+            }
+            else
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Failed" };
+
+            }
+        }
+
+        public async Task<AuctionRoomAdminDTO> AuctionRoomAdmin(int id)
+        {
+            var result = await AuctionDAO.Instance.AuctionRoomAdmin(id);
+            return result;
         }
     }
 }

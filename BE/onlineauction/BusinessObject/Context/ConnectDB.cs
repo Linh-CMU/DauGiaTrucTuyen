@@ -28,10 +28,10 @@ namespace BusinessObject.Context
         }
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountDetail> AccountDetails { get; set; }
-        public virtual DbSet<Bet> Bets { get; set; }
+        public virtual DbSet<PlacingABid> Bets { get; set; }
         public virtual DbSet<Category> Categorys { get; set; }
         public virtual DbSet<Feedback> Feedbacks { get; set; }
-        public virtual DbSet<FileAttachments> FileAttachments { get; set; }
+        public virtual DbSet<DigitalSignature> FileAttachments { get; set; }
         public virtual DbSet<ListAuction> ListAuctions { get; set; }
         public virtual DbSet<Notification> Notications { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
@@ -39,6 +39,7 @@ namespace BusinessObject.Context
         public virtual DbSet<TImage> TImages { get; set; }
         public virtual DbSet<AuctionDetail> AuctionDetails { get; set; }
         public virtual DbSet<Deposit> Deposits { get; set; }
+        public virtual DbSet<UserOtp> UserOtp { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,7 +50,7 @@ namespace BusinessObject.Context
                 .WithOne(ra => ra.Feedbacks)
                 .HasForeignKey<Feedback>(f => f.RAID)
                 .OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Bet>()
+            modelBuilder.Entity<PlacingABid>()
                 .HasOne(b => b.RegistAuctioneer)
                 .WithMany(r => r.Bets)
                 .HasForeignKey(b => b.RAID);
@@ -62,7 +63,7 @@ namespace BusinessObject.Context
                 .WithMany(r => r.Payments)
                 .HasForeignKey(p => p.RAID)
                 .OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<FileAttachments>()
+            modelBuilder.Entity<DigitalSignature>()
                 .HasOne(p => p.AuctionDetails)
                 .WithMany(r => r.FileAttachments)
                 .HasForeignKey(p => p.ListAuctionID)

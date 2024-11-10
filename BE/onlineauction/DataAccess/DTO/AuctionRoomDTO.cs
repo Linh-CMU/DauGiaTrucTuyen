@@ -13,6 +13,7 @@ namespace DataAccess.DTO
         public string Image { get; set; }
         public string NameAuction { get; set; }
         public decimal StartingPrice { get; set; }
+        public decimal? stepMoney { get; set; }
         public string StartDay { get; set; }
         public string StartTime { get; set; }
         public string EndDay { get; set; }

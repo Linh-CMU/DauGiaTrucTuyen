@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Model
 {
-    [Table("Bet")]
-    public class Bet
+    [Table("PlacingABid")]
+    public class PlacingABid
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace DataAccess.DAO
 {
@@ -63,6 +65,24 @@ namespace DataAccess.DAO
                 using (var context = new ConnectDB())
                 {
                     context.AccountDetails.Add(accountDetail);
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle exception
+                return false;
+            }
+        }
+        public async Task<bool> RemoveAccount(string userId)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    var user = context.AccountDetails.FirstOrDefault(u => u.AccountID == userId);
+                    context.AccountDetails.Remove(user);
                     await context.SaveChangesAsync();
                     return true;
                 }
@@ -130,6 +150,12 @@ namespace DataAccess.DAO
                     existingAccountDetail.Ward = accountDetail.Ward;
                     existingAccountDetail.District = accountDetail.District;
                     existingAccountDetail.Address = accountDetail.Address;
+                    existingAccountDetail.Birthdate = accountDetail.Birthdate;
+                    existingAccountDetail.Gender = accountDetail.Gender;
+                    existingAccountDetail.PlaceOfResidence = accountDetail.PlaceOfResidence;
+                    existingAccountDetail.PlaceOfIssue = accountDetail.PlaceOfIssue;
+                    existingAccountDetail.DateOfIssue = accountDetail.DateOfIssue;
+
 
                     // Đánh dấu entity là đã sửa đổi và lưu các thay đổi
                     context.Entry(existingAccountDetail).State = EntityState.Modified;
@@ -147,7 +173,20 @@ namespace DataAccess.DAO
                 throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
             }
         }
+        public async Task StoreOtpForUser(Account user, string otp, DateTime expirationTime)
+        {
+            using (var context = new ConnectDB())
+            {
+                var otpRecord = new UserOtp
+                {
+                    UserId = user.Id,
+                    Otp = otp,
+                    ExpirationTime = expirationTime
+                };
 
-
+                context.UserOtp.Add(otpRecord);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

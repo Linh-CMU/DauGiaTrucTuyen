@@ -24,15 +24,18 @@ namespace DataAccess.Service
         /// The account repository
         /// </summary>
         private readonly IAccountRepository _accountRepository;
+
+        private readonly IAuctioneerRepository _auctioneerRepository;
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminService" /> class.
         /// </summary>
         /// <param name="adminRepository">The admin repository.</param>
         /// <param name="accountRepository">The account repository.</param>
-        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository) 
+        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository, IAuctioneerRepository auctioneerRepository) 
         {
             _adminRepository= adminRepository;
             _accountRepository = accountRepository;
+            _auctioneerRepository = auctioneerRepository;
         }
         /// <summary>
         /// Lists the category asynchronous.
@@ -213,10 +216,53 @@ namespace DataAccess.Service
             var result = await _adminRepository.AuctionDetailBatchJob(id);
             return result;
         }
+        /// <summary>
+        /// Res up auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ReUpAuction(int id)
         {
             var result = await _adminRepository.ReUpAuction(id);
             return result;
+        }
+        /// <summary>
+        /// Lists the bidder in auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<ResponseDTO> listBidderInAuction(int id)
+        {
+            var result = await _adminRepository.listBidderInAuction(id);
+            return result;
+        }
+        public async Task<ResponseDTO> ListAuctioneerByUser(string id, int status)
+        {
+            var result = await _auctioneerRepository.ListAuctioneerByUser(id, status);
+            return result;
+        }
+        public async Task<ResponseDTO> AuctionRoomAdmin(int id)
+        {
+            try
+            {
+                var result = await _adminRepository.AuctionRoomAdmin(id);
+                var response = new ResponseDTO()
+                {
+                    Result = result,
+                    IsSucceed = true,
+                    Message = "Success"
+                };
+                return response;
+            }
+            catch
+            {
+                var response = new ResponseDTO()
+                {
+                    IsSucceed = false,
+                    Message = "false"
+                };
+                return response;
+            }
         }
     }
 }
