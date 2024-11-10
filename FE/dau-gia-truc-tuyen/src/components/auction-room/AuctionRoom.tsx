@@ -1,23 +1,50 @@
-import { useState } from 'react';
-import CountdownTimer from '@common/coutdown-timer/CountdownTimer';
-import { convertDate } from '@utils/helper';
+import { useState, useEffect, useMemo } from 'react';
 import { AuctionDetails } from 'types';
 import { Box, IconButton, TextField, Grid, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import { postBidMoney } from '@queries/AuctionAPI';
 
 interface AuctionRoomProps {
-  auctionDetailInfor: AuctionDetails | null; // Use shared Auction type
+  auctionDetailInfor: AuctionDetails | null;
+}
+interface BidMoneyParams {
+  auctionId: string | undefined;
+  price: number;
 }
 
 const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const [inputValue, setInputValue] = useState(1); // Start with a numeric value
-  const stepValue = 5000000;
-  const currentPrice = 14000000;
+  const [bidHistory, setBidHistory] = useState([]);
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const [bidStep, setBidStep] = useState(0);
+  const id = 1;
+
+  const stepValue: number | undefined = useMemo(() => {
+    return auctionDetailInfor?.priceStep;
+  }, [auctionDetailInfor]);
+
+  useEffect(() => {
+    const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${id}`);
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setBidHistory(data);
+      setCurrentPrice(data[0]?.Price);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [id]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    if (/^[0-9]*$/.test(value)) { // Accept only numeric input
+    if (/^[0-9]*$/.test(value)) {
+      // Accept only numeric input
       setInputValue(value === '' ? 0 : Number(value)); // Set input value or default to 0
     }
   };
@@ -26,65 +53,94 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
     setInputValue((prev) => prev + 1);
   };
 
- const decrementValue = () => {
-  setInputValue((prev) => (prev > 1 ? prev - 1 : 1)); // Prevent going below 1
-};
-
- const calculateResult = () => {
-    const result = stepValue * inputValue; // Calculate the result
-    return new Intl.NumberFormat('vi-VN').format(result); // Format result to Vietnamese style
+  const decrementValue = () => {
+    setInputValue((prev) => (prev > 1 ? prev - 1 : 1)); // Prevent going below 1
   };
 
+  const formatMoney = (int: number) => {
+    return new Intl.NumberFormat('vi-VN').format(int);
+  };
+
+  const calculateResult = () => {
+    const result = (stepValue || 0) * inputValue; // Calculate the result
+    setBidStep(result); // Store the result in state
+  };
+
+  useEffect(() => {
+    calculateResult(); // Recalculate result when either stepValue or inputValue changes
+  }, [inputValue, stepValue]);
+
   const calculateTotal = () => {
-    const total = currentPrice + stepValue * inputValue; // Calculate total price
+    const total = currentPrice + (stepValue || 0) * inputValue; // Calculate total price
     return new Intl.NumberFormat('vi-VN').format(total); // Format total to Vietnamese style
+  };
+
+  const handleBidButton = async (params: BidMoneyParams) => {
+    try {
+      // Ensure auctionId and price are valid before making the call
+      if (!params.auctionId || params.price <= 0) {
+        console.error('Auction ID and price must be valid.');
+        return;
+      }
+
+      // Proceed with the valid number ID
+      const response = await postBidMoney(params.auctionId, params.price); // Ensure sending it as string if needed
+      console.log('Bid placed successfully:', response);
+    } catch (error) {
+      console.error('Failed to place bid:', error);
+    }
   };
 
   return (
     <div className="container flex flex-col gap-2 h-full">
       <div>
-        <div>Diễn biến cuộc đấu giá</div>
-        <div className="flex flex-col border border-gray-100 p-4 rounded-lg">
-          <div className="flex justify-between w-full items-center mb-2 mt-2 ">
-            <div>
-              <p>14.000.000</p>
-              <span>15/09/2023 12:46:18</span>
-            </div>
-            <div>ID user</div>
-          </div>
-          <div className="h-[2px] w-full bg-gray-200"></div>
-          <div className="flex justify-between w-full items-center mb-2 mt-2 ">
-            <div>
-              <p>14.000.000</p>
-              <span>15/09/2023 12:46:18</span>
-            </div>
-            <div>ID user</div>
+        <div className="mb-5 flex gap-3 size-5 w-full font-bold">
+          <AutoGraphIcon />
+          Diễn biến cuộc đấu giá
+        </div>
+        <div className="flex flex-col border border-gray-100 p-4 rounded-lg max-h-80 overflow-y-scroll bg-lightGray">
+          <div className="flex flex-col gap-2">
+            {bidHistory.map((bid: any, index) => (
+              <>
+                <div
+                  className={`flex justify-between w-full items-center mb-2 mt-2 ${
+                    index === 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  <div>
+                    <p>{new Intl.NumberFormat('vi-VN').format(bid.Price)} VND</p>
+                    <span>{bid.DateAndTime}</span>
+                  </div>
+                  <div>{index === 0 ? <EmojiEventsIcon /> : <HourglassBottomIcon />}</div>
+                </div>
+                <div className="h-[2px] w-full bg-gray-200"></div>
+              </>
+            ))}
           </div>
         </div>
       </div>
-      <div className="flex flex-col border border-gray-100 p-4 rounded-lg">
+      <div className="flex flex-col border border-gray-100 p-4 rounded-lg bg-lightGray">
         <div className="flex justify-between w-full">
           <p>Giá hiện tại</p>
-          <span>14.000.000</span>
+          <span>{formatMoney(currentPrice)} VNĐ</span>
         </div>
         <div className="h-[2px] w-full bg-gray-200"></div>
 
-        <div className="flex mt-6">
+        <div className="flex mt-6 items-center justify-between">
           <TextField
             required
             id="outlined-required"
             label="Bước giá"
-            defaultValue="5000000"
+            defaultValue={stepValue}
             size="small"
-           
             InputProps={{
               readOnly: true, // Set to readOnly if you don't want this input to be editable
             }}
           />
           X
-          <div className="flex items-center border border-gray-100 p-1 rounded-lg">
+          <div className="flex items-center border border-gray-300 p-1 rounded-lg">
             <Grid item>
-              <Box className="flex items-center">
+              <Box className="flex items-center p-1">
                 <IconButton
                   size="small"
                   sx={{
@@ -96,7 +152,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
                   }}
                   onClick={incrementValue}
                 >
-                  <AddIcon sx={{ color: 'white' }} />
+                  <AddIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
                 </IconButton>
                 <TextField
                   value={inputValue}
@@ -106,13 +162,14 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
                   size="small"
                   sx={{
                     mx: 1,
-                    width: '80px',
+                    width: '50px',
                     '& .MuiInputBase-root': {
-                      height: '15px',
+                      height: '25px',
                     },
                     '& input': {
-                      padding: '0px',
-                      height: '15px',
+                      marginLeft: 'auto',
+                      marginRight: 'auto',
+                      height: '25px',
                       fontSize: '12px',
                     },
                   }}
@@ -128,23 +185,23 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
                   }}
                   onClick={decrementValue}
                 >
-                  <RemoveIcon sx={{ color: 'white' }} />
+                  <RemoveIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
                 </IconButton>
               </Box>
             </Grid>
           </div>
-          <div>
-            = {calculateResult()} {/* Display the calculated result */}
-          </div>
+          <div>= {new Intl.NumberFormat('vi-VN').format(bidStep)}</div>
         </div>
 
-         <Box mt={2}>
+        <Box mt={2} margin={'auto'} p={4}>
           <Button
+            className="w-[400px] p-2 flex gap-4"
             variant="contained"
             color="primary"
-            onClick={() => alert(`Giá phải trả: ${calculateResult()}`)} // Display the total value
+            onClick={() => handleBidButton({ auctionId: auctionDetailInfor?.listAuctionID.toString(), price: bidStep })} // Pass an object as an argument
           >
-            Giá phải trả: {calculateTotal()}
+            Giá phải trả:
+            <span className="font-bold text-xl"> {calculateTotal()} VNĐ</span>
           </Button>
         </Box>
       </div>
