@@ -6,7 +6,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import { postBidMoney } from '@queries/AuctionAPI';
+import { getAuctionRoomDetail, postBidMoney } from '@queries/AuctionAPI';
+import CountDownTimeForRoom from '@common/coutdown-timer/CountDownTimeForRoom';
+import useTimeDifference from '@hooks/useTimeDifference';
 
 interface AuctionRoomProps {
   auctionDetailInfor: AuctionDetails | null;
@@ -16,16 +18,58 @@ interface BidMoneyParams {
   price: number;
 }
 
+interface RoomAuctionDetails {
+  startDay: string;
+  startTime: string;
+  // Add other properties as needed
+}
+
+const convertToRoomTime = ({
+  startDay,
+  startTime,
+}: {
+  startDay: string;
+  startTime: string;
+}): string => {
+  return `${startDay} ${startTime}`;
+};
+
 const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const [inputValue, setInputValue] = useState(1); // Start with a numeric value
   const [bidHistory, setBidHistory] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(0);
+  const [roomAuctionDetails, setRoomAuctionDetails] = useState<RoomAuctionDetails | null>(null);
+  const [isTimeOut, setIsTimeOut] = useState(false);
+  const [timeRound, setTimeRound] = useState('');
   const [bidStep, setBidStep] = useState(0);
   const id = 1;
+
+  // const roomTime = convertToRoomTime({
+  //   startDay: roomAuctionDetails?.startDay || '',
+  //   startTime: roomAuctionDetails?.startTime || '',
+  // });
+
+  const roomTime = '14/11/2024 23:59';
+  const { greaterTime, isIntime } = useTimeDifference(roomTime, timeRound);
+
+  console.log(isIntime, 'isIntime');
 
   const stepValue: number | undefined = useMemo(() => {
     return auctionDetailInfor?.priceStep;
   }, [auctionDetailInfor]);
+
+  useEffect(() => {
+    const fetchAuctionRoomDetails = async () => {
+      const response = await getAuctionRoomDetail(id); // Call API function
+      if (response?.isSucceed) {
+        setRoomAuctionDetails(response?.result || null); // Ensure result is an object or null
+        setTimeRound(response?.result?.timeRound);
+      } else {
+        console.error('fetch list failed');
+      }
+    };
+    fetchAuctionRoomDetails();
+  }, [id]);
 
   useEffect(() => {
     const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${id}`);
@@ -193,17 +237,24 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
           <div>= {new Intl.NumberFormat('vi-VN').format(bidStep)}</div>
         </div>
 
-        <Box mt={2} margin={'auto'} p={4}>
+        <div className="grid grid-cols-[2fr_3fr] items-center gap-x-6 mt-4">
+          <CountDownTimeForRoom timeRound={greaterTime || ''} setIsTimeOut={setIsTimeOut} />
           <Button
-            className="w-[400px] p-2 flex gap-4"
+            className="w-auto p-2 flex gap-4 h-14"
             variant="contained"
             color="primary"
-            onClick={() => handleBidButton({ auctionId: auctionDetailInfor?.listAuctionID.toString(), price: bidStep })} // Pass an object as an argument
+            disabled={isTimeOut || !isIntime}
+            onClick={() =>
+              handleBidButton({
+                auctionId: auctionDetailInfor?.listAuctionID.toString(),
+                price: bidStep,
+              })
+            } // Pass an object as an argument
           >
             Giá phải trả:
             <span className="font-bold text-xl"> {calculateTotal()} VNĐ</span>
           </Button>
-        </Box>
+        </div>
       </div>
     </div>
   );

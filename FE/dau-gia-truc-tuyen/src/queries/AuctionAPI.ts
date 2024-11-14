@@ -53,6 +53,22 @@ export const getDetailAuction = async (id: string = '0') => {
   }
 };
 
+//Join auction room
+export const getAuctionRoomDetail = async (id: number = 0) => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get(`api/joinRoomAuction?id=${id}`, {
+       headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction details', error);
+    throw error;
+  }
+};
+
+
+
 // Admin: Fetch list of auctions based on status
 export const getListAuctionAdmin = async (status: number) => {
   try {

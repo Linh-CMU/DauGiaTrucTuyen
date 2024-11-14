@@ -22,8 +22,6 @@ const CardList = ({
   startDay,
   targetDate,
 }: CardListProps) => {
-  // const targetDate = new Date('2024-12-31T23:59:59');
-  // console.log(targetDate,"targetDate") 
   const navigate = useNavigate();
 
   const handleDetailClick = () => {

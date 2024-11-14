@@ -10,7 +10,7 @@ const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetails | null>(null);
   const [userProfile, setUserProfile] = useState<Account | null>(null);
-  
+
   useEffect(() => {
     const fetchListAuction = async () => {
       const response = await getDetailAuction(id || '0'); // Call API function
@@ -38,7 +38,7 @@ const DetailPage = () => {
       <div className="flex gap-6 max-w-1/2">
         <CarouselDetail imgList={auctionDetailInfor?.image} />
         <div className="col-span-2 w-full">
-          <AuctionRoom auctionDetailInfor={auctionDetailInfor} userProfile={userProfile} />
+          <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
           {/* {auctionDetailInfor && (
             <DetailInformation 
               auctionDetailInfor={auctionDetailInfor}
