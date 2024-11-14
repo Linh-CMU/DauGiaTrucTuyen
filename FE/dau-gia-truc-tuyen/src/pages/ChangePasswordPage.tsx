@@ -4,7 +4,6 @@ import { changPassWork } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
 
 const ChangePasswordPage = () => {
-  const [username, setUsername] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,7 +15,6 @@ const ChangePasswordPage = () => {
       return;
     }
     const data = {
-      username: username,
       oldpassword: oldPassword,
       newpassword: newPassword,
     };
@@ -39,15 +37,6 @@ const ChangePasswordPage = () => {
       <div className="bg-white p-6 rounded shadow-md w-[25rem]">
         <h2 className="text-2xl font-bold mb-4 text-center">THAY ĐỔI MẬT KHẨU</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <TextField
-              fullWidth
-              label="Tên đăng nhập"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
           <div className="mb-4">
             <TextField
               fullWidth

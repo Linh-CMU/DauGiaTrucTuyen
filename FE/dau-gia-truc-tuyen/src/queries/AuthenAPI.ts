@@ -23,10 +23,14 @@ export const resetPass = async (data: { usernameOrEmail: string; resetToken: str
     }
   };
 
-  export const changPassWork = async (data: { username: string; oldpassword: string; newpassword: string }) => {
+  export const changPassWork = async (data: { oldpassword: string; newpassword: string }) => {
     try {
-      // Make a PUT request to change the password
-      const response = await axiosInstance.put('api/UserOrAdmin/changepassword', data);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.put('api/UserOrAdmin/changepassword', data, {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      });
       console.log(response.data, "Password change response");
       return response.data;
     } catch (error) {

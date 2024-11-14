@@ -149,13 +149,83 @@ export const getCategoryId = async (id: number, status: number) => {
     throw new Error('Failed to fetch category-based auction list');
   }
 };
+export const createPaymentDeposit = async (id: number) => {
+  try {
+    const token = localStorage.getItem("token");
 
-// Admin: Approve or reject an auction
-export const approveAuction = async (
-  autioneerID: number,
-  status: boolean,
-  priceStep: number | null
-) => {
+    // Kiểm tra token có tồn tại không
+    if (!token) {
+      throw new Error("Token not found in localStorage.");
+    }
+
+    const response = await axiosInstance.post(
+      `api/Payment/createPaymentDeposit?auctionId=${id}`,
+      {}, // Phần data trống nếu không cần gửi dữ liệu trong body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to create payment deposit.");
+  }
+};
+
+export const UpdatePayment = async (id: number, status: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // Kiểm tra token có tồn tại không
+    if (!token) {
+      throw new Error("Token not found in localStorage.");
+    }
+
+    const response = await axiosInstance.put(
+      `api/Payment/update-payment/${id}`,
+      { status }, // Truyền status vào body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to create payment deposit.");
+  }
+};
+
+export const registerForAuction = async (id: number) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // Kiểm tra xem token có tồn tại không
+    if (!token) {
+      throw new Error("Token not found in localStorage.");
+    }
+
+    const response = await axiosInstance.post(
+      `api/registerforauction?aid=${id}`,
+      {}, // Phần data trống nếu không cần gửi dữ liệu trong body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log(response?.data, "response");
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to register for auction.");
+  }
+};
+
+export const approveAuction = async (autioneerID: number, status: boolean, priceStep: number | null) => {
   try {
     const token = getToken();
     const response = await axiosInstance.put(
