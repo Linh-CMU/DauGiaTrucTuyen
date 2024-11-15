@@ -69,7 +69,6 @@ const ListAccountPage = () => {
     }
 
 
-
     return (
         <div className='container mx-auto py-6 px-4'>
             <div className="mb-4 flex justify-between items-center">

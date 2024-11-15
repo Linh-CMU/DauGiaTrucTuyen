@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const CountdownTimer = (props: any) => {
     const {targetDate} = props;
-  const calculateTimeLeft = (): { [key: string]: number } => {
+    const calculateTimeLeft = (): { [key: string]: number } => {
     const difference = targetDate.getTime() - new Date().getTime();
     let timeLeft: { [key: string]: number } = {};
 
@@ -33,10 +33,10 @@ const CountdownTimer = (props: any) => {
 
     return (
       <div className="flex space-x-4 text-xs justify-center text-white">
-        {days !== undefined && <p className="flex flex-col">{days}<span>ngày</span></p>}
-        {hours !== undefined  && <p className="flex flex-col">{hours}<span>giờ</span></p>}
-        {minutes !== undefined && <p className="flex flex-col">{minutes}<span>phút</span></p>}
-        {seconds !== undefined && <p className="flex flex-col">{seconds}<span>giây</span></p>}
+        {days !== undefined && <p className="flex flex-col">{days}<span>Ngày</span></p>}
+        {hours !== undefined  && <p className="flex flex-col">{hours}<span>Giờ</span></p>}
+        {minutes !== undefined && <p className="flex flex-col">{minutes}<span>Phút</span></p>}
+        {seconds !== undefined && <p className="flex flex-col">{seconds}<span>Giây</span></p>}
       </div>
     );
   };

@@ -1,12 +1,15 @@
 import { useAuth } from '@contexts/AuthContext';
 import { useLoading } from '@contexts/LoadingContext';
+import { useMessage } from '@contexts/MessageContext';
 import { Button, TextField } from '@mui/material';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { setErrorMessage, setSuccessMessage } = useMessage();
   const navigate = useNavigate();
   const { login } = useAuth();
   const { setIsLoading } = useLoading();
@@ -18,6 +21,7 @@ const LoginPage = () => {
     setIsLoading(false);
     if (success) {
       navigate('/');
+      setSuccessMessage('Login successful!');
       console.log('Login successful!');
     } else {
       console.error('Login failed!');

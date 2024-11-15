@@ -56,5 +56,17 @@ export interface profileResponse {
   backsideCCCD: string;
 }
 
+export interface listData {
+  id: string;
+  img: string;
+  name: string;
+  startDay: string;
+  startTime: string;
+  endDay: string;
+  endTime:string;
+  priceStart: number;
+  winningBid: number
+}
+
 
 

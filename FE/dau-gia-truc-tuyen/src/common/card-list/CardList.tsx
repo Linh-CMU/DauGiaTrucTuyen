@@ -52,12 +52,12 @@ const CardList = ({ isProperties = true, id }: CardListProps) => {
       </div>
 
       <div className="px-3 py-4">
-        <div className="font-bold text-l mb-2 line-clamp-2 hover:text-orange-400 hover:cursor-pointer">
+        <div className="font-bold text-l mb-2 line-clamp-2 hover:text-orange-400 hover:cursor-pointer m-2">
           Cho thuê Tầng 1 (sảnh) của Cơ quan Thông tấn xã Việt Nam khu vực Miền Trung - Tây Nguyên:
           Diện tích 100 m2 x đơn giá 363.000 đồng/1m2/1 tháng = 36.300.000 đồng/tháng.
         </div>
         {isProperties ? (
-          <div className="flex space justify-between text-l">
+          <div className="flex space justify-between text-l m-2">
             <div className="font-thin"> Giá khởi điểm</div>
             <div className="font-bold"> 36.000.000 VNĐ</div>
           </div>

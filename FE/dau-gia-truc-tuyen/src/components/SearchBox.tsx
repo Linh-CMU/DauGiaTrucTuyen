@@ -51,7 +51,7 @@ const SearchBox = () => {
     console.log(value);
   };
   return (
-    <div className="w-[1120px] h-20 bg-[#F19B40] p-4 rounder-md absolute m-auto bottom-[-50px] left-0 right-0">
+    <div className="w-full max-w-[1120px] h-20 bg-[#F19B40] p-4 rounder-md absolute m-auto bottom-[-50px] left-0 right-0 sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg">
       <form onSubmit={handleSubmit} className="flex gap-8 h-10">
         <TextFieldSearch
           id="outlined-textarea"

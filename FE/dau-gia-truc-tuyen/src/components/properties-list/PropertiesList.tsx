@@ -19,10 +19,10 @@ const StyledTabList = styled(TabList)({
 
 const PropertiesList = () => {
   const [value, setValue] = useState('1');
-
   const handleChange = (event: any, newValue: string) => {
     setValue(newValue);
   };
+
   return (
     <>
       <Typography variant="h5" component="h2" fontWeight="bold">
