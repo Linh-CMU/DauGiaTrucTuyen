@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CarouselDetail } from '@components/properties-detail';
 import AuctionRoom from '@components/auction-room/AuctionRoom';
-import {  getDetailAuctionUser } from '@queries/index';
+import {  getDetailAuctionUser } from '../../queries/index';
 import {  Account, AuctionDetailRegister } from 'types';
 import DetailInformationUser from '@components/properties-detail/DetailInformationUser';
 import DetailContentUser from '@components/properties-detail/DetailContentUser';
