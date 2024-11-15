@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TextField, Select, MenuItem, Button, InputLabel, FormControl } from '@mui/material';
-import { getCategory, getDetailAuctionUser, submitEditAuctionForm } from '@queries/AuctionAPI';
+import { getCategory, getDetailAuctionUser, submitEditAuctionForm } from '../../queries/AuctionAPI';
 import { AuctionDetailRegister } from 'types';
 import { useForm } from 'react-hook-form';
 import { useMessage } from '@contexts/MessageContext';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab, Typography, styled } from '@mui/material';
 import AllProperties from '../all-properties/AllProperties';
-import { getListAuction } from '@queries/index';
+import { getListAuction } from '../../queries/index';
 import {Auction} from 'types';
 
 const StyledTabList = styled(TabList)({

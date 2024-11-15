@@ -1,4 +1,4 @@
-import { UpdatePayment } from '@queries/AuctionAPI';
+import { UpdatePayment } from '../queries/AuctionAPI';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 

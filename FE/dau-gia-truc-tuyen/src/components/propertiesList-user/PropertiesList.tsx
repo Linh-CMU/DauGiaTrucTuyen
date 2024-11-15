@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Button, Tab, Typography, styled } from '@mui/material';
-import { getListAuctionOfContractor } from '@queries/AuctionAPI';
+import { getListAuctionOfContractor } from '../../queries/AuctionAPI';
 import { AuctionUser} from 'types';
 import AllPropertiesUser from '@components/all-properties/AllPropertiesUser';
 
