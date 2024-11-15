@@ -10,7 +10,7 @@ const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetails | null>(null);
   const [userProfile, setUserProfile] = useState<Account | null>(null);
-  
+
   useEffect(() => {
     const fetchListAuction = async () => {
       const response = await getDetailAuction(id || '0'); // Call API function
@@ -39,7 +39,7 @@ const DetailPage = () => {
         <CarouselDetail imgList={auctionDetailInfor?.image} />
         <div className="col-span-2 w-full">
           <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
-          {auctionDetailInfor && (
+          {/* {auctionDetailInfor && (
             <DetailInformation 
               auctionDetailInfor={auctionDetailInfor}
             />

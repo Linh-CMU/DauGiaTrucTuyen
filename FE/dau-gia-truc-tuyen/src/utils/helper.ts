@@ -5,3 +5,10 @@ export const convertDate = (startTime: string, endDate: string) => {
     const targetDate = new Date(isoDateString);
     return targetDate;
 }
+
+export const parseDateTime = (dateTime: string): Date => {
+  const [date, time] = dateTime.split(" ");
+  const [day, month, year] = date.split("/").map(Number);
+  const [hours, minutes] = time.split(":").map(Number);
+  return new Date(year, month - 1, day, hours, minutes);
+};
