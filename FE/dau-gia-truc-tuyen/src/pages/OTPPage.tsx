@@ -7,7 +7,6 @@ import { FormEvent, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const OTPPage = () => {
-  const [username, setUsername] = useState('');
   const [otp, setOtp] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,7 +27,6 @@ const OTPPage = () => {
       navigate('/login');
       setSuccessMessage('Veryfy successful!');
       // Optionally, reset the form
-      setUsername('');
       setOtp('');
     } else {
       setErrorMessage('Veryfy failed!');

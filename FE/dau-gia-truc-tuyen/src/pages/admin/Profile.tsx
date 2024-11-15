@@ -35,7 +35,7 @@ const Profile = () => {
   
   return (
     <>
-      <div className="w-full mt-3 flex items-center justify-center pt-10">
+      <div className="w-full mt-8 flex items-center justify-center pt-10">
         <h5 className="font-bold text-center text-2xl">INFORMATION</h5>
       </div>
       {profile ? (

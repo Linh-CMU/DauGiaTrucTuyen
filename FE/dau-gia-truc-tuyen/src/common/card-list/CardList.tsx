@@ -11,6 +11,8 @@ interface CardListProps {
   priceStart: string;
   startDay: string;
   targetDate: Date;
+  isApproved?: string;
+  url: string
 }
 
 const CardList = ({
@@ -21,21 +23,27 @@ const CardList = ({
   priceStart,
   startDay,
   targetDate,
+  isApproved, 
+  url,
 }: CardListProps) => {
-  // const targetDate = new Date('2024-12-31T23:59:59');
-  // console.log(targetDate,"targetDate") 
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/thong-tin-chi-tiet/${id}`);
+    navigate(`/${url}/${id}`);
   };
 
   const renderPrice = () => (
     <div className="flex justify-between text-l">
       <div className="font-thin">Giá khởi điểm</div>
-      <div className="font-bold">{priceStart} VNĐ</div>
+      <div className="font-bold">
+        {Number(priceStart).toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+          minimumFractionDigits: 0,  // Optional: removes decimal places for VND
+        }).replace('₫', '')} VNĐ
+      </div>
     </div>
-  );
+  );  
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg">
@@ -44,6 +52,12 @@ const CardList = ({
           className="group hover:cursor-pointer relative"
           onClick={handleDetailClick}
         >
+          {/* Overlay text for "approved" status */}
+          {isApproved && (
+            <div className="absolute top-2 left-2 bg-green-600 text-white font-semibold px-2 py-1 rounded">
+              {isApproved}
+            </div>
+          )}
           <img
             className="w-full mb-4"
             src={

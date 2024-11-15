@@ -8,7 +8,8 @@ import AddInfo from '@pages/Admin/AddInfo';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
 import AddActionPage from '@pages/User/AddActionPage';
-import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,OTPPage,
+import EditActionPage from '@pages/User/EditAuctionPage';
+import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,OTPPage, DetailAuctionPage,
   DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser, CancelPage,
   ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
 import { Route, Routes } from 'react-router-dom';
@@ -26,6 +27,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/thong-tin-chi-tiet/:id" element={<DetailPage/>} />
         </Route>
         <Route path="/add-auction" element={<AddActionPage />} />
+        <Route path="/edit-auction" element={<EditActionPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contract" element={<Contract />} />
         <Route path="/listAuction/:id?/:name?" element={<ListAuction />} />
@@ -36,13 +38,14 @@ const AppRoutes: React.FC = () => {
         <Route  path='/profile' element={<Profile />}/>
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/cancel" element={<CancelPage />} />
+        <Route path="/detail-auction/:id" element={<DetailAuctionPage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/otp" element={<OTPPage />} />
         <Route path="/auctionRoom" element={<AuctionRoom />} />
         <Route path="/resetPasswordPage/:token/:gmail" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />
         <Route path="/listYourAuction" element={<ListYourAuction />} />
-        <Route path="/inforUser/:id" element={<InforUser />} />
+        <Route path="/inforUser" element={<InforUser />} />
       </Routes>
     </>
   );

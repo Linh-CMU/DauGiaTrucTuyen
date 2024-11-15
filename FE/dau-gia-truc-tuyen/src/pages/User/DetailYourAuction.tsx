@@ -1,21 +1,24 @@
 // pages/DetailPage.tsx
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CarouselDetail, DetailInformation, DetailContent } from '@components/properties-detail';
+import { CarouselDetail } from '@components/properties-detail';
 import AuctionRoom from '@components/auction-room/AuctionRoom';
-import { getDetailAuction, profileUser } from '@queries/index';
-import { AuctionDetails, Account } from 'types';
+import {  getDetailAuctionUser } from '@queries/index';
+import {  Account, AuctionDetailRegister } from 'types';
+import DetailInformationUser from '@components/properties-detail/DetailInformationUser';
+import DetailContentUser from '@components/properties-detail/DetailContentUser';
 
-const DetailPage = () => {
+const DetailAuctionPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetails | null>(null);
-  const [userProfile, setUserProfile] = useState<Account | null>(null);
+  const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetailRegister | null>(null);
   
   useEffect(() => {
     const fetchListAuction = async () => {
-      const response = await getDetailAuction(id || '0'); // Call API function
+      const response = await getDetailAuctionUser(id || '0'); // Call API function
       if (response?.isSucceed) {
         setAuctionDetailInfor(response?.result || null); // Ensure result is an object or null
+        console.log(response?.result);
+        
       } else {
         console.error('fetch list failed');
       }
@@ -23,32 +26,21 @@ const DetailPage = () => {
     fetchListAuction();
   }, [id]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await profileUser();
-        setUserProfile(response.result);
-      } catch (error) {}
-    };
-    fetchData();
-  }, []);
-
   return (
     <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
       <div className="flex gap-6 max-w-1/2">
         <CarouselDetail imgList={auctionDetailInfor?.image} />
         <div className="col-span-2 w-full">
-          <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
           {auctionDetailInfor && (
-            <DetailInformation 
+            <DetailInformationUser 
               auctionDetailInfor={auctionDetailInfor}
             />
           )}
         </div>
       </div>
-      <DetailContent auctionDetailInfor={auctionDetailInfor} />
+      <DetailContentUser auctionDetailInfor={auctionDetailInfor} />
     </div>
   );
 };
 
-export default DetailPage;
+export default DetailAuctionPage;

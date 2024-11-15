@@ -13,6 +13,7 @@ export { default as ChangePasswordPage } from './ChangePasswordPage';
 export { default as ListAuction } from './Admin/listAuction';
 export { default as AuctionDetail } from './Admin/auctionDetail';
 export { default as ListYourAuction } from './User/ListYourAuction';
+export { default as DetailAuctionPage } from './User/DetailYourAuction';
 export { default as AuctionRoom } from './Admin/AuctionRoom';
 export { default as InforUser } from './Admin/InforUser';
 
