@@ -35,10 +35,10 @@ const PropertiesList = () => {
     };
     fetchListAuction();
   }, [value]);
-
   const handleChange = (event: any, newValue: string) => {
     setValue(newValue);
   };
+
   return (
     <>
       <Typography variant="h5" component="h2" fontWeight="bold">
