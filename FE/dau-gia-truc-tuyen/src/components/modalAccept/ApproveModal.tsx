@@ -19,8 +19,8 @@ import {
 interface ModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  setPrice: (price: number | null) => void;
+  onConfirm?: () => void;
+  setPrice?: (price: number) => void;
   users?: any[];
 }
 
@@ -50,7 +50,7 @@ export const ApproveModal: React.FC<ModalProps> = ({ open, onClose, onConfirm, s
           InputProps={{
             style: { fontSize: '14px' },
           }}
-          onChange={(e) => setPrice(Number(e.target.value))}
+          onChange={(e) => setPrice ? setPrice(Number(e.target.value)) : null} 
           required
           sx={{ marginTop: '20px' }}
         />
@@ -120,8 +120,10 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
           Danh sách người dùng
         </Typography>
         {users && users.length > 0 ? (
-          <Box sx={{ maxHeight: 200, overflowY: 'auto' }}
-          className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <Box
+            sx={{ maxHeight: 200, overflowY: 'auto' }}
+            className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          >
             {' '}
             {/* Adjust height to show 4 items */}
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>

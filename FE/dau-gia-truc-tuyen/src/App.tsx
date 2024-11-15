@@ -8,7 +8,6 @@ import { MessageProvider } from '@contexts/MessageContext';
 import AddInfo from '@pages/Admin/AddInfo';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
-import { HomePage, LoginPage, SignUpPage, DetailPage, ListAuction, AuctionDetail, ForgotPage, ResetPasswordPage, ChangePasswordPage } from '@pages/index';
 import Login1 from '@pages/Login1';
 import { Route, Routes, useLocation  } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
@@ -17,9 +16,12 @@ import Footer from '@common/footer/Footer';
 import Test from '@pages/Admin/Test';
 import Room from '@pages/Admin/Room';
 import Home from '@pages/Dashboard/Home';
-
-
-
+import AddActionPage from '@pages/User/AddActionPage';
+import EditActionPage from '@pages/User/EditAuctionPage';
+import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,OTPPage, DetailAuctionPage,
+  DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser, CancelPage,
+  ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
+import { Route, Routes } from 'react-router-dom';
 
 const AppRoutes: React.FC = () => {
   const { isLoading } = useLoading();
@@ -33,20 +35,32 @@ const AppRoutes: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/thong-tin-chi-tiet/:id" element={<DetailPage/>} />
         </Route>
+        <Route path="/add-auction" element={<AddActionPage />} />
+        <Route path="/edit-auction" element={<EditActionPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login1" element={<Login1 />} />
         <Route path="/listAuction" element={<ListAuction />} />
         <Route path="/auctionDetail" element={<AuctionDetail />} />
+        <Route path="/contract" element={<Contract />} />
+        <Route path="/listAuction/:id?/:name?" element={<ListAuction />} />
+        <Route path="/auctionDetail/:id" element={<AuctionDetail />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route  path='/listuser' element={<ListAccountPage />}/>
         <Route  path='/add-info' element={<AddInfo />}/>
         <Route  path='/profile' element={<Profile />}/>
         <Route  path='/test' element={<Test />}/>
         <Route path="/forgot" element={<ForgotPage />} />
-        <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
+        <Route path="/cancel" element={<CancelPage />} />
+        <Route path="/detail-auction/:id" element={<DetailAuctionPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route path="/otp" element={<OTPPage />} />
+        <Route path="/auctionRoom" element={<AuctionRoom />} />
+        <Route path="/resetPasswordPage/:token/:gmail" element={<ResetPasswordPage />} />
         <Route path="/changePasswordPage" element={<ChangePasswordPage />} />
         <Route  path='/room/:id' element={<Room />}/>
         <Route  path='/dashboard' element={<Home />}/>
+        <Route path="/listYourAuction" element={<ListYourAuction />} />
+        <Route path="/inforUser" element={<InforUser />} />
       </Routes>
     </>
   );

@@ -1,14 +1,26 @@
 import { useLoading } from '@contexts/LoadingContext';
 import { Button, TextField } from '@mui/material';
+import { forgetPassword } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMessage } from '@contexts/MessageContext';
 
 const ForgotPage = () => {
   const [username, setUsername] = useState('');
   const { setIsLoading } = useLoading();
-
+  const navigate = useNavigate();
+  const {setSuccessMessage, setErrorMessage} = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    const success = await forgetPassword(username);
+    setIsLoading(false);
+    if (success) {
+      navigate('/login');
+      setSuccessMessage('Vui lòng bạn kiểm tra mail');
+    } else {
+      setErrorMessage('username không tồn tại!!!');
+    }
   };
   return (
     <div className="flex items-center justify-center bg-gray-100 h-[90vh]">

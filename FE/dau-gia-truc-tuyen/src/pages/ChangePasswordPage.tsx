@@ -1,32 +1,49 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { changPassWork } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
 
 const ChangePasswordPage = () => {
-  const [password, setPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Check if passwords match
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       alert('Passwords do not match');
       return;
+    }
+    const data = {
+      oldpassword: oldPassword,
+      newpassword: newPassword,
+    };
+
+    try {
+      const response = await changPassWork(data);
+      if(response.isSucceed){
+        alert('Password changed successfully');
+      }else{
+        alert('Password changed successfully');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      alert('Failed to change password');
     }
   };
 
   return (
     <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
       <div className="bg-white p-6 rounded shadow-md w-[25rem]">
-        <h2 className="text-2xl font-bold mb-4 text-center">THAY ĐỔI MẬT</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">THAY ĐỔI MẬT KHẨU</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
               fullWidth
               type="password"
-              label="Mật Khẩu Củ"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              label="Mật Khẩu Cũ"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
               required
             />
           </div>
@@ -35,8 +52,8 @@ const ChangePasswordPage = () => {
               fullWidth
               type="password"
               label="Mật Khẩu Mới"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               required
             />
           </div>
@@ -44,7 +61,7 @@ const ChangePasswordPage = () => {
             <TextField
               fullWidth
               type="password"
-              label="Xác Nhận Mật Khẩu"
+              label="Xác Nhận Mật Khẩu Mới"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required

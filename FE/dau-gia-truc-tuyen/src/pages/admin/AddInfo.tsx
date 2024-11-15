@@ -4,6 +4,7 @@ import { getCity, getDistrict, getWard } from '../../queries/AdminAPI';
 import axiosInstance from '@services/axiosInstance';
 import { useMessage } from '@contexts/MessageContext';
 import { addUserInformation } from '../../queries/AdminAPI';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -28,7 +29,7 @@ const AddInfo = () => {
     const [placeOfResidence, setPlaceOfResidence] = useState<string>('');
     const [placeOfIssue, setPlaceOfIssue] = useState<string>('');
     const [dateOfIssue, setDateOfIssue] = useState<string>('');
-
+    const navigate = useNavigate();
 
     const { setErrorMessage, setSuccessMessage } = useMessage();
 
@@ -132,6 +133,7 @@ const AddInfo = () => {
         try {
             const response = await addUserInformation(formData);
             if (response.isSucceed) {
+                navigate('/profile');
                 setSuccessMessage("Successfully updated user information!");
             } else {
                 setErrorMessage(response.message);

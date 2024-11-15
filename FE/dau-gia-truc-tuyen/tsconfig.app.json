@@ -34,7 +34,7 @@
       "@services/*": ["services/*"],
       "@types/*": ["types/*"],
       "@common/*": ["common/*"],
-      "@layouts/*": ["layouts/*"]
+      "@queries/*": ["queries/*"]
     }
   },
   "include": ["src"]

@@ -1,23 +1,110 @@
 import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getDetailAuctionAdmin } from '../../queries/index';
+import { approveAuction, getDetailAuctionAdmin, getListUserAdmin } from '../../queries/index';
 import { Grid } from '@material-ui/core';
 import CountdownTimer from '../../common/coutdown-timer/CountdownTimer';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ApproveModal, CancelModal, UserModal } from '@components/modalAccept/ApproveModal';
+import { convertDate } from '@utils/helper';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import SearchIcon from '@mui/icons-material/Search';
 
 const AuctionDetail = () => {
   const [detailAuction, setDetailAuction] = useState<any | null>(null); // Khởi tạo với null
   const [loading, setLoading] = useState<boolean>(true); // Biến trạng thái để theo dõi quá trình tải
   const [error, setError] = useState<string | null>(null); // Biến trạng thái để lưu lỗi
-  const targetDate = new Date('2024-12-31T23:59:59');
-  const {id} = useParams();
+  const [isApproveModalOpen, setApproveModalOpen] = useState(false); // Modal state
+  const [isUserModalOpen, setUserModalOpen] = useState(false); // Modal state
+  const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false); // Modal cancel state
+  const [price, setPrice] = useState<number | null>(null);
+  const [listUser, setUser] = useState<any[]>([]);
+  const [swith, setSwith] = useState(false);
+  const [bidHistory, setBidHistory] = useState([]);
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const targetDate = convertDate(detailAuction?.endTime, detailAuction?.endDay);
+  const { id } = useParams();
   useEffect(() => {
     fetchDetailAuction();
+    fetchListUser();
   }, []);
+  const fetchListUser = async () => {
+    const response = await getListUserAdmin(Number(id));
+    console.log(response, 'data');
+    if (response?.isSucceed) {
+      setUser(response?.result);
+      console.log('ds', listUser);
+    } else {
+      console.error('fetch list fail');
+    }
+  };
+  const handleApprove = () => {
+    setApproveModalOpen(true); // Open approval modal
+  };
+  const handleUser = () => {
+    setUserModalOpen(true); // Open approval modal
+  };
 
+  const handleReject = () => {
+    setApproveModalCancelOpen(true); // Open cancel modal
+  };
+  const navigate = useNavigate();
+
+  const handleToInfor = (iduser: string) => {
+    // Pass `iduser` as part of the state to the `/inforUser` route
+    navigate("/inforUser", { state: { iduser: iduser } });
+  };
+  const handleModalApprove = async () => {
+    if (id) {
+      const response = await approveAuction(Number(id), true, price);
+      if (response.isSucceed) {
+        fetchDetailAuction();
+        alert('Bạn đã phê duyệt thành công');
+      }
+    }
+    setApproveModalOpen(false);
+  };
+  const handleModalUser = async () => {
+    setUserModalOpen(false);
+  };
+  const handleModalReject = async () => {
+    if (id) {
+      const response = await approveAuction(Number(id), false, price);
+      if (response.isSucceed) {
+        fetchDetailAuction();
+        alert('Bạn đã từ chối với đơn hàng đấu giá này');
+      }
+    }
+    setApproveModalOpen(false);
+  };
+
+  const handleModalClose = () => {
+    setApproveModalOpen(false); // Close approval modal
+  };
+  const handleModalUserClose = () => {
+    setUserModalOpen(false); // Close approval modal
+  };
+  const handleModalCancelClose = () => {
+    setApproveModalCancelOpen(false); // Close cancel modal
+  };
+  const handleClosepopup = () => {
+    setSwith(false); // Close cancel modal
+  };
+  useEffect(() => {
+    const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${1}`);
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setBidHistory(data);
+      setCurrentPrice(data[0]?.Price);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [id]);
   const fetchDetailAuction = async () => {
     try {
-      const response = await getDetailAuctionAdmin(1); // Sử dụng id từ props
+      const response = await getDetailAuctionAdmin(Number(id)); // Sử dụng id từ props
       console.log(response, 'data');
       if (response?.isSucceed) {
         setDetailAuction(response.result);
@@ -32,7 +119,19 @@ const AuctionDetail = () => {
       setLoading(false); // Đặt trạng thái loading là false khi hoàn thành
     }
   };
-
+  interface InfoRowProps {
+    label: string;
+    value: string;
+  }
+  const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
+    <>
+      <div className="flex justify-between py-1">
+        <div className="font-bold">{label}</div>
+        <div className="font-bold">{value}</div>
+      </div>
+      <div className="h-[2px] w-full bg-gray-200"></div>
+    </>
+  );
   if (loading) {
     return <Typography>Loading...</Typography>; // Hiển thị khi đang tải
   }
@@ -40,9 +139,84 @@ const AuctionDetail = () => {
   if (error) {
     return <Typography color="error">{error}</Typography>; // Hiển thị lỗi nếu có
   }
+  const calculateNewEndTime = (endTime: string, timePerLap: string): string => {
+    // Tách giờ và phút từ endTime
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    // Tách giờ và phút từ timePerLap
+    const [lapHours, lapMinutes] = timePerLap.split(':').map(Number);
+    
+    // Tạo đối tượng Date với giờ và phút từ endTime
+    const endDate = new Date();
+    endDate.setHours(endHours);
+    endDate.setMinutes(endMinutes);
+  
+    // Cộng thêm giờ và phút từ timePerLap
+    endDate.setHours(endDate.getHours() + lapHours);
+    endDate.setMinutes(endDate.getMinutes() + lapMinutes);
+  
+    // Lấy giờ và phút sau khi cộng thêm
+    const newHours = endDate.getHours().toString().padStart(2, '0');
+    const newMinutes = endDate.getMinutes().toString().padStart(2, '0');
+  
+    // Trả về chuỗi thời gian mới
+    return `${newHours}:${newMinutes}`;
+  };
+  const auctionInfo = [
+    {
+      label: 'Chủ thầu',
+      value: <div onClick={() => handleToInfor(detailAuction.user.accountId)}>{detailAuction.user.fullName}</div>,
+    },
+    {
+      label: 'Người trúng thầu',
+      value: detailAuction.winBidder == null
+        ? 'Chưa có người trúng thầu'
+        : <div className='cursor-pointer' onClick={() => handleToInfor(detailAuction.winBidder.accountId)}>{detailAuction.winBidder.nameUser}</div>,
+    },
+    {
+      label: 'Quản lý',
+      value: `${detailAuction.manager}`,
+    },
+    {
+      label: 'Giá khởi điểm',
+      value: `${detailAuction?.startingPrice
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', 'VNĐ')}`,
+    },
+    {
+      label: 'Bước giá',
+      value: `${detailAuction.priceStep
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', 'VNĐ')}`,
+    },
+    {
+      label: 'Tiền đặt trước',
+      value: `${detailAuction.moneyDeposit
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', 'VNĐ')}`,
+    },
+    {
+      label: 'Thời gian đăng kí tham gia',
+      value: `Từ ${detailAuction.startTime} ${detailAuction.startDay} đến ${detailAuction.endTime} ${detailAuction.endDay}`,
+    },
+    {
+      label: 'Thời gian bắt đầu đấu giá',
+      value: `Từ ${detailAuction.endTime} ${detailAuction.endDay} đến ${calculateNewEndTime(detailAuction.endTime, detailAuction.timePerLap)} ${detailAuction.endDay}`,
+    },
+    { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
+    { label: 'Phương thức trả giá', value: detailAuction.paymentMethod },
+  ];
 
   return (
-    <Box className="relative h-[150vh]">
+    <Box className="relative h-[150vh] mt-16">
       <Box className="flex items-center justify-center">
         <Typography className="pt-4 pl-4 text-yellow-700">Trang chủ</Typography>
         <span className="pl-2 pr-2 pt-3">|</span>
@@ -60,109 +234,99 @@ const AuctionDetail = () => {
             </Box>
           </Grid>
           <Grid item xs={12} md={7}>
-            <Box className="flex flex-col">
-              <Box className="flex flex-col md:flex-row items-start">
-                <Typography
-                  variant="h5"
-                  component="h2"
-                  fontWeight="bold"
-                  className="pt-1 text-2xl md:text-6xl overflow-hidden text-ellipsis whitespace-normal w-full md:w-[65%]"
-                >
-                  {detailAuction.nameAuction}
-                </Typography>
-                <Box className="pt-12 md:ml-4">
-                  <CountdownTimer targetDate={targetDate} />
-                </Box>
-              </Box>
-              <Box className="h-[48vh] w-full md:w-[70%] mx-auto mt-5 flex bg-slate-300 rounded-md pl-5 pr-5">
-                <Box className="flex flex-col w-1/2">
-                  <Typography fontWeight="bold" className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Chủ thầu
-                  </Typography>
-                  <Typography fontWeight="bold" className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Người trúng thầu
-                  </Typography>
-                  <Typography fontWeight="bold" className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Giá khởi điểm
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Bước giá
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Tiền đặt trước
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Thời gian bắt đầu
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Thời gian Kết thúc
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Hình thức thanh toán
-                  </Typography>
-                  <Typography className="text-2xl md:text-6xl text-ellipsis pt-4">
-                    Số vòng đấu giá
-                  </Typography>
-                </Box>
-                <Box className="w-1/2 ml-auto text-right mt-2">
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.user.fullName}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.winBidder == null
-                      ? 'Chưa có người trúng thầu'
-                      : detailAuction.winBidder}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.startingPrice
-                      .toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })
-                      .replace('₫', 'VNĐ')}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.priceStep
-                      .toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })
-                      .replace('₫', 'VNĐ')}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.moneyDeposit
-                      .toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })
-                      .replace('₫', 'VNĐ')}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    Ngày {detailAuction.startDay} : {detailAuction.startTime} giờ
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    Ngày {detailAuction.endDay} : {detailAuction.endTime} giờ
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.paymentMethod}
-                  </Typography>
-                  <Typography fontWeight="bold" className="pt-4">
-                    {detailAuction.numberofAuctionRounds}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className="pt-3 flex justify-end h-14 mr-24">
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">Duyệt</button>
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">ReUp</button>
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
-                  Xem người đăng ký
-                </button>
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
-                  Tải file thông tin
-                </button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded">Từ chối</button>
-              </Box>
-            </Box>
+            <div className="container flex flex-col gap-2 h-full">
+              <div className="flex gap-1">
+                <div className="font-bold line-clamp-2">{detailAuction?.nameAuction}</div>
+                <CountdownTimer targetDate={targetDate} />
+              </div>
+
+              <div className="h-[2px] w-full bg-gray-200"></div>
+              {swith ? (
+                <>
+                  <div>
+                    <div className="mb-5 flex gap-3 size-5 w-full font-bold">
+                      <AutoGraphIcon />
+                      Diễn biến cuộc đấu giá
+                    </div>
+                    <div className="flex flex-col border border-gray-100 p-4 rounded-lg max-h-80 overflow-y-scroll bg-lightGray">
+                      <div className="flex flex-col gap-2">
+                        {bidHistory?.map((bid: any, index) => (
+                          <>
+                            <div
+                              className={`flex justify-between w-full items-center mb-2 mt-2 ${
+                                index % 2 === 0 ? 'text-green-600' : 'text-blue-600'
+                              }`}
+                            >
+                              <div>
+                                <p>{new Intl.NumberFormat('vi-VN').format(bid.Price)} VND</p>
+                                <span>{bid.DateAndTime}</span>
+                              </div>
+                              <div onClick={() => handleToInfor(bid.userId)}><SearchIcon/>
+                              </div>
+                            </div>
+                            <div className="h-[2px] w-full bg-gray-200"></div>
+                          </>
+                        ))}
+                      </div>
+                    </div>
+                    <button className="bg-green-600" onClick={() => setSwith(false)}>
+                      Back
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-gray-100 w-full h-full p-8 flex flex-col gap-1">
+                    {auctionInfo.map((item, index) => (
+                      <InfoRow key={index} label={item.label} value={item.value} />
+                    ))}
+                    <Box className="pt-3 flex justify-end h-14 mr-24">
+                      <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
+                        ReUp
+                      </button>
+
+                      {detailAuction.statusAuction == 'Approved' ? (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              handleUser();
+                            }}
+                            className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                          >
+                            Xem người đăng ký
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              handleApprove();
+                            }}
+                            className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+                          >
+                            Duyệt
+                          </button>
+                        </>
+                      )}
+                      <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
+                        Tải file thông tin
+                      </button>
+                      <button className="bg-blue-600" onClick={() => setSwith(true)}>
+                        Join Room
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          handleReject();
+                        }}
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        Từ chối
+                      </button>
+                    </Box>
+                  </div>
+                </>
+              )}
+            </div>
           </Grid>
         </Grid>
         <Box className="h-[40vh] w-full justify-center mt-5">
@@ -170,7 +334,7 @@ const AuctionDetail = () => {
             {detailAuction.nameAuction}
           </Typography>
           <Typography className="px-4" variant="h6" component="h2" fontWeight="bold">
-            Mô tả:
+            Mô tả: 
           </Typography>
           <Typography className="px-4" fontWeight="bold">
             - {detailAuction.description}
@@ -183,7 +347,7 @@ const AuctionDetail = () => {
                     Hình ảnh chữ ký
                   </Typography>
                   <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.image}`}
+                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.signatureImg}`}
                     alt={detailAuction.signatureImg}
                     className="absolute ml-[9%] h-96 pt-3"
                   />
@@ -195,9 +359,9 @@ const AuctionDetail = () => {
                     Hình ảnh bằng chứng sở hữu
                   </Typography>
                   <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.ownershipImage}`}
-                    alt={detailAuction.ownershipImage}
-                    className="object-cover w-full h-80"
+                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.tImange.imange}`}
+                    alt={detailAuction.tImange.imange}
+                    className="absolute ml-[18%] h-96 pt-3"
                   />
                 </Box>
               </Grid>
@@ -205,6 +369,25 @@ const AuctionDetail = () => {
           </Box>
         </Box>
       </Box>
+      <ApproveModal
+        open={isApproveModalOpen}
+        onClose={handleModalClose}
+        setPrice={setPrice}
+        onConfirm={handleModalApprove} // Ensure this is correct
+      />
+      <CancelModal
+        open={isApproveModalCancelOpen} // Use the correct state for the cancel modal
+        onClose={handleModalCancelClose}
+        setPrice={setPrice}
+        onConfirm={handleModalReject} // Ensure this is correct
+      />
+      <UserModal
+        open={isUserModalOpen}
+        onClose={handleModalUserClose}
+        users={listUser} // Pass the list of users
+        setPrice={setPrice}
+        onConfirm={handleModalUser}
+      />
     </Box>
   );
 };

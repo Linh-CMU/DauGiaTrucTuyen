@@ -16,7 +16,19 @@ export const getListAccount = async () => {
         throw new Error('Failed to fetch list account');
     }
 }
-
+export const inforUser = async (id?: string) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user profile'); 
+    }
+};
 // fetch lock user
 export const lockUser = async (accountId: string) => {
     if (!accountId) {
@@ -119,32 +131,3 @@ export const profileUser = async () => {
         throw new Error('Error fetching user profile'); 
     }
 };
-
-export const listOfRegisteredbidders = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axiosInstance.get('/api/auction/listofregisteredbidders', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data.result;
-    } catch (error) {
-        
-    }
-}
-
-export const joinRoomAuction = async (id: string) => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axiosInstance.get(`/api/joinRoomAuction?id=${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-
-        return response.data.result;
-    } catch (error) {
-        
-    }
-}

@@ -11,7 +11,7 @@ import Footer from '@common/footer/Footer';
 const HomePage = () => {
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col mt-16">
         <div className="w-full h-[450px] relative">
           <img src="banner.jpg" alt="banner-img" className="object-cover h-full w-full" />
           

@@ -10,6 +10,9 @@ export default defineConfig({
       '/api': {
         target: 'http://capstoneauctioneer.runasp.net',
         changeOrigin: true,
+        // target: 'https://localhost:7097',
+        // changeOrigin: false,
+        // secure: false,
       },
     },
   },
@@ -22,7 +25,8 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, 'src/hooks'),
       '@services': path.resolve(__dirname, 'src/services'),
       '@types': path.resolve(__dirname, 'src/types'),
-      '@common': path.resolve(__dirname, 'src/common')
+      '@common': path.resolve(__dirname, 'src/common'),
+      '@queries': path.resolve(__dirname, 'src/queries')
     }
   }
 });
