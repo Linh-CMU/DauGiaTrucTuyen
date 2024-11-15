@@ -38,3 +38,13 @@ export const resetPass = async (data: { usernameOrEmail: string; resetToken: str
       throw new Error('Failed to change password');
     }
   };
+  export const verifyOTP = async (data: { email: string; otp: string }) => {
+    try {
+      const response = await axiosInstance.post('api/verify-otp', data);
+      console.log(response.data, "Password change response");
+      return response.data;
+    } catch (error) {
+      console.error('Failed to change password:', error);
+      throw new Error('Failed to change password');
+    }
+  };

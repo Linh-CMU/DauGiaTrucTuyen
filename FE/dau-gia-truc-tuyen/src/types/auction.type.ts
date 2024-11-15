@@ -9,6 +9,18 @@ export interface Auction {
   endDay: string;
 }
 
+export interface AuctionUser {
+  listAuctionID: number;
+  image: string;
+  nameAuction: string;
+  startingPrice: string;
+  startDay: string;
+  startTime: string;
+  endTime: string;
+  endDay: string;
+  statusAuction: string;
+}
+
 export interface AuctionDetails {
   listAuctionID: number;
   image: string;
@@ -34,4 +46,24 @@ export interface AuctionDetails {
     fileAttachments: string | null;
   };
   countdowntime: string;
+}
+
+export interface AuctionDetailRegister {
+  listAuctionID: number;
+  category: string;
+  name: string;
+  image: string;
+  imageEvidence: string;
+  nameAuction: string;
+  description: string;
+  startingPrice: number;
+  stepPrice : number;
+  priceDeposit: number;
+  startDay: string;
+  startTime: string;
+  timePerLap: string;
+  endDay: string;
+  endTime: string;
+  statusAuction: string;
+  countBidder: number;
 }

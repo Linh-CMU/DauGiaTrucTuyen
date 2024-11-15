@@ -47,32 +47,8 @@ const AuctionContract = () => {
     navigate(-1);
     // Thực hiện hành động khi chấp nhận hợp đồng (có thể lưu vào cơ sở dữ liệu hoặc thông báo)
   };
-  // const [bidHistory, setBidHistory] = useState<Bid[]>([]);
-  // useEffect(() => {
-  //   // Establish WebSocket connection
-  //   const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=1`);
-
-  //   // On receiving a message from WebSocket
-  //   socket.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-
-  //     // Kiểm tra xem data có phải là mảng hay không
-  //     if (Array.isArray(data)) {
-  //       setBidHistory(data);
-  //       console.log('data', data);
-        
-  //     } else {
-  //       console.error('Received data is not an array:', data);
-  //     }
-  //   };
-
-  //   // Cleanup WebSocket connection on component unmount
-  //   return () => {
-  //     socket.close();
-  //   };
-  // }, []);
   return (
-    <div className="p-8 max-w-3xl mx-auto bg-white rounded-xl shadow-lg space-y-6 mt-10">
+    <div className="p-8 max-w-3xl mx-auto bg-white rounded-xl shadow-lg space-y-6 mt-16">
       <h1 className="text-3xl font-bold text-center text-gray-900">
         CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
       </h1>
