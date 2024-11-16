@@ -55,6 +55,8 @@ export interface profileResponse {
   avatar:string;
   frontCCCD: string;
   backsideCCCD: string;
+  dateOfIssue: string;
+  placeOfIssue: string;
 }
 
 export interface listData {

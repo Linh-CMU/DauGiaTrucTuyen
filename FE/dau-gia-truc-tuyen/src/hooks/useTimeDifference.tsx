@@ -1,9 +1,8 @@
 import { parseDateTime } from '@utils/helper';
 import { useEffect, useState } from 'react';
 
-
-const parseTimeRoundToSeconds = (timeRound: string): number => {
-  const [hours, minutes] = timeRound.split(":").map(Number);
+const parseTimeRoundToSeconds = (timeRound: string = '00:00'): number => {
+  const [hours, minutes] = timeRound.split(':').map(Number);
   return hours * 3600 + minutes * 60;
 };
 
@@ -23,7 +22,7 @@ const useTimeDifference = (roomDate: string, timeRound: string) => {
 
     const differenceInSeconds = Math.floor((roomDateTime.getTime() - currentDate.getTime()) / 1000);
     const roundTimeInSeconds = parseTimeRoundToSeconds(timeRound);
-    if (differenceInSeconds > roundTimeInSeconds || differenceInSeconds < 0 ) {
+    if (differenceInSeconds > roundTimeInSeconds || differenceInSeconds < 0) {
       setIsIntime(false);
     } else {
       setIsIntime(true);

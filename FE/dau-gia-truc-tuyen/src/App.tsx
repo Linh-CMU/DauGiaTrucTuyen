@@ -19,6 +19,7 @@ import EditActionPage from '@pages/User/EditAuctionPage';
 import { HomePage, LoginPage, SignUpPage, Contract,SuccessPage,OTPPage, DetailAuctionPage,
   DetailPage, ListAuction, AuctionDetail, ForgotPage, InforUser, CancelPage,
   ResetPasswordPage, ChangePasswordPage, ListYourAuction, AuctionRoom } from '@pages/index';
+import Updateprofile from '@pages/UpdateProfile';
 
 const AppRoutes: React.FC = () => {
   const { isLoading } = useLoading();
@@ -57,6 +58,9 @@ const AppRoutes: React.FC = () => {
         <Route  path='/dashboard' element={<Home />}/>
         <Route path="/listYourAuction" element={<ListYourAuction />} />
         <Route path="/inforUser" element={<InforUser />} />
+        <Route path="/update-profile" element={<Updateprofile />} />
+        
+        
       </Routes>
     </>
   );
