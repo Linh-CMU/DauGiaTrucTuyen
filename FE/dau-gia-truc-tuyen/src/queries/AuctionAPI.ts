@@ -1,4 +1,5 @@
 import { AuctionItemFormData } from '@components/modal-contract/ContractModal';
+import { AuctionDetail, EditAuctionItemFormData } from '@pages/User/EditAuctionPage';
 import axiosInstance from '@services/axiosInstance';
 import { Console } from 'console';
 
@@ -12,7 +13,31 @@ const getToken = () => {
 // Fetch list of auctions based on status
 export const getListAuction = async (status: string = '0') => {
   try {
-    const response = await axiosInstance.get(`api/auction/listAuctioneerforuser?status=${status}`);
+    const token = getToken();
+    const response = await axiosInstance.get(`api/auction/listAuctioneerforuser?status=${status}`,
+      {
+        headers: {
+          'Content-Type': 'application/json', // Correct Content-Type for JSON requests
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction list', error);
+    throw error;
+  }
+};
+// Fetch list of auctions of contractor based on status
+export const getListAuctionOfContractor = async (status: string = '0') => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get(`api/auctionregistrationlist?status=${status}`,{
+      headers: {
+        'Content-Type': 'application/json', // Correct Content-Type for JSON requests
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch auction list', error);
@@ -53,6 +78,19 @@ export const getDetailAuction = async (id: string = '0') => {
   }
 };
 
+// Fetch auction details
+export const getDetailAuctionUser = async (id: string = '0') => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get(`api/auctionregistrationdetail?id=${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction details', error);
+    throw error;
+  }
+};
 //Join auction room
 export const getAuctionRoomDetail = async (id: number = 0) => {
   try {
@@ -79,7 +117,6 @@ export const getAuctionRegistration = async () => {
     throw error;
   }
 };
-
 
 // Admin: Fetch list of auctions based on status
 export const getListAuctionAdmin = async (status: number) => {
@@ -283,6 +320,37 @@ export const submitAuctionForm = async (data: AuctionItemFormData) => {
       },
     });
     return response.data;
+  } catch (error) {
+    console.error('Error submitting auction form:', error);
+    throw error;
+  }
+};
+export const submitEditAuctionForm = async (data: AuctionDetail) => {
+  try {
+    const token = getToken();
+    const formData = new FormData();
+
+    formData.append('auctionID', data.listAuctionID.toString());
+    formData.append('nameAuctionItem', data.nameAuction.toString());
+    formData.append('description', data.description.toString());
+    formData.append('startingPrice', data.startingPrice.toString());
+    formData.append('category', data.categoryId.toString());
+    if (data.image instanceof File) {
+      formData.append('imageAuction', data.image);
+    }
+    if (data.imageEvidence instanceof File) {
+      formData.append('imageEvidence', data.imageEvidence);
+    }
+    console.log('formData', formData);
+    
+    const response = await axiosInstance.put('/api/UpdateAuctionItem', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+    
   } catch (error) {
     console.error('Error submitting auction form:', error);
     throw error;

@@ -10,7 +10,7 @@ interface AllPropertiesProps {
 const AllProperties = ({ listAllAuction, value }: AllPropertiesProps) => {
   return (
     <div className="grid grid-cols-4 gap-4">
-      {listAllAuction.map((card) => (
+      {listAllAuction?.map((card) => (
         <CardList
           id={card.id.toString()}
           isProperties

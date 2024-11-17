@@ -21,7 +21,7 @@ const SignUpPage = () => {
     }
     const isSuccess = await signUp({ username, password, email });
     if (isSuccess) {
-      navigate('/');
+      navigate('/otp', { state: { email: email } });
     } else {
       console.log('Signing up is failed');
     }
