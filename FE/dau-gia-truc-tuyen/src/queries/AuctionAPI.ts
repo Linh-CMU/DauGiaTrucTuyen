@@ -67,6 +67,18 @@ export const getAuctionRoomDetail = async (id: number = 0) => {
   }
 };
 
+export const getAuctionRegistration = async () => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get(`api/auction/listofregisteredbidders`, {
+       headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction details', error);
+    throw error;
+  }
+};
 
 
 // Admin: Fetch list of auctions based on status

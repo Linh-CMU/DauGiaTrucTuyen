@@ -52,8 +52,6 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const roomTime = '14/11/2024 23:59';
   const { greaterTime, isIntime } = useTimeDifference(roomTime, timeRound);
 
-  console.log(isIntime, 'isIntime');
-
   const stepValue: number | undefined = useMemo(() => {
     return auctionDetailInfor?.priceStep;
   }, [auctionDetailInfor]);

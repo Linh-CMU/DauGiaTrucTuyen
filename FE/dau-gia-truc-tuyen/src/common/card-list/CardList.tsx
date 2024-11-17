@@ -11,6 +11,7 @@ interface CardListProps {
   priceStart: string;
   startDay: string;
   targetDate: Date;
+  value: string
 }
 
 const CardList = ({
@@ -21,12 +22,15 @@ const CardList = ({
   priceStart,
   startDay,
   targetDate,
+  value
 }: CardListProps) => {
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/thong-tin-chi-tiet/${id}`);
-  };
+  const path = value === "1" ? `/phien-dau-gia/${id}` : `/thong-tin-chi-tiet/${id}`;
+  navigate(path);
+};
+
 
   const renderPrice = () => (
     <div className="flex justify-between text-l">
@@ -52,7 +56,7 @@ const CardList = ({
             alt="img-properties"
           />
           <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex justify-center items-center">
-            <span className="text-white font-semibold text-lg">Xem chi tiết</span>
+            <span className="text-white font-semibold text-lg">{value === "1" ? "Tham gia đấu giá ": "Xem chi tiết"}</span>
           </div>
         </div>
 

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 
 const CountdownTimer = (props: any) => {
   const { targetDate } = props;
-  console.log(targetDate,"targetDate")
   const calculateTimeLeft = (): { [key: string]: number } => {
     const difference = targetDate.getTime() - new Date().getTime();
     let timeLeft: { [key: string]: number } = {};
