@@ -35,25 +35,28 @@ const CountdownTimer = (props: any) => {
     return (
       <div className="flex space-x-4 text-xs justify-center text-white">
         {days !== undefined && (
-          <p className="flex flex-col">
+          <p className="flex flex-col text-black">
             {days}
             <span>ngày</span>
           </p>
         )}
+        <span className="text-black font-bold">:</span>
         {hours !== undefined && (
-          <p className="flex flex-col">
+          <p className="flex flex-col text-black">
             {hours}
             <span>giờ</span>
           </p>
         )}
+        <span className="text-black font-bold">:</span>
         {minutes !== undefined && (
-          <p className="flex flex-col">
+          <p className="flex flex-col text-black">
             {minutes}
             <span>phút</span>
           </p>
         )}
+        <span className="text-black font-bold">:</span>
         {seconds !== undefined && (
-          <p className="flex flex-col">
+          <p className="flex flex-col text-black">
             {seconds}
             <span>giây</span>
           </p>
@@ -64,10 +67,8 @@ const CountdownTimer = (props: any) => {
 
   return (
     <div
-      className="countdown-timer text-center"
-      style={{ backgroundColor: '#27AE60', padding: '8px 24px' }}
+      style={{  padding: '8px 24px'}}
     >
-      <h2 className="text-xs text-white font-bold mb-1">Thời gian đấu già còn</h2>
       {Object.keys(timeLeft).length ? renderTime() : <span>Time's up!</span>}
     </div>
   );
