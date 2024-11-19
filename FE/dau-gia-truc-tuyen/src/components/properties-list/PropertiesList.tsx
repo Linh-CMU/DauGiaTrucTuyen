@@ -67,7 +67,7 @@ const PropertiesList = () => {
           <TabPanel value={value}>
             <AllProperties 
               listAllAuction={listAllAuction} 
-              value={value}
+              value={value === '1' ? 'phien-dau-gia' : 'thong-tin-chi-tiet'}
             />
 
           </TabPanel>

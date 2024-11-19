@@ -21,7 +21,7 @@ const AllProperties = ({ listAllAuction, value }: AllPropertiesProps) => {
           priceStart={card.priceStart}
           startDay={card.startDay}
           targetDate={convertDate(card?.startTime, card?.endDay )}
-          value={value}
+          url={value}
         />
       ))}
     </div>
