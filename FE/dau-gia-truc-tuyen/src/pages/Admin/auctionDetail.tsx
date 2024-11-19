@@ -51,7 +51,7 @@ const AuctionDetail = () => {
 
   const handleToInfor = (iduser: string) => {
     // Pass `iduser` as part of the state to the `/inforUser` route
-    navigate("/inforUser", { state: { iduser: iduser } });
+    navigate("/inforUser", { state: { iduser: iduser, status: true } });
   };
   const handleModalApprove = async () => {
     if (id) {

@@ -18,8 +18,9 @@ const StyledTabList = styled(TabList)(() => ({
 type ListAuctionAdminProps = {
   id?: string;
   name?: string;
+  status?: boolean;
 };
-const ListAuctionAdmin: React.FC<ListAuctionAdminProps> = ({ id, name }) => { // Đổi tên từ listAuctionAdmin thành ListAuctionAdmin
+const ListAuctionAdmin: React.FC<ListAuctionAdminProps> = ({ id, name, status }) => { // Đổi tên từ listAuctionAdmin thành ListAuctionAdmin
   const [value, setValue] = useState(0); // Khởi tạo value là số
 
   const handleChange = (event: any, newValue: string) => {
@@ -42,11 +43,11 @@ const ListAuctionAdmin: React.FC<ListAuctionAdminProps> = ({ id, name }) => { //
             </StyledTabList>
           </Box>
           <TabPanel value="0">
-            <TableAuction tabValue={value} id={id} name={name} />
+            <TableAuction tabValue={value} id={id} name={name} status={status} />
           </TabPanel>
-          <TabPanel value="1"><TableAuction tabValue={value} id={id} name={name} /></TabPanel>
-          <TabPanel value="2"><TableAuction tabValue={value} id={id} name={name} /></TabPanel>
-          <TabPanel value="3"><TableAuction tabValue={value} id={id} name={name} /></TabPanel>
+          <TabPanel value="1"><TableAuction tabValue={value} id={id} name={name} status={status} /></TabPanel>
+          <TabPanel value="2"><TableAuction tabValue={value} id={id} name={name} status={status} /></TabPanel>
+          <TabPanel value="3"><TableAuction tabValue={value} id={id} name={name} status={status} /></TabPanel>
         </TabContext>
       </div>
     </>

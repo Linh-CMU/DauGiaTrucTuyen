@@ -63,20 +63,17 @@ const HeaderTop1 = () => {
       try {
         const userData = await profileUser();
         setProfile(userData.result);
-        console.log('!2');
-        console.log(userData.result);
       } catch (error) {}
     };
     fetchCity();
   }, []);
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
-    navigate('/profile');
     setAnchorEl(null);
   };
 
@@ -118,7 +115,7 @@ const HeaderTop1 = () => {
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 <a
-                  href="#"
+                  href="/"
                   className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                   aria-current="page"
                 >
@@ -169,7 +166,7 @@ const HeaderTop1 = () => {
                       'aria-labelledby': 'basic-button',
                     }}
                   >
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={onProfileClick}>Profile</MenuItem>
                     <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
                   </Menu>
                 </div>

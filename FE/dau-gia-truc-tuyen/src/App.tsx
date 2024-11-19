@@ -40,7 +40,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/listAuction" element={<ListAuction />} />
         <Route path="/auctionDetail" element={<AuctionDetail />} />
         <Route path="/contract" element={<Contract />} />
-        <Route path="/listAuction/:id?/:name?" element={<ListAuction />} />
+        <Route path="/listAuction" element={<ListAuction />} />
         <Route path="/auctionDetail/:id" element={<AuctionDetail />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route  path='/listuser' element={<ListAccountPage />}/>

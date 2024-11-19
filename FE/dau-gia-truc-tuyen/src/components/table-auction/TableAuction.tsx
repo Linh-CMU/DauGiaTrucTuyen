@@ -6,13 +6,14 @@ import {
   getCategoryId,
   getListUserAdmin,
   getListAuctionOfUser,
+  getListAuctionRegisterOfUser,
 } from '../../queries/index';
 import { ApproveModal, CancelModal, UserModal } from '../../components/modalAccept/ApproveModal'; // Import modal
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const TableAuction = ({ tabValue, id, name }: { tabValue: number; id?: string; name?: string }) => {
+const TableAuction = ({ tabValue, id, name, status }: { tabValue: number; id?: string; name?: string; status?: boolean }) => {
   const [listAllAuction, setListAllAuction] = useState<any[]>([]);
   const [listCategory, setCategory] = useState<any[]>([]);
   const [listUser, setUser] = useState<any[]>([]);
@@ -23,6 +24,7 @@ const TableAuction = ({ tabValue, id, name }: { tabValue: number; id?: string; n
   const [price, setPrice] = useState<number | null>(null);
 
   useEffect(() => {
+    
     fetchListAuction();
     fetchListCategory();
     fetchListUser();
@@ -30,12 +32,23 @@ const TableAuction = ({ tabValue, id, name }: { tabValue: number; id?: string; n
 
   const fetchListAuction = async () => {
     if (id) {
-      const response = await getListAuctionOfUser(id, tabValue);
-      console.log(response, 'data');
-      if (response?.isSucceed) {
-        setListAllAuction(response?.result);
-      } else {
-        console.error('fetch list fail');
+      console.log('status', status);
+      if(status) {
+        const response = await getListAuctionOfUser(id, tabValue);
+        console.log(response, 'data');
+        if (response?.isSucceed) {
+          setListAllAuction(response?.result);
+        } else {
+          console.error('fetch list fail');
+        }
+      }else{
+        const response = await getListAuctionRegisterOfUser(id, tabValue);
+        console.log(response, 'data');
+        if (response?.isSucceed) {
+          setListAllAuction(response?.result);
+        } else {
+          console.error('fetch list fail');
+        }
       }
     } else {
       const response = await getListAuctionAdmin(tabValue);
@@ -140,8 +153,8 @@ const TableAuction = ({ tabValue, id, name }: { tabValue: number; id?: string; n
     <>
       {name ? (
         <>
-          <div className="ml-[30%] mr-[30%] mb-10">
-            <h1>{name}</h1>
+          <div className="ml-[30%] mr-[30%] mb-10 p-4 bg-gray-100 rounded-lg shadow-md text-center">
+            <h2 className="text-lg font-semibold text-gray-800"> {status ? 'Chủ sản phẩm:' : 'Sản phẩm tham gia:'} {name}</h2>
           </div>
         </>
       ) : (
