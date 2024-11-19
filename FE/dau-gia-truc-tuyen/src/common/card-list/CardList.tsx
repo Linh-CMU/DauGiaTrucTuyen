@@ -11,8 +11,8 @@ interface CardListProps {
   priceStart: string;
   startDay: string;
   targetDate: Date;
+  value: string;
   isApproved?: string;
-  url: string
 }
 
 const CardList = ({
@@ -23,14 +23,16 @@ const CardList = ({
   priceStart,
   startDay,
   targetDate,
-  isApproved, 
-  url,
+  value,
+  isApproved
 }: CardListProps) => {
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/${url}/${id}`);
-  };
+  const path = value === "1" ? `/phien-dau-gia/${id}` : `/thong-tin-chi-tiet/${id}`;
+  navigate(path);
+};
+
 
   const renderPrice = () => (
     <div className="flex justify-between text-l">
@@ -47,12 +49,29 @@ const CardList = ({
 
   return (
     <div className="max-w-xs bg-white rounded-lg shadow-lg overflow-hidden group border border-transparent hover:border-blue-500">
-  <div className="relative">
-    <div className="group hover:cursor-pointer relative" onClick={handleDetailClick}>
-      {/* Overlay trạng thái "approved" */}
-      {isApproved && (
-        <div className="absolute top-2 left-2 bg-green-600 text-white font-semibold px-2 py-1 rounded">
-          {isApproved}
+      <div className="relative">
+        <div
+          className="group hover:cursor-pointer relative"
+          onClick={handleDetailClick}
+        >
+          {/* Overlay text for "approved" status */}
+          {isApproved && (
+            <div className="absolute top-2 left-2 bg-green-600 text-white font-semibold px-2 py-1 rounded">
+              {isApproved}
+            </div>
+          )}
+          <img
+            className="w-full mb-4"
+            src={
+              isProperties
+                ? `http://capstoneauctioneer.runasp.net/api/read?filePath=${imgSrc}`
+                : news
+            }
+            alt="img-properties"
+          />
+          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex justify-center items-center">
+            <span className="text-white font-semibold text-lg">{value === "1" ? "Tham gia đấu giá ": "Xem chi tiết"}</span>
+          </div>
         </div>
       )}
       <img

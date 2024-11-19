@@ -32,6 +32,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/thong-tin-chi-tiet/:id" element={<DetailPage/>} />
+          <Route path="/phien-dau-gia/:id" element={<DetailPage/>} />
+
         </Route>
         <Route path="/add-auction" element={<AddActionPage />} />
         <Route path="/edit-auction" element={<EditActionPage />} />

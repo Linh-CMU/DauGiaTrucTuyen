@@ -6,8 +6,9 @@ import {convertDate} from '@utils/helper';
 
 interface AllPropertiesProps {
   listAllAuction: Auction[]; // Use shared Auction type
+  value: string;
 }
-const AllProperties = ({ listAllAuction }: AllPropertiesProps) => {
+const AllProperties = ({ listAllAuction, value }: AllPropertiesProps) => {
   return (
     <div className="grid grid-cols-4 gap-4">
       {listAllAuction?.map((card) => (
@@ -20,7 +21,7 @@ const AllProperties = ({ listAllAuction }: AllPropertiesProps) => {
           priceStart={card.priceStart}
           startDay={card.startDay}
           targetDate={convertDate(card?.startTime, card?.endDay )}
-          url={'thong-tin-chi-tiet'}
+          value={value}
         />
       ))}
     </div>
