@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CarouselDetail, DetailInformation, DetailContent } from '@components/properties-detail';
 import AuctionRoom from '@components/auction-room/AuctionRoom';
-import { getDetailAuction, profileUser } from '@queries/index';
+import { getDetailAuction, profileUser } from '../queries/index';
 import { AuctionDetails, Account } from 'types';
 
 const DetailPage = () => {

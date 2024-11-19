@@ -6,7 +6,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import { getAuctionRoomDetail, postBidMoney } from '@queries/AuctionAPI';
+import { getAuctionRoomDetail, postBidMoney } from '../../queries/AuctionAPI';
 import CountDownTimeForRoom from '@common/coutdown-timer/CountDownTimeForRoom';
 import useTimeDifference from '@hooks/useTimeDifference';
 

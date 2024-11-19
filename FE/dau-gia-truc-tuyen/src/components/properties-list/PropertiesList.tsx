@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab, Typography, styled } from '@mui/material';
 import AllProperties from '../all-properties/AllProperties';
-import { getAuctionRegistration, getListAuction } from '@queries/index';
-import { Auction } from 'types';
+import { getAuctionRegistration, getListAuction } from '../../queries/index';
+import {Auction} from 'types';
 
 const StyledTabList = styled(TabList)({
   '& .MuiTabs-indicator': {
@@ -45,12 +45,10 @@ const PropertiesList = () => {
     }
     fetchListAuction();
   }, [value]);
-
-  console.log(listAllAuction,"listAllAuction")
-
   const handleChange = (event: any, newValue: string) => {
     setValue(newValue);
   };
+
   return (
     <>
       <Typography variant="h5" component="h2" fontWeight="bold">

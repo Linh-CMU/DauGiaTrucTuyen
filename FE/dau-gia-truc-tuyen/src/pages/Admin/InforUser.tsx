@@ -8,12 +8,18 @@ const InforUser = () => {
   const [profile, setProfile] = useState<profileResponse | null>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { 
-    iduser
-  } = location.state || {};
+  const { iduser, status = false } = location.state || {};
   const handleToInfor = () => {
     // Pass `iduser` as part of the state to the `/inforUser` route
     navigate(-1);
+  };
+  const handleViewProduct = (name: string, status: boolean) => {
+    // Pass `iduser` as part of the state to the `/inforUser` route
+    navigate("/listAuction", { state: { id: iduser, name: name, status: status } });
+  };
+  const handleViewJoinAuction = (name: string, status: boolean) => {
+    // Pass `iduser` as part of the state to the `/inforUser` route
+    navigate("/listAuction", { state: { id: iduser, name: name, status: status } });
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +33,7 @@ const InforUser = () => {
   }, []);
   return (
     <>
-      <div className="w-full mt-3 flex items-center justify-center pt-10">
+      <div className="w-full mt-16 flex items-center justify-center pt-10">
         <h5 className="font-bold text-center text-2xl">INFORMATION</h5>
       </div>
       {profile ? (
@@ -289,7 +295,7 @@ const InforUser = () => {
                 </div>
               </div>
             </div>
-            <div className='mt-10'>
+            <div className="mt-10 flex">
               <Button
                 className="bg-green-900 hover:bg-green-800 text-white"
                 disableElevation
@@ -298,6 +304,32 @@ const InforUser = () => {
               >
                 Back
               </Button>
+              {status ? (
+                <>
+                  <div className='ml-4'>
+                    <Button
+                      className="bg-green-900 hover:bg-green-800 text-white"
+                      disableElevation
+                      variant="contained"
+                      onClick={() => handleViewProduct(profile.fullName, true)}
+                    >
+                      View sản phảm
+                    </Button>
+                  </div>
+                  <div className='ml-4'>
+                    <Button
+                      className="bg-green-900 hover:bg-green-800 text-white"
+                      disableElevation
+                      variant="contained"
+                      onClick={() => handleViewJoinAuction(profile.fullName, false)}
+                    >
+                      sản phảm đăng ký
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </div>

@@ -55,6 +55,20 @@ export interface profileResponse {
   avatar:string;
   frontCCCD: string;
   backsideCCCD: string;
+  dateOfIssue: string;
+  placeOfIssue: string;
+}
+
+export interface listData {
+  id: string;
+  img: string;
+  name: string;
+  startDay: string;
+  startTime: string;
+  endDay: string;
+  endTime:string;
+  priceStart: number;
+  winningBid: number
 }
 
 

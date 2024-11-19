@@ -6,6 +6,8 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useEffect, useState } from 'react';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import { CancelModal } from '@components/modalAccept/ApproveModal';
+import { deleteAuction } from '@queries/AuctionAPI';
 
 interface InfoRowProps {
   label: string;
@@ -31,6 +33,26 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
   const [bidHistory, setBidHistory] = useState([]);
   const targetDate = convertDate(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay);
   const navigate = useNavigate();
+  const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false); 
+  const [getId, setGetId] = useState(0);
+  const handleModalCancelClose = () => {
+    setApproveModalCancelOpen(false); // Close cancel modal
+  };
+  const handleModalReject = async () => {
+    if (getId !== 0) {
+      const response = await deleteAuction(getId);
+      if (response.isSucceed) {
+        navigate('/listYourAuction');
+        alert('Bạn đã xóa sản phẩm thành công');
+      }
+    }
+    setApproveModalCancelOpen(false);
+  };
+  const handleReject = (id: number) => {
+    setGetId(id);
+    setApproveModalCancelOpen(true); // Open cancel modal
+  };
+
   useEffect(() => {
     const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${1}`);
 
@@ -43,31 +65,34 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
       socket.close();
     };
   }, []);
-  const calculateNewEndTime = (endTime: string | undefined, timePerLap: string | undefined): string | null => {
+  const calculateNewEndTime = (
+    endTime: string | undefined,
+    timePerLap: string | undefined
+  ): string | null => {
     // Kiểm tra nếu endTime hoặc timePerLap không hợp lệ
     if (!endTime || !timePerLap) {
-      console.error("endTime hoặc timePerLap không hợp lệ");
+      console.error('endTime hoặc timePerLap không hợp lệ');
       return null; // Hoặc giá trị mặc định phù hợp
     }
-  
+
     // Tách giờ và phút từ endTime
     const [endHours, endMinutes] = endTime.split(':').map(Number);
     // Tách giờ và phút từ timePerLap
     const [lapHours, lapMinutes] = timePerLap.split(':').map(Number);
-  
+
     // Tạo đối tượng Date với giờ và phút từ endTime
     const endDate = new Date();
     endDate.setHours(endHours);
     endDate.setMinutes(endMinutes);
-  
+
     // Cộng thêm giờ và phút từ timePerLap
     endDate.setHours(endDate.getHours() + lapHours);
     endDate.setMinutes(endDate.getMinutes() + lapMinutes);
-  
+
     // Lấy giờ và phút sau khi cộng thêm
     const newHours = endDate.getHours().toString().padStart(2, '0');
     const newMinutes = endDate.getMinutes().toString().padStart(2, '0');
-  
+
     // Trả về chuỗi thời gian mới
     return `${newHours}:${newMinutes}`;
   };
@@ -110,11 +135,16 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     },
     {
       label: 'Thời gian đăng kí tham gia',
-      value: newEndTime ? `Từ ${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay} đến ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}` : 'Chưa được duyệt',
+      value: newEndTime
+        ? `Từ ${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay} đến ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`
+        : 'Chưa được duyệt',
     },
-    { label: 'Thời gian bắt đầu đấu giá', value: newEndTime 
-      ? `Từ ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay} đến ${newEndTime} ${auctionDetailInfor.endDay}`
-      : 'Chưa được duyệt' },
+    {
+      label: 'Thời gian bắt đầu đấu giá',
+      value: newEndTime
+        ? `Từ ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay} đến ${newEndTime} ${auctionDetailInfor.endDay}`
+        : 'Chưa được duyệt',
+    },
     { label: 'Trạng thái sản phẩm', value: auctionDetailInfor.statusAuction || 'Không xác định' },
   ];
 
@@ -190,7 +220,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
                   </button>
                   <button
                     className="bg-red-500 text-white px-2 py-1 rounded mr-2 h-10"
-                    onClick={handleNavigateToContract}
+                    onClick={() => handleReject(auctionDetailInfor.listAuctionID)}
                   >
                     Delete
                   </button>
@@ -209,6 +239,11 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
           </>
         )}
       </div>
+      <CancelModal
+        open={isApproveModalCancelOpen} 
+        onClose={handleModalCancelClose}
+        onConfirm={handleModalReject} 
+      />
     </div>
   );
 };
