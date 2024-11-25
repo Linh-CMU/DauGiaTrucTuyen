@@ -3,6 +3,7 @@ import SearchBox from '../../components/SearchBox';
 import PropertiesList from '../../components/propertiesList-user/PropertiesList';
 import { Auction } from '../../types/auction.type';
 import { getSearchAuction } from '@queries/AuctionAPI';
+import Footer from '@common/footer/Footer';
 
 const ListYourAuction = () => {
   const [searchResults, setSearchResults] = useState<Auction[]>([]);
@@ -32,6 +33,7 @@ const ListYourAuction = () => {
               </div>
             </div>
           </div>
+          <Footer />
         </div>
       </div>
     </>

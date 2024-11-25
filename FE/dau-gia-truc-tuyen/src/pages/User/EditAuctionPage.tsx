@@ -5,6 +5,7 @@ import { AuctionDetailRegister } from 'types';
 import { useForm } from 'react-hook-form';
 import { useMessage } from '@contexts/MessageContext';
 import { useLocation } from 'react-router-dom';
+import Footer from '@common/footer/Footer';
 
 export interface AuctionDetail {
   listAuctionID: number;

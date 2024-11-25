@@ -9,7 +9,7 @@ const ForgotPage = () => {
   const [username, setUsername] = useState('');
   const { setIsLoading } = useLoading();
   const navigate = useNavigate();
-  const {setSuccessMessage, setErrorMessage} = useMessage();
+  const { setSuccessMessage, setErrorMessage } = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -23,22 +23,28 @@ const ForgotPage = () => {
     }
   };
   return (
-    <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
-      <div className="bg-white p-6 rounded shadow-md w-[25rem]">
-        <h2 className="text-2xl font-bold mb-4 text-center">QUÊN MẬT KHẨU</h2>
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="absolute w-96 h-72 bg-blue-400 rounded-lg -rotate-6"></div>
+      <div className="relative w-96 h-72 bg-white rounded-lg shadow-lg p-8 z-10">
+        <h2 className="text-xl font-bold mb-6">Quên mật khẩu</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
               fullWidth
-              label="Tên Đăng Nhập"
+              label="Tên Đăng Nhập hoặc Email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
-          <Button fullWidth variant="contained" type="submit">
-            GỬI
-          </Button>
+          <div className="text-right mb-4">
+            <a href="/login" className="text-sm text-blue-600 hover:text-blue-700">
+              Quay về?
+            </a>
+          </div>
+          <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">
+            Gửi
+          </button>
         </form>
       </div>
     </div>

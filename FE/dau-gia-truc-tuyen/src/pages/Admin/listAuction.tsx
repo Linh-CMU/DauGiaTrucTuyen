@@ -5,6 +5,7 @@ import avt from '../../../public/banner.jpg'; // Importing the image correctly
 import { useState } from 'react';
 import { Auction } from '../../types/auction.type';
 import { getSearchAuction } from '@queries/AuctionAPI';
+import Footer from '@common/footer/Footer';
 
 const ListAuction = () => {
   const location = useLocation();
@@ -36,6 +37,7 @@ const ListAuction = () => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </div>
   );

@@ -28,9 +28,10 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 h-[90vh]">
-      <div className="bg-white p-6 rounded shadow-md w-[25rem]">
-        <h2 className="text-2xl font-bold mb-4 text-center">Đăng Ký</h2>
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="absolute w-96 h-[55%] bg-blue-400 rounded-lg -rotate-6"></div>
+      <div className="relative w-96 h-[55%] bg-white rounded-lg shadow-lg p-8 z-10">
+        <h2 className="text-xl font-bold mb-6">Đăng ký</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
@@ -71,9 +72,14 @@ const SignUpPage = () => {
               required
             />
           </div>
-          <Button fullWidth variant="contained" type="submit">
-            Đăng Ký
-          </Button>
+          <div className="text-right mb-4">
+            <a href="/login" className="text-sm text-blue-600 hover:text-blue-700">
+              Quay về?
+            </a>
+          </div>
+          <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">
+            Đăng ký
+          </button>
         </form>
       </div>
     </div>
