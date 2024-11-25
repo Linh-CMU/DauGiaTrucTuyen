@@ -61,7 +61,7 @@ const AuctionItemForm: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 4, height: '90vh', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3, top: '10', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Box sx={{ p: 4, height: '100%', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3, top: '10', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Box sx={{ maxWidth: 600, width: '100%' }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#3f51b5', textAlign:'center', paddingBottom:'10px', marginTop:'50px'}}>
           Create Auction Item

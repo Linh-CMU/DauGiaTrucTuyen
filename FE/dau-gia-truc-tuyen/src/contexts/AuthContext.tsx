@@ -5,7 +5,7 @@ import { AuthResponse, LoginRequest, SignUpRequest } from 'types';
 interface AuthContextType {
   token: string | null;
   username: string | null;
-  login: (data: LoginRequest) => Promise<boolean>;
+  login: (data: LoginRequest) => Promise<any>;
   logout: () => void;
   signUp: (data: SignUpRequest) => Promise<boolean>;
   isAuthenticated: () => boolean;
@@ -23,20 +23,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(() => localStorage.getItem('username'));
 
   // Login function to authenticate user
-  const login = async (authRequest: LoginRequest): Promise<boolean> => {
+  const login = async (authRequest: LoginRequest): Promise<any> => {
     try {
       const response = await axios.post<AuthResponse>('/api/account/login', authRequest);
-      const token = response.data.message;
+      const token = response.data.result.token;
       const username = authRequest.username;
+      const role = response.data.result.role;
 
       // Store token and username in localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('username', username);
+      localStorage.setItem('role', role);
 
       // Update state
       setToken(token);
       setUsername(username);
-      return true;
+      return response.data;
     } catch (error) {
       return false;
     }
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('role');
     setToken(null);
     setUsername(null);
   };
@@ -72,7 +75,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  console.log('context', context);
   
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

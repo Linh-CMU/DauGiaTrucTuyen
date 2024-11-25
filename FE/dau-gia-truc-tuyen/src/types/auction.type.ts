@@ -6,6 +6,8 @@ export interface Auction {
   priceStart: string;
   startDay: string;
   startTime: string;
+  timePerLap: string;
+  endTime: string;
   endDay: string;
 }
 
@@ -19,6 +21,7 @@ export interface AuctionUser {
   endTime: string;
   endDay: string;
   statusAuction: string;
+  timePerLap:string;
 }
 
 export interface AuctionDetails {

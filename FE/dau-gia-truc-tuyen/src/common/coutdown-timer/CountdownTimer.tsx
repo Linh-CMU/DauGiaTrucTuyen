@@ -21,6 +21,8 @@ const CountdownTimer = (props: any) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
+    console.log('aa', targetDate < new Date());
+    
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
