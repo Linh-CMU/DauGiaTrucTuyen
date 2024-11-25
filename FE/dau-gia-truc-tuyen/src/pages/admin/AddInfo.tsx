@@ -146,7 +146,7 @@ const AddInfo = () => {
 
     return (
         <>  
-            <div className='w-full mt-3 flex items-center justify-center pt-10'>
+            <div className='w-full mt-16 flex items-center justify-center pt-10'>
                 <h5 className='font-bold text-center text-2xl pl-9'>ADD INFORMATION</h5>
             </div>
             <form onSubmit={handleSubmit} >
@@ -221,7 +221,7 @@ const AddInfo = () => {
                                                     const selectedCode = e.target.value; 
                                                     const selectedCity = citys.find(cityItem => cityItem.code.toString() === selectedCode);
                                                     setSelectedCityCode(selectedCity?.code.toString() || ''); 
-                                                    setCity(selectedCity?.name || '');
+                                                    setCity(selectedCity?.code.toString() || '');
                                                 
                                                 }}
                                                 onFocus={() => setIsTouched(true)}
@@ -245,7 +245,7 @@ const AddInfo = () => {
                                                 value={selectedDistrictCode}
                                                 onChange={(e) => {
                                                     const selectDis = districts.find(districtResponse => districtResponse.code.toString() === e.target.value);
-                                                    setDistrict(selectDis?.name || '');
+                                                    setDistrict(selectDis?.code.toString() || '');
                                                     setSelectedDistrictCode(selectDis?.code.toString() || '')
                                                 }}
                                                 onFocus={() => setIsTouched(true)}

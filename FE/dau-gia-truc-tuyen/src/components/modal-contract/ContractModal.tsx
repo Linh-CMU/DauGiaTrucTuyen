@@ -4,6 +4,7 @@ import { Box, Button, Grid, Modal, Typography } from '@mui/material';
 import { profileResponse } from '../../types/auth.type';
 import { profileUser } from '../../queries/AdminAPI';
 import { submitAuctionForm } from '../../queries/AuctionAPI';
+import { useNavigate } from 'react-router-dom';
 
 export interface AuctionItemFormData {
   nameAuction: string;
@@ -24,7 +25,7 @@ interface ContractModalProps {
 const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData }) => {
   const signatureImgUrl = formData.signatureImg ? URL.createObjectURL(formData.signatureImg) : null;
   const [profile, setProfile] = useState<profileResponse | null>();
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,8 +39,11 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
   const onSubmit = async () => {
     try {
       const response = await submitAuctionForm(formData);
-      console.log('Auction item created successfully:', response);
-      onClose();
+      if(response.isSucceed){
+        alert('Bạn đã tạo sản phẩm thành công');
+        navigate('/listYourAuction');
+        onClose();
+      }
     } catch (error) {
       console.error('Error creating auction item:', error);
     }

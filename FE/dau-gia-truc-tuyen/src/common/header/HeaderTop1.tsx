@@ -12,7 +12,10 @@ const HeaderTop1 = () => {
   const [isProfileMenu, setIsProfileMenu] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
   const [profile, setProfile] = useState<profileResponse | null>();
-
+  const getRole = () => {
+    const role = localStorage.getItem('role');
+    return role;
+  };
   const onTitleClick = () => {
     navigate('/');
   };
@@ -38,6 +41,10 @@ const HeaderTop1 = () => {
 
   const onProfileClick = () => {
     navigate('/profile');
+    setIsProfileMenu(false);
+  };
+  const onChangePassword = () => {
+    navigate('/changePasswordPage');
     setIsProfileMenu(false);
   };
 
@@ -113,27 +120,69 @@ const HeaderTop1 = () => {
               <img className="h-8 w-auto" src="logo.png" alt="Your Company " />
             </div>
             <div className="hidden sm:ml-6 sm:block">
-              <div className="flex space-x-4">
-                <a
-                  href="/"
-                  className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                  aria-current="page"
-                >
-                  Trang chủ
-                </a>
-                <a
-                  href="/listYourAuction"
-                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                >
-                  Sản phẩm của bạn
-                </a>
-                <a
-                  href="#"
-                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                >
-                  Thông tin
-                </a>
-              </div>
+              {getRole() === 'user' ? (
+                <>
+                  <div className="flex space-x-4">
+                    <a
+                      href="/"
+                      className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                      aria-current="page"
+                    >
+                      Trang chủ
+                    </a>
+                    <a
+                      href="/listYourAuction"
+                      className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      Sản phẩm của bạn
+                    </a>
+                    <a
+                      href="#"
+                      className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      Thông tin
+                    </a>
+                  </div>
+                </>
+              ) : getRole() === 'admin' ? (
+                <div className="flex space-x-4">
+                  <a
+                    href="/dashboard"
+                    className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                    aria-current="page"
+                  >
+                    Thống kê
+                  </a>
+                  <a
+                    href="/listAuction"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    Danh sách sản phẩm
+                  </a>
+                  <a
+                    href="/listuser"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    Danh sách người dùng
+                  </a>
+                </div>
+              ) : (
+                <div className="flex space-x-4">
+                  <a
+                    href="/"
+                    className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                    aria-current="page"
+                  >
+                    Trang chủ
+                  </a>
+                  <a
+                    href="#"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    Thông tin
+                  </a>
+                </div>
+              )}
             </div>
           </div>
           {isAuthenticated() ? (
@@ -167,20 +216,27 @@ const HeaderTop1 = () => {
                     }}
                   >
                     <MenuItem onClick={onProfileClick}>Profile</MenuItem>
+                    <MenuItem onClick={onChangePassword}>Change password</MenuItem>
                     <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
                   </Menu>
                 </div>
               </div>
             </div>
           ) : (
-            <>
-              <Button variant="outlined" onClick={onLoginBtnClick}>
-                Đăng nhập
-              </Button>
-              <Button variant="contained" onClick={onSignUpBtnClick}>
-                Đăng kí
-              </Button>
-            </>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+              <div className="relative ml-3 flex">
+                <div>
+                  <Button variant="outlined" onClick={onLoginBtnClick}>
+                    Đăng nhập
+                  </Button>
+                </div>
+                <div className='ml-6'>
+                  <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
+                    Đăng kí
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

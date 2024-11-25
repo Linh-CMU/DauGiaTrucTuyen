@@ -118,6 +118,22 @@ export const addUserInformation = async (formData: FormData) => {
     }
 }
 
+export const UpdateUserInformation = async (formData: FormData) => {
+    try {
+        const token = localStorage.getItem('token');    
+        const response = await axiosInstance.put('api/UserOrAdmin/update-profile', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        console.log("Response data:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error adding user information:', error);
+        throw new Error('Error adding user information');
+    }
+}
+
 export const profileUser = async () => {
     try {
         const token = localStorage.getItem('token');

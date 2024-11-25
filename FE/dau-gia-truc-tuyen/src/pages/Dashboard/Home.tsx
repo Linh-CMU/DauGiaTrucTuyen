@@ -51,7 +51,7 @@ const Home = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+    <div className="container mx-auto p-6 bg-gray-100 min-h-screen mt-16">
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
           <svg className="w-6 h-6 text-gray-800 dark:text-white mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">

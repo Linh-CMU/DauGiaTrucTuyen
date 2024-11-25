@@ -3,13 +3,13 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab, Typography, styled } from '@mui/material';
 import AllProperties from '../all-properties/AllProperties';
 import { getAuctionRegistration, getListAuction } from '../../queries/index';
-import {Auction} from 'types';
+import { Auction } from 'types';
+import { useLocation } from 'react-router-dom';
 
 const StyledTabList = styled(TabList)({
   '& .MuiTabs-indicator': {
     backgroundColor: 'rgb(241, 155, 64)', // Set custom background color for the indicator
   },
-
   '& .MuiButtonBase-root': {
     outline: 'none',
   },
@@ -19,18 +19,38 @@ const StyledTabList = styled(TabList)({
   },
 });
 
-const PropertiesList = () => {
+interface PropertySearch {
+  searchResults: any;
+  isSearch: boolean;
+  setIsSearch: (data: boolean) => void;
+}
+
+const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch) => {
+  const location = useLocation();
+  const { data } = location.state || {};
+
+  useEffect(() => {
+    if (data) {
+      setValue(data);
+    }
+  }, [data]);
+
   const [value, setValue] = useState('0');
-  const [listAllAuction, setListAllAuction] = useState<Auction[]>([]); // Initialize as an empty array
+  const [listAllAuction, setListAllAuction] = useState<Auction[]>([]);
 
   useEffect(() => {
     const fetchListAuction = async () => {
       try {
+        if (isSearch) {
+          setValue('0');
+          setListAllAuction(searchResults.result);
+          return;
+        }
+
+        // Lấy dữ liệu dựa trên giá trị `value`
         const response =
-          value === '1'
-            ? await getAuctionRegistration()
-            : await getListAuction(value || '0');
-        
+          value === '4' ? await getAuctionRegistration() : await getListAuction(value || '0');
+
         if (response?.isSucceed) {
           setListAllAuction(Array.isArray(response.result) ? response.result : []);
         } else {
@@ -40,13 +60,18 @@ const PropertiesList = () => {
         console.error('Error fetching auction list:', error);
       }
     };
-    if(listAllAuction) {
-      setListAllAuction([])
-    }
+
     fetchListAuction();
-  }, [value]);
+  }, [value, isSearch, searchResults]);
+
   const handleChange = (event: any, newValue: string) => {
+    setIsSearch(false);
     setValue(newValue);
+  };
+
+  const getRole = () => {
+    const role = localStorage.getItem('role');
+    return role;
   };
 
   return (
@@ -59,21 +84,22 @@ const PropertiesList = () => {
           <Box>
             <StyledTabList onChange={handleChange} aria-label="lab">
               <Tab label="Tất cả" value="0" />
-              <Tab label="Đã đăng kí" value="1" />
+              <Tab label="Đang diễn ra" value="1" />
               <Tab label="Sắp diễn ra" value="2" />
               <Tab label="Đã kết thúc" value="3" />
+              <Tab label="Đã đăng ký" value="4" />
             </StyledTabList>
           </Box>
           <TabPanel value={value}>
-            <AllProperties 
-              listAllAuction={listAllAuction} 
-              value={value === '1' ? 'phien-dau-gia' : 'thong-tin-chi-tiet'}
+            <AllProperties
+              listAllAuction={listAllAuction}
+              value={value === '4' ? 'phien-dau-gia' : 'thong-tin-chi-tiet'}
             />
-
           </TabPanel>
         </TabContext>
       </div>
     </>
   );
 };
+
 export default PropertiesList;

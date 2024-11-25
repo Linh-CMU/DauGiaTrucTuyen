@@ -31,9 +31,8 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
 const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetailInfor }) => {
   const [swith, setSwith] = useState(false);
   const [bidHistory, setBidHistory] = useState([]);
-  const targetDate = convertDate(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay);
   const navigate = useNavigate();
-  const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false); 
+  const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false);
   const [getId, setGetId] = useState(0);
   const handleModalCancelClose = () => {
     setApproveModalCancelOpen(false); // Close cancel modal
@@ -54,7 +53,9 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
   };
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${1}`);
+    const socket = new WebSocket(
+      `ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${auctionDetailInfor.listAuctionID}`
+    );
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -96,7 +97,46 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     // Trả về chuỗi thời gian mới
     return `${newHours}:${newMinutes}`;
   };
+
   const newEndTime = calculateNewEndTime(auctionDetailInfor.endTime, auctionDetailInfor.timePerLap);
+
+  const calculateNewTargetDate = (endTime: string, endDay: string, timePerLap: string): Date => {
+    if (!endTime || !endDay || !timePerLap) {
+      console.warn('Missing required parameters for calculateNewTargetDate:', {
+        endTime,
+        endDay,
+        timePerLap,
+      });
+      return new Date(); // Trả về thời gian hiện tại nếu thiếu tham số
+    }
+
+    try {
+      // Sử dụng convertDate để tạo đối tượng ngày ban đầu
+      const endDate = convertDate(endTime, endDay);
+      const now = new Date();
+
+      // Tách giờ và phút từ TimePerLap
+      const [hours, minutes] = timePerLap.split(':').map(Number);
+
+      if (endDate < now) {
+        // Nếu endDate đã qua, cộng thêm giờ và phút từ TimePerLap
+        endDate.setHours(endDate.getHours() + hours);
+        endDate.setMinutes(endDate.getMinutes() + minutes);
+      }
+
+      return endDate; // Trả về đối tượng Date
+    } catch (error) {
+      console.error('Error in calculateNewTargetDate:', { endTime, endDay, timePerLap, error });
+      return new Date(); // Trả về giá trị mặc định trong trường hợp lỗi
+    }
+  };
+
+  // Tính toán ngày mục tiêu mới
+  const targetDate = calculateNewTargetDate(
+    auctionDetailInfor?.endTime,
+    auctionDetailInfor?.endDay,
+    auctionDetailInfor?.timePerLap
+  );
   const auctionInfo = [
     {
       label: 'Giá khởi điểm',
@@ -147,16 +187,66 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     },
     { label: 'Trạng thái sản phẩm', value: auctionDetailInfor.statusAuction || 'Không xác định' },
   ];
+  const calculateFinalTime = (endTime: string, endDay: string): Date => {
+    // Xử lý `endTime` nếu null hoặc không hợp lệ
+    if (!endTime || !endTime.match(/^\d{2}:\d{2}$/)) {
+      endTime = '00:00'; // Giá trị mặc định
+    }
 
+    const [endHours, endMinutes] = endTime.split(':').map(Number); // Tách giờ và phút từ endTime
+
+    // Xử lý `endDay` nếu null hoặc không hợp lệ
+    if (!endDay || !endDay.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      endDay = '01/01/0001'; // Giá trị mặc định
+    }
+
+    // Chuyển đổi định dạng dd/MM/yyyy thành yyyy-MM-dd nếu hợp lệ
+    const [day, month, year] = endDay.split('/');
+    const isoDate = `${year}-${month}-${day}`; // Định dạng yyyy-MM-dd
+
+    let endDate = new Date(isoDate); // Tạo đối tượng Date từ định dạng ISO
+
+    // Kiểm tra `endDate` có hợp lệ không (Invalid Date)
+    if (isNaN(endDate.getTime())) {
+      endDate = new Date(0); // Giá trị mặc định nếu không hợp lệ
+    }
+
+    // Gán giờ và phút từ `endTime`
+    endDate.setHours(endHours, endMinutes, 0, 0);
+
+    return endDate; // Trả về đối tượng Date đã được tính toán
+  };
+
+  const isRegistrationAllowed = (endTime: string, endDay: string): boolean => {
+    const finalTime = calculateFinalTime(endTime, endDay);
+    console.log('finalTime', finalTime);
+    return finalTime > new Date(); // Kiểm tra nếu thời gian kết thúc lớn hơn hiện tại
+  };
+
+  const isEndTimePassed = (endTime: string = '', endDay: string = ''): boolean => {
+    const finalTime = calculateFinalTime(endTime, endDay);
+
+    return finalTime <= new Date(); // Kiểm tra nếu thời gian cuối đã qua
+  };
   const handleNavigateToContract = () => {
-    navigate('/contract');
+    navigate('/edit-auction', { state: { id: auctionDetailInfor.listAuctionID } });
   };
 
   return (
     <div className="container flex flex-col gap-2 h-full">
       <div className="flex gap-1">
         <div className="font-bold line-clamp-2">{auctionDetailInfor?.nameAuction}</div>
-        <CountdownTimer targetDate={targetDate} />
+        <div
+          className={`${
+            !isEndTimePassed(auctionDetailInfor.endTime, auctionDetailInfor.endDay)
+              ? 'bg-green-500'
+              : targetDate > new Date()
+                ? 'bg-orange-500'
+                : 'bg-yellow-500'
+          } bg-opacity-90 p-2 rounded-full w-60`}
+        >
+          <CountdownTimer targetDate={targetDate} />
+        </div>
       </div>
 
       <div className="h-[2px] w-full bg-gray-200"></div>
@@ -227,12 +317,18 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
                 </>
               ) : (
                 <>
-                  <button
-                    className="bg-green-400 text-white px-2 py-1 rounded mr-2 h-10"
-                    onClick={() => setSwith(true)}
-                  >
-                    Join room
-                  </button>
+                  {isEndTimePassed(auctionDetailInfor.endTime, auctionDetailInfor.endDay) ? (
+                    <>
+                      <button
+                        className="bg-green-400 text-white px-2 py-1 rounded mr-2 h-10"
+                        onClick={() => setSwith(true)}
+                      >
+                        Join room
+                      </button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
                 </>
               )}
             </div>
@@ -240,9 +336,9 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
         )}
       </div>
       <CancelModal
-        open={isApproveModalCancelOpen} 
+        open={isApproveModalCancelOpen}
         onClose={handleModalCancelClose}
-        onConfirm={handleModalReject} 
+        onConfirm={handleModalReject}
       />
     </div>
   );
