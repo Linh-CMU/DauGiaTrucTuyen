@@ -6,7 +6,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
+// import { GoogleLogin } from 'react-google-login';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -16,7 +16,8 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { setIsLoading } = useLoading();
   const { setSuccessMessage, setErrorMessage } = useMessage();
-
+  const GOOGLE_CLIENT_ID =
+    '800544947907-gqq1fut5e84qhsdtapqs1nf1f3rao28r.apps.googleusercontent.com';
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -24,8 +25,17 @@ const LoginPage = () => {
     const success = await login({ username, password });
 
     setIsLoading(false);
-    if (success) {
-      navigate('/');
+    console.log(success);
+    if (success.isSucceed) {
+      if (!success.result.check) {
+        navigate('/add-info');
+      } else {
+        if (success.result.role === 'user') {
+          navigate('/');
+        } else {
+          navigate('/dashboard');
+        }
+      }
       setSuccessMessage('Login successful!');
       // Optionally, reset the form
       setUsername('');
@@ -34,7 +44,12 @@ const LoginPage = () => {
       setErrorMessage('Login failed!');
     }
   };
-
+  // const onSuccess = (res: any) => {
+  //   console.log('Login google', res.profileObj);
+  // }
+  // const onFailure = (res: any) => {
+  //   console.log('Login fail', res);
+  // }
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (event: React.MouseEvent) => event.preventDefault();
 
@@ -82,6 +97,15 @@ const LoginPage = () => {
               Quên mật khẩu?
             </a>
           </div>
+          {/* <div>
+            <GoogleLogin
+              clientId={GOOGLE_CLIENT_ID}
+              buttonText="Login with Google"
+              onSuccess={onSuccess}
+              onFailure={onFailure}
+              cookiePolicy={'single_host_origin'}
+            />
+          </div> */}
           <Button
             fullWidth
             variant="contained"

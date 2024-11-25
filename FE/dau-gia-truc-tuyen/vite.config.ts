@@ -8,11 +8,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://capstoneauctioneer.runasp.net',
-        changeOrigin: true,
-        // target: 'https://localhost:7097',
-        // changeOrigin: false,
-        // secure: false,
+        // target: 'http://capstoneauctioneer.runasp.net',
+        // changeOrigin: true,
+        target: 'https://localhost:7097',
+        changeOrigin: false,
+        secure: false,
       },
     },
   },

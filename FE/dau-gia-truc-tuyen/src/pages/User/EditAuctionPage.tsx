@@ -4,6 +4,7 @@ import { getCategory, getDetailAuctionUser, submitEditAuctionForm } from '../../
 import { AuctionDetailRegister } from 'types';
 import { useForm } from 'react-hook-form';
 import { useMessage } from '@contexts/MessageContext';
+import { useLocation } from 'react-router-dom';
 
 export interface AuctionDetail {
   listAuctionID: number;
@@ -45,9 +46,11 @@ const EditActionPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetail>();
   const { setSuccessMessage, setErrorMessage } = useMessage();
+  const location = useLocation();
+  const { id } = location.state || {};
   useEffect(() => {
     const fetchListAuction = async () => {
-      const response = await getDetailAuctionUser('38'); // Call API function
+      const response = await getDetailAuctionUser(id); // Call API function
       if (response?.isSucceed) {
         setAuctionDetailInfor(response?.result); // Ensure result is an object or null
         console.log(response?.result.image);

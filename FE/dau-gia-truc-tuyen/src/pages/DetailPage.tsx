@@ -10,12 +10,13 @@ const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetails | null>(null);
   const [userProfile, setUserProfile] = useState<Account | null>(null);
+  const currentPath = window?.location?.pathname;
 
   useEffect(() => {
     const fetchListAuction = async () => {
-      const response = await getDetailAuction(id || '0'); // Call API function
+      const response = await getDetailAuction(id || '0');
       if (response?.isSucceed) {
-        setAuctionDetailInfor(response?.result || null); // Ensure result is an object or null
+        setAuctionDetailInfor(response?.result || null);
       } else {
         console.error('fetch list failed');
       }
@@ -34,20 +35,21 @@ const DetailPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
+   <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
+    {auctionDetailInfor && (
       <div className="flex gap-6 max-w-1/2">
-        <CarouselDetail imgList={auctionDetailInfor?.image} />
+        <CarouselDetail imgList={auctionDetailInfor.image} />
         <div className="col-span-2 w-full">
-          <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
-          {/* {auctionDetailInfor && (
-            <DetailInformation 
-              auctionDetailInfor={auctionDetailInfor}
-            />
-          )}*/}
+          {currentPath.includes("phien-dau-gia") ? (
+            <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
+          ) : (
+            <DetailInformation auctionDetailInfor={auctionDetailInfor} />
+          )}
         </div>
       </div>
-      <DetailContent auctionDetailInfor={auctionDetailInfor} />
-    </div>
+    )}
+    {auctionDetailInfor && <DetailContent auctionDetailInfor={auctionDetailInfor} />}
+  </div>
   );
 };
 

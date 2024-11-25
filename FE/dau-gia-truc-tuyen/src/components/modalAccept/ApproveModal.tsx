@@ -1,31 +1,26 @@
 // components/ModalComponents.tsx
 import React from 'react';
-import {
-  Modal,
-  Box,
-  Typography,
-  Button,
-  TextField,
-  List,
-  ListItem,
-  ListItemText,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-} from '@mui/material';
+import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm: () => void;
   setPrice?: (price: number) => void;
   users?: any[];
+  setHours?: (time: number) => void;
+  setMinutes?: (time: number) => void;
 }
 
 // ApproveModal Component
-export const ApproveModal: React.FC<ModalProps> = ({ open, onClose, onConfirm, setPrice }) => {
+export const ApproveModal: React.FC<ModalProps> = ({
+  open,
+  onClose,
+  onConfirm,
+  setPrice,
+  setHours,
+  setMinutes,
+}) => {
   const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -37,6 +32,7 @@ export const ApproveModal: React.FC<ModalProps> = ({ open, onClose, onConfirm, s
     p: 4,
   };
 
+  
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
@@ -50,12 +46,45 @@ export const ApproveModal: React.FC<ModalProps> = ({ open, onClose, onConfirm, s
           InputProps={{
             style: { fontSize: '14px' },
           }}
-          onChange={(e) => setPrice ? setPrice(Number(e.target.value)) : null} 
+          onChange={(e) => (setPrice ? setPrice(Number(e.target.value)) : null)}
           required
           sx={{ marginTop: '20px' }}
         />
+        {/* Vòng thời gian */}
+        <Box sx={{ display: 'flex', gap: 2, marginTop: '20px' }}>
+          {/* Nhập số giờ */}
+          <TextField
+            label="Số giờ"
+            type="number"
+            onChange={(e) => (setHours ? setHours(Number(e.target.value)) : null)}
+            inputProps={{
+              min: 0, // Không cho nhập số âm
+              step: 1, // Tăng theo từng giờ
+              max: 99,
+            }}
+            sx={{ flex: 1 }}
+          />
+          {/* Nhập số phút */}
+          <TextField
+            label="Số phút"
+            type="number"
+            onChange={(e) => (setMinutes ? setMinutes(Number(e.target.value)) : null)}
+            inputProps={{
+              min: 0,
+              max: 59, // Giới hạn phút từ 0 đến 59
+              step: 1,
+            }}
+            sx={{ flex: 1 }}
+          />
+        </Box>
         <Box mt={2} display="flex" justifyContent="space-between">
-          <Button variant="contained" color="success" onClick={onConfirm}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => {
+              onConfirm();
+            }}
+          >
             Duyệt
           </Button>
           <Button variant="outlined" color="error" onClick={onClose}>
@@ -117,7 +146,7 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-          Danh sách người dùng
+          Danh sách người đăng ký
         </Typography>
         {users && users.length > 0 ? (
           <Box
@@ -142,7 +171,7 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
             </table>
           </Box>
         ) : (
-          <Typography>Không có người dùng.</Typography>
+          <Typography>Không có người đăng ký.</Typography>
         )}
         <Box mt={2} display="flex" justifyContent="space-between">
           <Button variant="contained" color="primary" onClick={onClose}>

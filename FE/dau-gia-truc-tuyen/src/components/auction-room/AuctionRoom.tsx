@@ -9,6 +9,7 @@ import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { getAuctionRoomDetail, postBidMoney } from '../../queries/AuctionAPI';
 import CountDownTimeForRoom from '@common/coutdown-timer/CountDownTimeForRoom';
 import useTimeDifference from '@hooks/useTimeDifference';
+import { useParams } from 'react-router-dom';
 
 interface AuctionRoomProps {
   auctionDetailInfor: AuctionDetails | null;
@@ -21,6 +22,8 @@ interface BidMoneyParams {
 interface RoomAuctionDetails {
   startDay: string;
   startTime: string;
+  endDay: string;
+  endTime: string;
   // Add other properties as needed
 }
 
@@ -42,25 +45,36 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const [isTimeOut, setIsTimeOut] = useState(false);
   const [timeRound, setTimeRound] = useState('');
   const [bidStep, setBidStep] = useState(0);
-  const id = 1;
+  const { id } = useParams<{ id: string }>();
 
   // const roomTime = convertToRoomTime({
   //   startDay: roomAuctionDetails?.startDay || '',
   //   startTime: roomAuctionDetails?.startTime || '',
   // });
 
-  const roomTime = '14/11/2024 23:59';
-  const { greaterTime, isIntime } = useTimeDifference(roomTime, timeRound);
-
-  console.log(isIntime, 'isIntime');
-
-  const stepValue: number | undefined = useMemo(() => {
-    return auctionDetailInfor?.priceStep;
-  }, [auctionDetailInfor]);
-
+  const calculateFinalTime = (
+    endTime: string,
+    endDay: string
+  ): Date => {
+    const [endHours, endMinutes] = endTime.split(':').map(Number); // Tách giờ và phút từ endTime
+  
+    const endDate = new Date(endDay); // Tạo đối tượng Date từ endDay
+    endDate.setHours(endHours, endMinutes, 0, 0); // Gán giờ và phút từ endTime
+  
+    return endDate; // Trả về đối tượng Date đã được tính toán
+  };
+  
+  const isRegistrationAllowed = (
+    endTime: string,
+    endDay: string
+  ): boolean => {
+    const finalTime = calculateFinalTime(endTime, endDay);
+    return finalTime > new Date(); // Kiểm tra nếu thời gian kết thúc lớn hơn hiện tại
+  };
+  
   useEffect(() => {
     const fetchAuctionRoomDetails = async () => {
-      const response = await getAuctionRoomDetail(id); // Call API function
+      const response = await getAuctionRoomDetail(Number(id)); // Call API function
       if (response?.isSucceed) {
         setRoomAuctionDetails(response?.result || null); // Ensure result is an object or null
         setTimeRound(response?.result?.timeRound);
@@ -70,6 +84,48 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
     };
     fetchAuctionRoomDetails();
   }, [id]);
+  const calculateFinalTimes = (
+    endTime: string,
+    endDay: string,
+    timePerLap: string
+  ): string => {
+    if (!endTime || !endDay || !timePerLap) {
+      // Nếu một trong các tham số không hợp lệ, trả về chuỗi rỗng
+      return '';
+    }
+  
+    // Tách giờ và phút từ endTime
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+  
+    // Tách giờ và phút từ timePerLap
+    const [lapHours, lapMinutes] = timePerLap.split(':').map(Number);
+  
+    // Tạo đối tượng Date từ endDay (giả sử endDay ở định dạng "dd/MM/yyyy")
+    const [day, month, year] = endDay.split('/').map(Number);
+    const endDate = new Date(year, month - 1, day, endHours, endMinutes);
+  
+    // Cộng thêm giờ và phút từ timePerLap
+    endDate.setHours(endDate.getHours() + lapHours);
+    endDate.setMinutes(endDate.getMinutes() + lapMinutes);
+  
+    // Định dạng ngày và giờ theo kiểu dd/MM/yyyy hh:mm
+    const formattedDate = `${endDate.getDate().toString().padStart(2, '0')}/${(endDate.getMonth() + 1).toString().padStart(2, '0')}/${endDate.getFullYear()} ${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+  
+    return formattedDate;
+  };
+  
+  
+  const roomTime = calculateFinalTimes(
+    roomAuctionDetails?.endTime ?? '',   // endTime
+    roomAuctionDetails?.endDay ?? '',    // endDay
+    timeRound ?? ''                      // timePerLap
+  ).toString();
+  const { greaterTime, isIntime } = useTimeDifference(roomTime, timeRound);
+
+  const stepValue: number | undefined = useMemo(() => {
+    return auctionDetailInfor?.priceStep;
+  }, [auctionDetailInfor]);
+
 
   useEffect(() => {
     const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${id}`);

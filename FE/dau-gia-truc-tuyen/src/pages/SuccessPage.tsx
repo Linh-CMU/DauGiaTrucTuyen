@@ -11,14 +11,14 @@ const SuccessPage = () => {
     const [isFetch, setIsFetch] = useState(true);
   
     const handleReturnHome = () => {
-      navigate('/');
+      navigate('/', {state : {data: '4'}});
     };
   
     useEffect(() => {
       if (isFetch) {
         const updatePaymentStatus = async () => {
           try {
-            if (id && status === 'SUCCESSED') {
+            if (id && status === 'PAID') {
               await UpdatePayment(Number(id), 'success');
             }
           } catch (error) {

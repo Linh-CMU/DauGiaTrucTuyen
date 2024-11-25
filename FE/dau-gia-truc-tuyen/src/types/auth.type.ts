@@ -8,7 +8,7 @@ export interface SignUpRequest {
   email: string;
 }
 export interface AuthResponse {
-  result: string | null;
+  result: any | null;
   isSucceed: boolean;
   message: string;
 }
@@ -57,6 +57,9 @@ export interface profileResponse {
   backsideCCCD: string;
   dateOfIssue: string;
   placeOfIssue: string;
+  gender: boolean;
+  birthdate: string;
+  placeOfResidence: string;
 }
 
 export interface listData {

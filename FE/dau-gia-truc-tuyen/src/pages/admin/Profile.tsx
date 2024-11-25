@@ -1,6 +1,9 @@
 import { Button } from '@mui/material';
-import { profileUser } from '../../queries/AdminAPI';
+import { getCity, getDistrict, getWard, profileUser } from '../../queries/AdminAPI';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { cityResponse, districtResponse, wardResponse } from '../../types/auth.type';
+import { useMessage } from '@contexts/MessageContext';
 
 interface profileResponse {
   fullName: string;
@@ -21,7 +24,11 @@ interface profileResponse {
 
 const Profile = () => {
   const [profile, setProfile] = useState<profileResponse | null>();
-
+  const [citys, setCitys] = useState<cityResponse[]>([]);
+  const [districts, setDistricts] = useState<districtResponse[]>([]);
+  const [wards, setWards] = useState<wardResponse[]>([]);
+  const { setErrorMessage, setSuccessMessage } = useMessage();
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,6 +39,59 @@ const Profile = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchCity = async () => {
+      try {
+        const cityData = await getCity();
+        setCitys(cityData);
+      } catch (error) {
+        setErrorMessage('Error fetching city');
+      }
+    };
+    fetchCity();
+  }, []);
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+        try {
+          const districtData = await getDistrict();
+          setDistricts(districtData);
+        } catch (error) {
+          setErrorMessage('Error fetching districts');
+        }
+      }
+    fetchDistricts();
+  }, []);
+
+  useEffect(() => {
+    const fetchWard = async () => {
+        try {
+          const wardData = await getWard();
+          setWards(wardData);
+        } catch (error) {
+          setErrorMessage('Error fetching wards');
+        }
+    };
+
+    fetchWard();
+  }, []);
+
+  const [filteredDistricts, setfilteredDistricts] = useState<any>('');
+  const [filteredWards, setfilteredWards] = useState<any>('');
+
+  useEffect(() => {
+    if(profile) {
+       const filteredDistrict = districts.filter(
+          (district) => district.province_code.toString() === profile?.city
+        );
+        const filteredWard = wards.filter(
+          (ward) => ward.district_code.toString() === profile?.district
+        );
+        setfilteredWards(filteredWard);
+        setfilteredDistricts(filteredDistrict);
+    }
+  }, [profile])
   
   return (
     <>
@@ -104,14 +164,29 @@ const Profile = () => {
                   >
                     City
                   </label>
-                  <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    id="grid-last-name"
-                    type="text"
-                    required
-                    value={profile.city}
+                  <select
+                    id="grid-city"
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.city}
                     disabled
-                  />
+                    onChange={(e) => {
+                      const selectedCode = e.target.value;
+                      const selectedCity = citys.find(
+                        (cityItem) => cityItem.code.toString() === selectedCode
+                      );
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        city: selectedCity?.code.toString(),
+                      }));
+                    }}
+                  >
+                    <option value="">Select a city</option>
+                    {citys.map((cityItem) => (
+                      <option key={cityItem.code} value={cityItem.code.toString()}>
+                        {cityItem.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="w-full md:w-1/3  px-3 mb-6 md:mb-0">
                   <label
@@ -120,14 +195,32 @@ const Profile = () => {
                   >
                     Districts
                   </label>
-                  <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    id="grid-last-name"
-                    type="text"
-                    required
-                    value={profile.district}
+                  <select
+                    id="grid-city"
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.district}
                     disabled
-                  />
+                    onChange={(e) => {
+                      const selectDis = districts.find(
+                        (districtResponse) => districtResponse.code.toString() === e.target.value
+                      );
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        district: selectDis?.code.toString(),
+                      }));
+                    }}
+                  >
+                    <option value="">Select a districts</option>
+                    {filteredDistricts.length > 0 ? (
+                      filteredDistricts.map((districtItem: any) => (
+                        <option key={districtItem.code} value={districtItem.code}>
+                          {districtItem.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No districts available</option>
+                    )}
+                  </select>
                 </div>
                 <div className="w-full md:w-1/3  px-3 mb-6 md:mb-0">
                   <label
@@ -136,14 +229,29 @@ const Profile = () => {
                   >
                     Ward
                   </label>
-                  <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    id="grid-last-name"
-                    type="text"
-                    required
-                    value={profile.ward}
+                  <select
+                    id="grid-city"
                     disabled
-                  />
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.ward}
+                    onChange={(e) => {
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        ward: e.target.value,
+                      }));
+                    }}
+                  >
+                    <option value="">Select a ward</option>
+                    {filteredWards.length > 0 ? (
+                      filteredWards.map((wardItem: any) => (
+                        <option key={wardItem.code} value={wardItem.name}>
+                          {wardItem.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No wards available</option>
+                    )}
+                  </select>
                 </div>
               </div>
 
@@ -303,6 +411,7 @@ const Profile = () => {
               className="bg-green-900 hover:bg-green-800 text-white"
               disableElevation
               variant="contained"
+              onClick={() => navigate('/update-profile')}
             >
               Update
             </Button>

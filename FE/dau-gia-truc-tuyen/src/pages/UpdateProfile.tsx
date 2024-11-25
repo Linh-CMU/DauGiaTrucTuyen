@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { cityResponse, districtResponse, wardResponse } from '../types/auth.type';
-import { getCity, getDistrict, getWard, profileUser } from '../queries/AdminAPI';
-import axiosInstance from '@services/axiosInstance';
+import { getCity, getDistrict, getWard, profileUser, UpdateUserInformation } from '../queries/AdminAPI';
 import { useMessage } from '@contexts/MessageContext';
-import { addUserInformation } from '../queries/AdminAPI';
 import { useNavigate } from 'react-router-dom';
-import { profile } from 'console';
 
 interface profileResponse {
   fullName: string;
@@ -14,7 +11,7 @@ interface profileResponse {
   ward: string;
   district: string;
   address: string;
-  avatar: string;
+  avatar: any;
   frontCCCD: string;
   backsideCCCD: string;
   gender: boolean;
@@ -28,27 +25,21 @@ const Updateprofile = () => {
   const [citys, setCitys] = useState<cityResponse[]>([]);
   const [districts, setDistricts] = useState<districtResponse[]>([]);
   const [wards, setWards] = useState<wardResponse[]>([]);
-  const [fullName, setFullName] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [city, setCity] = useState<string>('');
-  const [district, setDistrict] = useState<string>('');
-  const [selectedCityCode, setSelectedCityCode] = useState<string>('');
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState<string>('');
-  const [selectedWardCode, setSelectedWardCode] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
-  const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [selectedFrontCCCD, setSelectedFrontCCCD] = useState<any>(null);
-  const [selectedBacksideCCCD, setSelectedBacksideCCCD] = useState<any>(null);
   const [isTouched, setIsTouched] = useState(false);
-  const [gender, setGender] = useState<boolean>();
-  const [birthDate, setBirthDate] = useState<string>('');
-  const [placeOfResidence, setPlaceOfResidence] = useState<string>('');
-  const [placeOfIssue, setPlaceOfIssue] = useState<string>('');
-  const [dateOfIssue, setDateOfIssue] = useState<string>('');
   const navigate = useNavigate();
 
   const { setErrorMessage, setSuccessMessage } = useMessage();
-
+  const [profile, setProfile] = useState<profileResponse | null>();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await profileUser();
+        console.log(response.result);
+        setProfile(response.result);
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
   useEffect(() => {
     const fetchCity = async () => {
       try {
@@ -63,7 +54,6 @@ const Updateprofile = () => {
 
   useEffect(() => {
     const fetchDistricts = async () => {
-      if (selectedCityCode) {
         try {
           const districtData = await getDistrict();
           setDistricts(districtData);
@@ -71,99 +61,83 @@ const Updateprofile = () => {
           setErrorMessage('Error fetching districts');
         }
       }
-    };
     fetchDistricts();
-  }, [selectedCityCode]);
+  }, []);
 
   useEffect(() => {
     const fetchWard = async () => {
-      if (selectedDistrictCode) {
         try {
           const wardData = await getWard();
           setWards(wardData);
         } catch (error) {
           setErrorMessage('Error fetching wards');
         }
-      }
     };
 
     fetchWard();
-  }, [selectedDistrictCode]);
-
-  const filteredDistricts = districts.filter(
-    (district) => district.province_code.toString() === selectedCityCode
-  );
-  const filteredWards = wards.filter(
-    (ward) => ward.district_code.toString() === selectedDistrictCode
-  );
-
-  const handleImageChange = (e: any) => {
-    setSelectedImage(e.target.files[0]);
-  };
-  const [profile, setProfile] = useState<profileResponse | null>();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await profileUser();
-        console.log(response.result);
-        setProfile(response.result);
-      } catch (error) {}
-    };
-    fetchData();
   }, []);
-  const handleFrontCCCD = (e: any) => {
-    setSelectedFrontCCCD(e.target.files[0]);
-  };
 
-  const handleBacksideCCCD = (e: any) => {
-    setSelectedBacksideCCCD(e.target.files[0]);
-  };
+  const [filteredDistricts, setfilteredDistricts] = useState<any>('');
+  const [filteredWards, setfilteredWards] = useState<any>('');
 
-  const handleRemoveFrontImage = () => {
-    setSelectedFrontCCCD(null);
-  };
-
-  const handleRemoveBackImage = () => {
-    setSelectedBacksideCCCD(null);
-  };
-
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-  };
-  const [avatar, setAvatar] = useState('');
   useEffect(() => {
-    // Khởi tạo hình ảnh ban đầu từ dữ liệu sản phẩm nếu chưa có ảnh nào mới
-    if (profile && !avatar) {
+    if(profile) {
+       const filteredDistrict = districts.filter(
+          (district) => district.province_code.toString() === profile?.city
+        );
+        const filteredWard = wards.filter(
+          (ward) => ward.district_code.toString() === profile?.district
+        );
+        setfilteredWards(filteredWard);
+        setfilteredDistricts(filteredDistrict);
+    }
+  }, [profile])
+ 
+  
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const previewURL = URL.createObjectURL(file);
+      setAvatar(previewURL);
+      setProfile((prev: any) => ({
+        ...prev,
+        avatar: file,
+      }));
+    }
+  };
+
+
+
+
+  const [avatar, setAvatar] = useState<any>();
+  useEffect(() => {
+    console.log(avatar);
+    if (profile?.avatar && !avatar) {
       setAvatar(`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`);
     }
   }, [profile, avatar]);
+  const handleRemoveImage = () => {
+    setAvatar('');
+    setProfile((prev: any) => ({
+      ...prev,
+      avatar: '',
+    }));
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsTouched(true);
 
     const formData = new FormData();
-    formData.append('fullName', fullName);
-    formData.append('gender', JSON.stringify(gender));
-
-    formData.append('birthdate', birthDate);
-    formData.append('phone', phone);
-    formData.append('city', city);
-    formData.append('district', district);
-    formData.append('ward', selectedWardCode);
-    formData.append('address', address);
-    formData.append('placeOfResidence', placeOfResidence);
-    formData.append('placeOfIssue', placeOfIssue);
-
-    const formattedDateOfIssue = new Date(dateOfIssue).toISOString();
-    formData.append('dateOfIssue', dateOfIssue);
-
-    if (selectedImage) formData.append('avatar', selectedImage);
-    if (selectedFrontCCCD) formData.append('frontCCCD', selectedFrontCCCD);
-    if (selectedBacksideCCCD) formData.append('backsideCCCD', selectedBacksideCCCD);
-
+    formData.append('fullName', profile?.fullName ?? '');
+    formData.append('phone', profile?.phone ?? '');
+    formData.append('city', profile?.city ?? '');
+    formData.append('district', profile?.district ?? '');
+    formData.append('ward', profile?.ward ?? '');
+    formData.append('address', profile?.address ?? '');
+    if (profile?.avatar instanceof File) formData.append('avatar', profile?.avatar);
     try {
-      const response = await addUserInformation(formData);
+      const response = await UpdateUserInformation(formData);
       if (response.isSucceed) {
         navigate('/profile');
         setSuccessMessage('Successfully updated user information!');
@@ -193,16 +167,19 @@ const Updateprofile = () => {
                     họ và tên
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!fullName && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!profile?.fullName && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Enter full name"
                     defaultValue={profile?.fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={(e) => setProfile((prev: any) => ({
+                      ...prev,
+                      fullName: e.target.value,
+                    }))}
                     required
                     onFocus={() => setIsTouched(true)}
                   />
-                  {!fullName && isTouched && (
+                  {!profile?.fullName && isTouched && (
                     <p className="text-red-500 text-xs italic">Please enter your full name.</p>
                   )}
                 </div>
@@ -218,24 +195,20 @@ const Updateprofile = () => {
                   {profile?.gender ? (
                     <>
                       <input
-                        className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!birthDate && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                        className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                         id="grid-last-name"
                         type="text"
                         value={'Nam'}
-                        onChange={(e) => setBirthDate(e.target.value)}
-                        onFocus={() => setIsTouched(true)}
                         disabled
                       />
                     </>
                   ) : (
                     <>
                       <input
-                        className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!birthDate && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                        className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                         id="grid-last-name"
                         type="text"
                         value={'Nữ'}
-                        onChange={(e) => setBirthDate(e.target.value)}
-                        onFocus={() => setIsTouched(true)}
                         disabled
                       />
                     </>
@@ -251,13 +224,11 @@ const Updateprofile = () => {
                     Ngày sinh
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!birthDate && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="date"
                     placeholder="Chọn ngày cấp"
                     value={profile?.birthdate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    onFocus={() => setIsTouched(true)}
                     disabled
                   />
                 </div>
@@ -272,15 +243,17 @@ const Updateprofile = () => {
                   </label>
                   <select
                     id="grid-city"
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!city && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    defaultValue={selectedCityCode}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.city}
                     onChange={(e) => {
                       const selectedCode = e.target.value;
                       const selectedCity = citys.find(
                         (cityItem) => cityItem.code.toString() === selectedCode
                       );
-                      setSelectedCityCode(selectedCity?.code.toString() || '');
-                      setCity(selectedCity?.name || '');
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        city: selectedCity?.code.toString(),
+                      }));
                     }}
                     onFocus={() => setIsTouched(true)}
                   >
@@ -291,7 +264,7 @@ const Updateprofile = () => {
                       </option>
                     ))}
                   </select>
-                  {!selectedCityCode && isTouched && (
+                  {!profile?.city && isTouched && (
                     <p className="text-red-500 text-xs italic">Please select a city.</p>
                   )}
                 </div>
@@ -304,20 +277,22 @@ const Updateprofile = () => {
                   </label>
                   <select
                     id="grid-city"
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!selectedCityCode && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    value={selectedDistrictCode}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!profile?.city && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.district}
                     onChange={(e) => {
                       const selectDis = districts.find(
                         (districtResponse) => districtResponse.code.toString() === e.target.value
                       );
-                      setDistrict(selectDis?.name || '');
-                      setSelectedDistrictCode(selectDis?.code.toString() || '');
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        district: selectDis?.code.toString(),
+                      }));
                     }}
                     onFocus={() => setIsTouched(true)}
                   >
                     <option value="">Select a districts</option>
                     {filteredDistricts.length > 0 ? (
-                      filteredDistricts.map((districtItem) => (
+                      filteredDistricts.map((districtItem: any) => (
                         <option key={districtItem.code} value={districtItem.code}>
                           {districtItem.name}
                         </option>
@@ -326,7 +301,7 @@ const Updateprofile = () => {
                       <option value="">No districts available</option>
                     )}
                   </select>
-                  {!selectedCityCode && isTouched && (
+                  {!profile?.city && isTouched && (
                     <p className="text-red-500 text-xs italic">Please select a district.</p>
                   )}
                 </div>
@@ -339,14 +314,19 @@ const Updateprofile = () => {
                   </label>
                   <select
                     id="grid-city"
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!selectedCityCode && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
-                    value={selectedWardCode}
-                    onChange={(e) => setSelectedWardCode(e.target.value)}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!profile?.city && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    value={profile?.ward}
+                    onChange={(e) => {
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        ward: e.target.value,
+                      }));
+                    }}
                     onFocus={() => setIsTouched(true)}
                   >
                     <option value="">Select a ward</option>
                     {filteredWards.length > 0 ? (
-                      filteredWards.map((wardItem) => (
+                      filteredWards.map((wardItem: any) => (
                         <option key={wardItem.code} value={wardItem.name}>
                           {wardItem.name}
                         </option>
@@ -355,7 +335,7 @@ const Updateprofile = () => {
                       <option value="">No wards available</option>
                     )}
                   </select>
-                  {!selectedCityCode && isTouched && (
+                  {!profile?.city && isTouched && (
                     <p className="text-red-500 text-xs italic">Please select a ward.</p>
                   )}
                 </div>
@@ -370,13 +350,15 @@ const Updateprofile = () => {
                     địa chỉ nhà
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!address && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!profile?.address && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Enter full name"
-                    value={profile?.address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    disabled
+                    defaultValue={profile?.address}
+                    onChange={(e) => setProfile((prev: any) => ({
+                      ...prev,
+                      address: e.target.value,
+                    }))}
                     onFocus={() => setIsTouched(true)}
                   />
                 </div>
@@ -391,16 +373,19 @@ const Updateprofile = () => {
                     số điện thoại
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!/^[0-9]{10}$/.test(phone) && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!/^[0-9]{10}$/.test(profile?.phone ?? '') && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Enter phone"
-                    value={profile?.phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    defaultValue={profile?.phone}
+                    onChange={(e) => setProfile((prev: any) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }))}
                     onFocus={() => setIsTouched(true)}
                     required
                   />
-                  {!/^[0-9]{10}$/.test(phone) && isTouched && (
+                  {!/^[0-9]{10}$/.test(profile?.phone ?? '') && isTouched && (
                     <p className="text-red-500 text-xs italic">
                       Please enter a valid phone number.
                     </p>
@@ -416,14 +401,12 @@ const Updateprofile = () => {
                     hộ khẩu thường trú
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!placeOfResidence && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Nhập hộ khẩu thường trú"
                     value={profile?.placeOfResidence}
-                    onChange={(e) => setPlaceOfResidence(e.target.value)}
                     disabled
-                    onFocus={() => setIsTouched(true)}
                   />
                 </div>
               </div>
@@ -475,14 +458,12 @@ const Updateprofile = () => {
                     Nơi cấp:
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!placeOfIssue && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Enter full name"
                     value={profile?.placeOfIssue}
-                    onChange={(e) => setPlaceOfIssue(e.target.value)}
                     readOnly
-                    onFocus={() => setIsTouched(true)}
                   />
                 </div>
               </div>
@@ -495,13 +476,11 @@ const Updateprofile = () => {
                     Ngày Cấp
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!dateOfIssue && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="date"
                     placeholder="Chọn ngày cấp"
                     value={profile?.dateOfIssue}
-                    onChange={(e) => setDateOfIssue(e.target.value)}
-                    onFocus={() => setIsTouched(true)}
                     readOnly
                   />
                 </div>
@@ -558,6 +537,7 @@ const Updateprofile = () => {
                       alt="Selected"
                     />
                     <button
+                      type='button'
                       className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
                       onClick={handleRemoveImage}
                     >
