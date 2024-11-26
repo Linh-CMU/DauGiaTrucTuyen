@@ -18,6 +18,7 @@ namespace DataAccess.DTO
         public string StartTime { get; set; }
         public string EndDay { get; set; }
         public string EndTime { get; set; }
+        public string TimeRound { get; set; }
         public string bidStatus { get; set; }
         public bool statusBet { get; set; }
     }

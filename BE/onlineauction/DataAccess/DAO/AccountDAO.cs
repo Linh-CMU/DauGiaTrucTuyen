@@ -181,11 +181,59 @@ namespace DataAccess.DAO
                 {
                     UserId = user.Id,
                     Otp = otp,
-                    ExpirationTime = expirationTime
+                    ExpirationTime = expirationTime,
+                    Attempts = 0
                 };
 
                 context.UserOtp.Add(otpRecord);
                 await context.SaveChangesAsync();
+            }
+        }
+        public async Task<bool> VerifyOtp(VerifyOtpViewModel model)
+        {
+            try
+            {
+                using(var _context = new ConnectDB())
+                {
+                    var user = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == model.Email);
+                    var userdetail = await _context.AccountDetails.FirstOrDefaultAsync(a => a.AccountID == user.Id);
+                    var otpRecord = await _context.UserOtp
+                        .FirstOrDefaultAsync(otp => otp.UserId == user.Id && otp.Otp == model.Otp);
+                    if (otpRecord == null)
+                    {
+                        return false;
+                    }
+                    if (otpRecord.ExpirationTime < DateTime.UtcNow)
+                    {
+                        _context.AccountDetails.Remove(userdetail);
+                        _context.UserOtp.Remove(otpRecord);
+                        _context.Accounts.Remove(user);
+                        await _context.SaveChangesAsync();
+                        return false;
+                    }
+                    if (otpRecord.Attempts >= 5)
+                    {
+                        // You can either lock the account or delete the user
+                        _context.AccountDetails.Remove(userdetail);
+                        _context.UserOtp.Remove(otpRecord);
+                        _context.Accounts.Remove(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (user != null)
+                    {
+                        user.EmailConfirmed = true; // Mark the email as confirmed
+                        user.Status = false;
+                        _context.Entry(user).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+                    }
+                    otpRecord.Attempts++;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

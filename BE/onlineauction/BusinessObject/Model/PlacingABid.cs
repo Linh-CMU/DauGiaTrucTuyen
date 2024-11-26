@@ -13,7 +13,7 @@ namespace BusinessObject.Model
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BetID { get; set; }
+        public int PlacingABidID { get; set; }
 
         [ForeignKey("RegistAuction")]
         public int RAID { get; set; }

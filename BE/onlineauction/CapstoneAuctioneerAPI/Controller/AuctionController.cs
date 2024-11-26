@@ -109,12 +109,12 @@ namespace CapstoneAuctioneerAPI.Controller
         /// <param name="content">The content.</param>
         /// <returns></returns>
         [HttpGet("searchAuctioneeryuser")]
-        public async Task<IActionResult> searchAuctioneeryuser(string content)
+        public async Task<IActionResult> searchAuctioneeryuser(string content, int categoryId)
         {
             try
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _auctionService.SearchAuctioneer(content, userId);
+                var result = await _auctionService.SearchAuctioneer(content, userId, categoryId);
                 if (result.IsSucceed)
                 {
                     return Ok(result);

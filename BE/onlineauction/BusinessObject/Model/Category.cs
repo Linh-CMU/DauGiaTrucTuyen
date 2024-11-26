@@ -16,5 +16,6 @@ namespace BusinessObject.Model
         public int CategoryID { get; set; }
         public string NameCategory { get; set; }
         public virtual ICollection<AuctionDetail> AuctionDetails { get; set; } = new List<AuctionDetail>();
+        public virtual ICollection<AccountDetail> AccountDetails { get; set; } = new List<AccountDetail>();
     }
 }

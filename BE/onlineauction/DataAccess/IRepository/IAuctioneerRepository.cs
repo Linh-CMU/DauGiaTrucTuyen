@@ -32,7 +32,7 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <param name="auctionDTO">The auction dto.</param>
         /// <returns></returns>
-        Task<ResponseDTO> UpdateAuction(string id, UDAuctionDTO auctionDTO);
+        Task<ResponseDTO> UpdateAuction(string id, UpdateAuctionDTO auctionDTO);
         /// <summary>
         /// Deletes the auction.
         /// </summary>
@@ -53,7 +53,7 @@ namespace DataAccess.IRepository
         /// <param name="content">The content.</param>
         /// <param name="uid">The uid.</param>
         /// <returns></returns>
-        Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid);
+        Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid, int categoryId);
         /// <summary>
         /// Listofregisteredbidderses the specified userid.
         /// </summary>
@@ -89,6 +89,6 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> ListAuctioneerByUser(string id, int status);
-
+        Task<ResponseDTO> ListAuctioneerRegisterByUser(string id, int status);
     }
 }

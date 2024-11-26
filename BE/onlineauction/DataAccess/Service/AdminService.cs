@@ -241,6 +241,12 @@ namespace DataAccess.Service
             var result = await _auctioneerRepository.ListAuctioneerByUser(id, status);
             return result;
         }
+
+        public async Task<ResponseDTO> ListAuctioneerRegisterByUser(string id, int status)
+        {
+            var result = await _auctioneerRepository.ListAuctioneerRegisterByUser(id, status);
+            return result;
+        }
         public async Task<ResponseDTO> AuctionRoomAdmin(int id)
         {
             try

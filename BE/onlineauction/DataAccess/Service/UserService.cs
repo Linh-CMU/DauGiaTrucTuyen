@@ -55,7 +55,7 @@ namespace DataAccess.Service
         /// <param name="id">The identifier.</param>
         /// <param name="auctionDTO">The auction dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> UpdateAuctioneer(string id, UDAuctionDTO auctionDTO)
+        public async Task<ResponseDTO> UpdateAuctioneer(string id, UpdateAuctionDTO auctionDTO)
         {
             var result = await _auctioneerRepository.UpdateAuction(id, auctionDTO);
             return result;

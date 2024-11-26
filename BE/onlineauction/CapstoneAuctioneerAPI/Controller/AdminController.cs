@@ -210,6 +210,25 @@ namespace CapstoneAuctioneerAPI.Controller
             }
         }
         [HttpGet]
+        [Route("ListAuctioneerRegisterByUser")]
+        [Authorize(Policy = "ADMIN")]
+        public async Task<ActionResult> ListAuctioneerRegisterByUser(string iduser, int status)
+        {
+            try
+            {
+                var result = await _adminService.ListAuctioneerRegisterByUser(iduser, status);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+        [HttpGet]
         [Route("auctionRoom")]
         public async Task<ActionResult> auctionRoom(int auctionId)
         {

@@ -78,6 +78,17 @@ builder.Services.AddSwaggerGen(option =>
                         }
                     });
 });
+builder.Services.AddAuthentication()
+    .AddGoogle(googleOptions =>
+    {
+        // Đọc thông tin Authentication:Google từ appsettings.json
+        IConfigurationSection googleAuthNSection = builder.Configuration.GetSection("Authentication:Google");
+
+        // Thiết lập ClientID và ClientSecret để truy cập API google
+        googleOptions.ClientId = googleAuthNSection["ClientId"];
+        googleOptions.ClientSecret = googleAuthNSection["ClientSecret"];
+
+    });
 builder.Services.AddHttpClient<VerificationController>(client =>
 {
     client.BaseAddress = new Uri("https://api.fpt.ai/vision/idr/vnm");

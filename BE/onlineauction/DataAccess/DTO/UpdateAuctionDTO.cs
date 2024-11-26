@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class UDAuctionDTO
+    public class UpdateAuctionDTO
     {
         public int auctionID { get; set; }
-        public string? imageAuction { get; set; }
-        public string? imageEvidence { get; set; }
+        public IFormFile? imageAuction { get; set; }
+        public IFormFile? imageEvidence { get; set; }
         public string nameAuctionItem { get; set; }
         public string description { get; set; }
         public decimal startingPrice { get; set; }

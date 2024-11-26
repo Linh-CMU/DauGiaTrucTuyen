@@ -81,23 +81,10 @@ namespace CapstoneAuctioneerAPI.Controller
         [Authorize(Policy = "USER")]
         [Route("UpdateAuctionItem")]
         public async Task<ActionResult> UpdateAuctionner(
-            int auctionID,
-            IFormFile imageAuction,
-            string nameAuctionItem,
-            string description,
-            decimal startingPrice
-            )
+            [FromForm] UpdateAuctionDTO updateAuctionDTOrequest)
         {
-            var update = new UDAuctionDTO
-            {
-                AuctionID = auctionID,
-                Image = imageAuction,
-                NameAuction = nameAuctionItem,
-                Description = description,
-                StartingPrice = startingPrice
-            };
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _userService.UpdateAuctioneer(userId, update);
+            var result = await _userService.UpdateAuctioneer(userId, updateAuctionDTOrequest);
             if (!result.IsSucceed)
             {
                 return BadRequest(result);

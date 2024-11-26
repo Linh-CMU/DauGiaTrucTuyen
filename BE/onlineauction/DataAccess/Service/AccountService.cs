@@ -3,6 +3,7 @@ using DataAccess.DTO;
 using DataAccess.IRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -151,6 +152,18 @@ namespace DataAccess.Service
         {
             var lockaccount = await _accountRepository.UnLockAccount(accountID);
             return lockaccount;
+        }
+
+        public async Task<ResponseDTO> VerifyOtp(VerifyOtpViewModel model)
+        {
+            var result = await _accountRepository.VerifyOtp(model);
+            return result;
+        }
+
+        public string GenerateNewJsonWebToken(string email, string role)
+        {
+            var result = _accountRepository.GenerateJwtToken(email, role);
+            return result;
         }
     }
 }

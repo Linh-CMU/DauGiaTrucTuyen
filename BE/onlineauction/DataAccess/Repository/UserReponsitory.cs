@@ -166,7 +166,7 @@ namespace DataAccess.Repository
                 NameAuction = register.NameAuction,
                 Description = register.Description,
                 StartingPrice = register.StartingPrice,
-                MoneyDeposit = register.StartingPrice * 0.2m
+                MoneyDeposit = register.StartingPrice * 0.1m
             };
             try
             {
@@ -179,7 +179,6 @@ namespace DataAccess.Repository
                         ListAuctionID = id,
                         CategoryID = register.CategoryID,
                         NumberofAuctionRounds = 1,
-                        TimePerLap = "1",
                         PaymentMethod = "bid up"
                     };
                     var resultdetail = await AuctionDAO.Instance.AddAuctionDetail(detailauctioneer);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,6 @@ namespace BusinessObject.Model
         public string? PaymentMethod { get; set; }
         public virtual ListAuction ListAuctions { get; set; }
         public virtual Category Categorys { get; set; }
-        public virtual ICollection<DigitalSignature> FileAttachments { get; set; } = new List<DigitalSignature>();
+        public virtual ICollection<Image> Images { get; set; } = new List<Image>();
     }
 }

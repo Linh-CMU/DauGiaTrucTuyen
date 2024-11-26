@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -87,5 +88,8 @@ namespace DataAccess.IRepository
         /// <param name="accountID">The account identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> UnLockAccount(string accountID);
+
+        Task<ResponseDTO> VerifyOtp(VerifyOtpViewModel model);
+        string GenerateJwtToken(string email, string role);
     }
 }

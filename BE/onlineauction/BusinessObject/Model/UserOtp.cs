@@ -12,8 +12,7 @@ namespace BusinessObject.Model
         public string UserId { get; set; }
         public string Otp { get; set; }
         public DateTime ExpirationTime { get; set; }
-
-        // Navigation property to User
+        public int Attempts { get; set; }
         public virtual Account User { get; set; }
     }
 }

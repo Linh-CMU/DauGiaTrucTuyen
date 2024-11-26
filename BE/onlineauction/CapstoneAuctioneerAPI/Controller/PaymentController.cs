@@ -93,7 +93,7 @@ namespace CapstoneAuctioneerAPI.Controller
                     RAID = deposit.IdResgiter,
                     PaymentType = "Payos",
                     PaymentDate = DateTime.Now.ToString(),
-                    status = "paid"
+                    status = "success"
                 };
                 var pay = await _userService.PaymentForDeposit(deposits);
                 if (pay != true)
@@ -199,7 +199,7 @@ namespace CapstoneAuctioneerAPI.Controller
                     RAID = id,
                     PaymentType = "Deposit",
                     PaymentDate = DateTime.Now.ToString(),
-                    status = "paid"
+                    status = "success"
                 };
                 var pay = await _userService.PaymentForDeposit(deposit);
                 if (pay != true)

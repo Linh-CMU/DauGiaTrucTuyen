@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.OData.Query;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using BusinessObject.Model;
+using Google.Apis.Auth;
 
 namespace CapstoneAuctioneerAPI.Controller
 {
@@ -65,6 +66,44 @@ namespace CapstoneAuctioneerAPI.Controller
             }
         }
 
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        {
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.TokenId, new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { "800544947907-gqq1fut5e84qhsdtapqs1nf1f3rao28r.apps.googleusercontent.com" }
+                });
+
+                // Tạo JWT Token
+                var role = "user";
+                var token = _accountService.GenerateNewJsonWebToken(payload.Email, role);
+
+                //var check = new
+                //{
+                //    Role = role,
+                //    Token = token,
+                //    Check = user.Result.BacksideCCCD == null ? false : true,
+                //};
+                //return new ResponseDTO() { Result = check, IsSucceed = true, Message = "Successfully" };
+                return Ok(new
+                {
+                    token,
+                    user = new
+                    {
+                        payload.Email,
+                        payload.Name,
+                        payload.Picture
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { Message = "Invalid Google Token", Error = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Registers the specified account.
         /// </summary>
@@ -91,30 +130,21 @@ namespace CapstoneAuctioneerAPI.Controller
         }
         [HttpPost]
         [Route("verify-otp")]
-        public async Task<IActionResult> VerifyOtp(string email, string otp)
+        public async Task<IActionResult> VerifyOtp(VerifyOtpViewModel model)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return NotFound("User not found.");
-
-            if (user.AccessFailedCount >= 3)
+            try
             {
-                await _userManager.DeleteAsync(user);
-                return Unauthorized("Account deleted due to multiple failed verification attempts.");
+                var result = await _accountService.VerifyOtp(model);
+                if (result.IsSucceed)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
             }
-
-            var isValidOtp = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "OTP", otp);
-            if (isValidOtp)
+            catch (Exception ex)
             {
-                user.EmailConfirmed = true;
-                user.AccessFailedCount = 0;
-                await _userManager.UpdateAsync(user);
-                return Ok("Email verified successfully.");
-            }
-            else
-            {
-                await _userManager.AccessFailedAsync(user); // Increment failed count
-                return Unauthorized("Invalid OTP. Please try again.");
+                // Log the exception (optional)
+                return StatusCode(500, new ResponseDTO() { IsSucceed = false, Message = "Internal server error: " + ex.Message });
             }
         }
         /// <summary>
@@ -299,25 +329,8 @@ namespace CapstoneAuctioneerAPI.Controller
         [HttpPut("UserOrAdmin/update-profile")]
         [Authorize]
         public async Task<IActionResult> UpdateProfile(
-            IFormFile? avatar,
-            string? fullName,
-            string? phone,
-            string? city,
-            string? ward,
-            string? district,
-            string? address
-            )
+            [FromForm] UProfileDTO uProfileDTO)
         {
-            var uProfileDTO = new UProfileDTO()
-            {
-                Avatar = avatar,
-                FullName = fullName,
-                Phone = phone,
-                City = city,
-                Ward = ward,
-                District = district,
-                Address = address
-            };
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get user ID from claims
             var response = await _accountService.UpdateUserProfile(userId, uProfileDTO);
 

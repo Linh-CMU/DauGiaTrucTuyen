@@ -47,7 +47,7 @@ namespace DataAccess.Repository
         public async Task<AutionDTO> AuctionDetail(int id)
         {
             var result = await AuctionDAO.Instance.AuctionDetail(id);
-            if(result.StatusAuction != "Not approved yet")
+            if (result.StatusAuction != "Not approved yet")
             {
                 bool hasStartDay = !string.IsNullOrEmpty(result.StartDay);
                 bool hasStartTime = !string.IsNullOrEmpty(result.StartTime);
@@ -103,7 +103,7 @@ namespace DataAccess.Repository
                 return auction;
             }
             return null;
-            
+
         }
 
         /// <summary>
@@ -132,34 +132,37 @@ namespace DataAccess.Repository
             if (status == 1)
             {
                 auction = result.Where(ad =>
-                    !string.IsNullOrEmpty(ad.StartDay) &&
-                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
-                    (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
-                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                    TimeSpan.Parse(ad.StartTime) > DateTime.Now.TimeOfDay)).ToList();
+                    !string.IsNullOrEmpty(ad.EndDay) &&
+                    !string.IsNullOrEmpty(ad.EndTime) &&
+                    !string.IsNullOrEmpty(ad.TimePerLap) &&
+                    DateTime.TryParseExact(ad.EndDay, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime endDay) &&
+                    TimeSpan.TryParse(ad.EndTime, out TimeSpan endTime) &&
+                    TimeSpan.TryParse(ad.TimePerLap, out TimeSpan rollTime) &&
+                    endDay.Add(endTime) < DateTime.Now &&
+                    endDay.Add(endTime).Add(rollTime) > DateTime.Now
+                ).ToList();
+
             }
             else if (status == 2)
             {
                 auction = result.Where(ad =>
                     !string.IsNullOrEmpty(ad.StartDay) &&
-                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) < DateTime.Today ||
+                    DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) > DateTime.Today ||
                     (!string.IsNullOrEmpty(ad.StartDay) && !string.IsNullOrEmpty(ad.StartTime) &&
                     DateTime.ParseExact(ad.StartDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                    TimeSpan.Parse(ad.StartTime) <= DateTime.Now.TimeOfDay) &&
-                    !string.IsNullOrEmpty(ad.EndDay) &&
-                    (DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) > DateTime.Today ||
-                    (!string.IsNullOrEmpty(ad.EndTime) &&
-                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                    TimeSpan.Parse(ad.EndTime) >= DateTime.Now.TimeOfDay))).ToList();
+                    TimeSpan.Parse(ad.StartTime) >= DateTime.Now.TimeOfDay)).ToList();
             }
             else if (status == 3)
             {
                 auction = result.Where(ad =>
                     !string.IsNullOrEmpty(ad.EndDay) &&
-                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) < DateTime.Today ||
-                    (!string.IsNullOrEmpty(ad.EndDay) && !string.IsNullOrEmpty(ad.EndTime) &&
-                    DateTime.ParseExact(ad.EndDay, "dd/MM/yyyy", null) == DateTime.Today &&
-                    TimeSpan.Parse(ad.EndTime) < DateTime.Now.TimeOfDay)).ToList();
+                    !string.IsNullOrEmpty(ad.EndTime) &&
+                    !string.IsNullOrEmpty(ad.TimePerLap) &&
+                    DateTime.TryParseExact(ad.EndDay, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime endDay) &&
+                    TimeSpan.TryParse(ad.EndTime, out TimeSpan endTime) &&
+                    TimeSpan.TryParse(ad.TimePerLap, out TimeSpan rollTime) && 
+                    endDay.Add(endTime).Add(rollTime) < DateTime.Now
+                ).ToList();
             }
             return auction; // Return the list of auctioneer DTOs
         }
@@ -170,17 +173,29 @@ namespace DataAccess.Repository
         /// <param name="id">The identifier.</param>
         /// <param name="auctionDTO">The auction dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> UpdateAuction(string id, UDAuctionDTO auctionDTO)
+        public async Task<ResponseDTO> UpdateAuction(string id, UpdateAuctionDTO auctionDTO)
         {
             try
             {
-                var auction = new ListAuction
+                var Image = "";
+                var imageEvidence = "";
+                if (auctionDTO.imageAuction != null)
                 {
-                    ListAuctionID = auctionDTO.AuctionID,
-                    Image = await _upload.SaveFileAsync(auctionDTO.Image, "ListAuctioneer", id),
-                    NameAuction = auctionDTO.NameAuction,
-                    Description = auctionDTO.Description,
-                    StartingPrice = auctionDTO.StartingPrice,
+                    Image = await _upload.SaveFileAsync(auctionDTO.imageAuction, "ListAuctioneer", id);
+                }
+                if (auctionDTO.imageEvidence != null)
+                {
+                    imageEvidence = await _upload.SaveFileAsync(auctionDTO.imageEvidence, "TImages", id);
+                }
+                var auction = new UDAuctionDTO
+                {
+                    auctionID = auctionDTO.auctionID,
+                    description = auctionDTO.description,
+                    category = auctionDTO.category,
+                    startingPrice = auctionDTO.startingPrice,
+                    nameAuctionItem = auctionDTO.nameAuctionItem,
+                    imageAuction = Image,
+                    imageEvidence = imageEvidence,
                 };
                 await AuctionDAO.Instance.UpdateAuctioneer(auction);
                 return new ResponseDTO { IsSucceed = true, Message = "Update Auction successfully" };
@@ -266,9 +281,13 @@ namespace DataAccess.Repository
         /// <param name="content">The content.</param>
         /// <param name="uid">The uid.</param>
         /// <returns></returns>
-        public async Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid)
+        public async Task<List<ListAuctioneerDTO>> SearchAuctioneer(string content, string uid, int categoryId)
         {
             var result = await AuctionDAO.Instance.SearchAuctioneer(content, uid);
+            if (categoryId > 0)
+            {
+                result = result.Where(c => c.CategoryId.Equals(categoryId)).ToList();
+            }
 
             return result; // Trả về danh sách các DTO
         }
@@ -283,7 +302,7 @@ namespace DataAccess.Repository
         public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, int status, bool? statusauction)
         {
             var auction = new List<ListAuctioneerDTO>();
-            var result = await RegistAuctionDAO.Instance.Listofregisteredbidders(userid, statusauction);
+            var result = await RegistAuctionDAO.Instance.Listofregisteredbidders(userid);
             if (status == 0)
             {
                 auction = result;
@@ -366,7 +385,20 @@ namespace DataAccess.Repository
             try
             {
                 var result = await AuctionDAO.Instance.ListAuctioneerByUser(id, status);
-                return new ResponseDTO {Result = result, IsSucceed = true, Message = "Successfully" };
+                return new ResponseDTO { Result = result, IsSucceed = true, Message = "Successfully" };
+            }
+            catch
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Failed" };
+            }
+        }
+
+        public async Task<ResponseDTO> ListAuctioneerRegisterByUser(string id, int status)
+        {
+            try
+            {
+                var result = await AuctionDAO.Instance.ListAuctioneerRegisterByUser(id, status);
+                return new ResponseDTO { Result = result, IsSucceed = true, Message = "Successfully" };
             }
             catch
             {

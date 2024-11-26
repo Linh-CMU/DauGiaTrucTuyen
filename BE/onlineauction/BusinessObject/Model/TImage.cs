@@ -17,7 +17,6 @@ namespace BusinessObject.Model
         [ForeignKey("FileAttachments")]
         public int FileAID { get; set; }
         public string Imange { get; set; }
-        public virtual DigitalSignature FileAttachments { get; set; }
-
+        public virtual AuctionDetail AuctionDetails { get; set; }
     }
 }

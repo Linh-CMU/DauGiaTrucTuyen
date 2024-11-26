@@ -90,7 +90,7 @@ namespace DataAccess.DAO
         /// <param name="status">The status.</param>
         /// <param name="statusauction">The statusauction.</param>
         /// <returns></returns>
-        public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid, bool? statusauction)
+        public async Task<List<ListAuctioneerDTO>> Listofregisteredbidders(string userid)
         {
             using (var context = new ConnectDB())
             {
@@ -107,15 +107,20 @@ namespace DataAccess.DAO
                                                 StartDay = ad.StartDay,
                                                 StartTime = ad.StartTime,
                                                 EndDay = ad.EndDay,
+                                                TimePerLap = ad.TimePerLap,
                                                 EndTime = ad.EndTime,
                                                 PriceStart = a.StartingPrice,
                                                 winningBid = context.Bets
-                                                                                    .Where(b => b.RAID == r.RAID)
-                                                                                    .OrderByDescending(b => b.PriceBit)
-                                                                                    .Select(b => b.PriceBit) // Get the highest bid price
-                                                                                    .FirstOrDefault(),
+                                                .Join(context.RegistAuctioneers,
+                                                      b => b.RAID,
+                                                      r => r.RAID,
+                                                      (b, r) => new { b.PriceBit, r.ListAuctionID })
+                                                .Where(br => br.ListAuctionID == a.ListAuctionID)
+                                                .OrderByDescending(br => br.PriceBit)
+                                                .Select(br => br.PriceBit)
+                                                .FirstOrDefault(),
                                                 status = r.AuctionStatus == true ? "chúc mừng" : "Chia buồn",
-                                            }).ToListAsync();
+                                            }).Distinct().ToListAsync();
 
 
                 return auctioneerList;
@@ -231,7 +236,7 @@ namespace DataAccess.DAO
                                            AuctionDetail = ad,
                                            ListAuction = a
                                        }).FirstOrDefaultAsync();
-                    if (bet.BetID != 0)
+                    if (bet.PlacingABidID != 0)
                     {
                         // Existing bet found, so update it
                         bet.PriceBit = check.ListAuction.StartingPrice + price;
@@ -360,7 +365,7 @@ namespace DataAccess.DAO
                                 where r.ListAuctionID == id
                                 select new ViewBidHistoryDTO
                                 {
-                                    ID = b.BetID,
+                                    ID = b.PlacingABidID,
                                     userId = r.AccountID,
                                     Price = b.PriceBit,
                                     DateAndTime = b.BidTime

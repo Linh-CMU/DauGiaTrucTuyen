@@ -88,11 +88,11 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> SearchAuctioneer(string content, string uid)
+        public async Task<ResponseDTO> SearchAuctioneer(string content, string uid, int categoryId)
         {
             try
             {
-                var result = await _auctioneerRepository.SearchAuctioneer(content, uid);
+                var result = await _auctioneerRepository.SearchAuctioneer(content, uid, categoryId);
                 var response = new ResponseDTO()
                 {
                     Result = result,

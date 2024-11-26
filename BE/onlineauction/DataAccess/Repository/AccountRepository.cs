@@ -1,4 +1,5 @@
-﻿using BusinessObject.Context;
+﻿using Azure.Core;
+using BusinessObject.Context;
 using BusinessObject.Model;
 using DataAccess.DAO;
 using DataAccess.DTO;
@@ -100,12 +101,13 @@ namespace DataAccess.Repository
             {
                 return new ResponseDTO() { IsSucceed = false, Message = "Invalid credentials" };
             }
-            if (account.Status == true)
+            if (account.Status == true && account.EmailConfirmed != false)
             {
                 return new ResponseDTO() { IsSucceed = false, Message = "Account had lock" };
             }
 
             var userRoles = await _accountManager.GetRolesAsync(account);
+            var user = AccountDAO.Instance.ProfileDAO(account.Id);
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, account.UserName),
@@ -119,7 +121,13 @@ namespace DataAccess.Repository
             }
 
             var token = GenerateNewJsonWebToken(authClaims, TimeSpan.FromDays(1));
-            return new ResponseDTO() { IsSucceed = true, Message = token };
+            var check = new
+            {
+                Role = userRoles[0],
+                Token = token,
+                Check = user.Result.BacksideCCCD == null ? false : true,
+            };
+            return new ResponseDTO() { Result = check, IsSucceed = true, Message = "Successfully" };
         }
 
         /// <summary>
@@ -143,6 +151,31 @@ namespace DataAccess.Repository
             string token = new JwtSecurityTokenHandler().WriteToken(tokenObject);
             return token;
         }
+
+        public string GenerateJwtToken(string email, string role)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])); // Key từ appsettings
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            // Thêm claims, bao gồm role
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, email),  // Email của user
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // ID token
+                new Claim(ClaimTypes.Role, role) // Role
+            };
+
+            // Tạo token
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(1), // Thời gian hết hạn
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
 
         /// <summary>
         /// Makes the user asynchronous.
@@ -322,7 +355,7 @@ namespace DataAccess.Repository
 
             return emailSent;
         }
-        
+
         // Helper method to generate the OTP email content
         private string GetOtpEmailContent(string otp)
         {
@@ -690,6 +723,23 @@ namespace DataAccess.Repository
             }
 
             return otp;
+        }
+
+        public async Task<ResponseDTO> VerifyOtp(VerifyOtpViewModel model)
+        {
+            try
+            {
+                var result = await AccountDAO.Instance.VerifyOtp(model);
+                if (result)
+                {
+                    return new ResponseDTO { IsSucceed = true, Message = "Successfully" };
+                }
+                return new ResponseDTO { IsSucceed = false, Message = "Failed." };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO { IsSucceed = false, Message = ex.Message };
+            }
         }
     }
 }

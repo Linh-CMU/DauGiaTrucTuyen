@@ -84,10 +84,10 @@ namespace BusinessObject.Context
                 .HasForeignKey(p => p.RAID)
                 .OnDelete(DeleteBehavior.NoAction);
             var adminRoleId = Guid.NewGuid().ToString();
-            modelBuilder.Entity<IdentityRole>().HasData(
-              new IdentityRole { Id = adminRoleId, Name = "admin", NormalizedName = "ADMIN" },
-              new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "user", NormalizedName = "USER" }
-              );
+            //modelBuilder.Entity<IdentityRole>().HasData(
+            //  new IdentityRole { Id = adminRoleId, Name = "admin", NormalizedName = "ADMIN" },
+            //  new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "user", NormalizedName = "USER" }
+            //  );
         }
     }
 }
