@@ -1,17 +1,12 @@
+import { FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import { useLoading } from '@contexts/LoadingContext';
 import { useMessage } from '@contexts/MessageContext';
-import { Button, TextField, IconButton, InputAdornment } from '@mui/material';
-import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-// import { GoogleLogin } from 'react-google-login';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
   const { setIsLoading } = useLoading();
@@ -37,91 +32,60 @@ const LoginPage = () => {
         }
       }
       setSuccessMessage('Login successful!');
-      // Optionally, reset the form
       setUsername('');
       setPassword('');
     } else {
       setErrorMessage('Login failed!');
     }
   };
-  // const onSuccess = (res: any) => {
-  //   console.log('Login google', res.profileObj);
-  // }
-  // const onFailure = (res: any) => {
-  //   console.log('Login fail', res);
-  // }
-  const handleClickShowPassword = () => setShowPassword((prev) => !prev);
-  const handleMouseDownPassword = (event: React.MouseEvent) => event.preventDefault();
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow-md w-[25rem]">
-        <h2 className="text-2xl font-bold mb-4 text-center">ĐĂNG NHẬP</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <TextField
-              fullWidth
-              label="Tên Đăng Nhập"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ marginBottom: '1rem' }}
-            />
-          </div>
-          <div className="mb-4">
-            <TextField
-              fullWidth
-              type={showPassword ? 'text' : 'password'}
-              label="Mật Khẩu"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              sx={{ marginBottom: '1rem' }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </div>
-          <div className="text-right mb-4">
-            <a href="/forgot" className="text-sm text-blue-600 hover:text-blue-700">
-              Quên mật khẩu?
-            </a>
-          </div>
-          {/* <div>
-            <GoogleLogin
-              clientId={GOOGLE_CLIENT_ID}
-              buttonText="Login with Google"
-              onSuccess={onSuccess}
-              onFailure={onFailure}
-              cookiePolicy={'single_host_origin'}
-            />
-          </div> */}
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            sx={{
-              backgroundColor: '#6200ea',
-              '&:hover': {
-                backgroundColor: '#3700b3',
-              },
-            }}
-          >
-            ĐĂNG NHẬP
-          </Button>
-        </form>
+    <>
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="absolute w-96 h-96 bg-blue-400 rounded-lg -rotate-6"></div>
+        <div className="relative w-96 h-96 bg-white rounded-lg shadow-lg p-8 z-10">
+          <h2 className="text-xl font-bold mb-6">Đăng nhập</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block mb-2 text-sm font-medium">Tên đăng nhập hoặc email</label>
+              <input
+                className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-blue-500 bg-slate-300"
+                placeholder="Ten Dang nhap hoặc email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium">Mật khẩu</label>
+              <input
+                type="password"
+                className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-blue-500  bg-slate-300"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className='flex'>
+              <div className="mr-auto mb-4">
+                <a href="/sign-up" className="text-sm text-blue-600 hover:text-blue-700">
+                    Chưa có tài khoản?
+                </a>
+              </div>
+              <div className="text-left mb-4">
+                <a href="/forgot" className="text-sm text-blue-600 hover:text-blue-700">
+                  Quên mật khẩu?
+                </a>
+              </div>
+            </div>
+            <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">
+              Dang nhap
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

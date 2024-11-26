@@ -30,7 +30,7 @@ const HeaderTop1 = () => {
 
   const onLogoutBtnClick = () => {
     logout();
-    navigate('./login');
+    navigate('/');
   };
   const toggleProfileMenu = () => {
     setIsProfileMenu(!isProfileMenu);
@@ -140,7 +140,7 @@ const HeaderTop1 = () => {
                       href="#"
                       className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
-                      Thông tin
+                      Giới thiệu
                     </a>
                   </div>
                 </>

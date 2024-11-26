@@ -237,11 +237,11 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
               readOnly: true, // Set to readOnly if you don't want this input to be editable
             }}
           />
-          X
+          *
           <div className="flex items-center border border-gray-300 p-1 rounded-lg">
             <Grid item>
               <Box className="flex items-center p-1">
-                <IconButton
+              <IconButton
                   size="small"
                   sx={{
                     borderRadius: '50%',
@@ -250,9 +250,9 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
                       backgroundColor: 'primary.dark',
                     },
                   }}
-                  onClick={incrementValue}
+                  onClick={decrementValue}
                 >
-                  <AddIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
+                  <RemoveIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
                 </IconButton>
                 <TextField
                   value={inputValue}
@@ -283,9 +283,9 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
                       backgroundColor: 'primary.dark',
                     },
                   }}
-                  onClick={decrementValue}
+                  onClick={incrementValue}
                 >
-                  <RemoveIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
+                  <AddIcon sx={{ color: 'white', width: '12px', height: '12px' }} />
                 </IconButton>
               </Box>
             </Grid>
