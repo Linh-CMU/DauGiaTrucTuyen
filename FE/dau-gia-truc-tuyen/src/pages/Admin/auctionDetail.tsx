@@ -109,6 +109,8 @@ const AuctionDetail = () => {
   }, [id]);
   const fetchDetailAuction = async () => {
     try {
+      console.log('id', id);
+      
       const response = await getDetailAuctionAdmin(Number(id)); // Sử dụng id từ props
       console.log(response, 'data');
       if (response?.isSucceed) {
@@ -144,25 +146,34 @@ const AuctionDetail = () => {
   if (error) {
     return <Typography color="error">{error}</Typography>; // Hiển thị lỗi nếu có
   }
-  const calculateNewEndTime = (endTime: string, timePerLap: string): string => {
+  const calculateNewEndTime = (
+    endTime: string | undefined,
+    timePerLap: string | undefined
+  ): string | null => {
+    // Kiểm tra nếu endTime hoặc timePerLap không hợp lệ
+    if (!endTime || !timePerLap) {
+      console.error('endTime hoặc timePerLap không hợp lệ');
+      return null; // Hoặc giá trị mặc định phù hợp
+    }
+
     // Tách giờ và phút từ endTime
     const [endHours, endMinutes] = endTime.split(':').map(Number);
     // Tách giờ và phút từ timePerLap
     const [lapHours, lapMinutes] = timePerLap.split(':').map(Number);
-    
+
     // Tạo đối tượng Date với giờ và phút từ endTime
     const endDate = new Date();
     endDate.setHours(endHours);
     endDate.setMinutes(endMinutes);
-  
+
     // Cộng thêm giờ và phút từ timePerLap
     endDate.setHours(endDate.getHours() + lapHours);
     endDate.setMinutes(endDate.getMinutes() + lapMinutes);
-  
+
     // Lấy giờ và phút sau khi cộng thêm
     const newHours = endDate.getHours().toString().padStart(2, '0');
     const newMinutes = endDate.getMinutes().toString().padStart(2, '0');
-  
+
     // Trả về chuỗi thời gian mới
     return `${newHours}:${newMinutes}`;
   };
@@ -192,7 +203,7 @@ const AuctionDetail = () => {
     },
     {
       label: 'Bước giá',
-      value: `${detailAuction.priceStep
+      value: `${detailAuction.priceStep ?? 0
         .toLocaleString('vi-VN', {
           style: 'currency',
           currency: 'VND',

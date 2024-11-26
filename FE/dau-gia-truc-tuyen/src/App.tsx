@@ -8,7 +8,6 @@ import { MessageProvider } from '@contexts/MessageContext';
 import AddInfo from '@pages/Admin/AddInfo';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
-import Login1 from '@pages/Login1';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -69,7 +68,6 @@ const AppRoutes: React.FC = () => {
           <Route path="/update-profile" element={<Updateprofile />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/login1" element={<Login1 />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/otp" element={<OTPPage />} />
@@ -81,7 +79,7 @@ const AppRoutes: React.FC = () => {
 
 const App = () => {
   const location = useLocation();
-  const hidenHeader = ['/login1'];
+  const hidenHeader = ['/login', '/forgot', '/sign-up'];
   return (
     <LoadingProvider>
       <MessageProvider>
@@ -90,7 +88,7 @@ const App = () => {
           <div className="bg-white">
             <AppRoutes />
           </div>
-          <Footer />
+          {!hidenHeader.includes(location.pathname) && <Footer />}
         </div>
       </MessageProvider>
     </LoadingProvider>

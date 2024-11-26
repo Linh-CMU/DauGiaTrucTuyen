@@ -54,24 +54,24 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchDistricts = async () => {
-        try {
-          const districtData = await getDistrict();
-          setDistricts(districtData);
-        } catch (error) {
-          setErrorMessage('Error fetching districts');
-        }
+      try {
+        const districtData = await getDistrict();
+        setDistricts(districtData);
+      } catch (error) {
+        setErrorMessage('Error fetching districts');
       }
+    };
     fetchDistricts();
   }, []);
 
   useEffect(() => {
     const fetchWard = async () => {
-        try {
-          const wardData = await getWard();
-          setWards(wardData);
-        } catch (error) {
-          setErrorMessage('Error fetching wards');
-        }
+      try {
+        const wardData = await getWard();
+        setWards(wardData);
+      } catch (error) {
+        setErrorMessage('Error fetching wards');
+      }
     };
 
     fetchWard();
@@ -81,18 +81,18 @@ const Profile = () => {
   const [filteredWards, setfilteredWards] = useState<any>('');
 
   useEffect(() => {
-    if(profile) {
-       const filteredDistrict = districts.filter(
-          (district) => district.province_code.toString() === profile?.city
-        );
-        const filteredWard = wards.filter(
-          (ward) => ward.district_code.toString() === profile?.district
-        );
-        setfilteredWards(filteredWard);
-        setfilteredDistricts(filteredDistrict);
+    if (profile) {
+      const filteredDistrict = districts.filter(
+        (district) => district.province_code.toString() === profile?.city
+      );
+      const filteredWard = wards.filter(
+        (ward) => ward.district_code.toString() === profile?.district
+      );
+      setfilteredWards(filteredWard);
+      setfilteredDistricts(filteredDistrict);
     }
-  }, [profile])
-  
+  }, [profile]);
+
   return (
     <>
       <div className="w-full mt-8 flex items-center justify-center pt-10">
@@ -405,17 +405,18 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+            <div className='mt-16'>
+              <Button
+                className="bg-green-900 hover:bg-green-800 text-white"
+                disableElevation
+                variant="contained"
+                onClick={() => navigate('/update-profile')}
+              >
+                Update
+              </Button>
+            </div>
           </div>
-          <div>
-            <Button
-              className="bg-green-900 hover:bg-green-800 text-white"
-              disableElevation
-              variant="contained"
-              onClick={() => navigate('/update-profile')}
-            >
-              Update
-            </Button>
-          </div>
+          <div></div>
         </div>
       ) : (
         <div>Not info</div>
