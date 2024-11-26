@@ -30,7 +30,7 @@ const HeaderTop1 = () => {
 
   const onLogoutBtnClick = () => {
     logout();
-    navigate('./login');
+    navigate('/');
   };
   const toggleProfileMenu = () => {
     setIsProfileMenu(!isProfileMenu);
