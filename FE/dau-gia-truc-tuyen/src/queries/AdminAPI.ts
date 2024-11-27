@@ -19,7 +19,7 @@ export const getListAccount = async () => {
 export const inforUser = async (id?: string) => {
     try {
         const token = localStorage.getItem('token');
-        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
+        const response = await axiosInstance.get(`/api/Admin/userDetail?uid=${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

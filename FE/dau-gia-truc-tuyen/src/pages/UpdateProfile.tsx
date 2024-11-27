@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { cityResponse, districtResponse, wardResponse } from '../types/auth.type';
-import { getCity, getDistrict, getWard, profileUser, UpdateUserInformation } from '../queries/AdminAPI';
+import {
+  getCity,
+  getDistrict,
+  getWard,
+  profileUser,
+  UpdateUserInformation,
+} from '../queries/AdminAPI';
 import { useMessage } from '@contexts/MessageContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,6 +19,7 @@ interface profileResponse {
   address: string;
   avatar: any;
   frontCCCD: string;
+  signature: string;
   backsideCCCD: string;
   gender: boolean;
   birthdate: string;
@@ -54,24 +61,24 @@ const Updateprofile = () => {
 
   useEffect(() => {
     const fetchDistricts = async () => {
-        try {
-          const districtData = await getDistrict();
-          setDistricts(districtData);
-        } catch (error) {
-          setErrorMessage('Error fetching districts');
-        }
+      try {
+        const districtData = await getDistrict();
+        setDistricts(districtData);
+      } catch (error) {
+        setErrorMessage('Error fetching districts');
       }
+    };
     fetchDistricts();
   }, []);
 
   useEffect(() => {
     const fetchWard = async () => {
-        try {
-          const wardData = await getWard();
-          setWards(wardData);
-        } catch (error) {
-          setErrorMessage('Error fetching wards');
-        }
+      try {
+        const wardData = await getWard();
+        setWards(wardData);
+      } catch (error) {
+        setErrorMessage('Error fetching wards');
+      }
     };
 
     fetchWard();
@@ -81,19 +88,17 @@ const Updateprofile = () => {
   const [filteredWards, setfilteredWards] = useState<any>('');
 
   useEffect(() => {
-    if(profile) {
-       const filteredDistrict = districts.filter(
-          (district) => district.province_code.toString() === profile?.city
-        );
-        const filteredWard = wards.filter(
-          (ward) => ward.district_code.toString() === profile?.district
-        );
-        setfilteredWards(filteredWard);
-        setfilteredDistricts(filteredDistrict);
+    if (profile) {
+      const filteredDistrict = districts.filter(
+        (district) => district.province_code.toString() === profile?.city
+      );
+      const filteredWard = wards.filter(
+        (ward) => ward.district_code.toString() === profile?.district
+      );
+      setfilteredWards(filteredWard);
+      setfilteredDistricts(filteredDistrict);
     }
-  }, [profile])
- 
-  
+  }, [profile]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -106,9 +111,6 @@ const Updateprofile = () => {
       }));
     }
   };
-
-
-
 
   const [avatar, setAvatar] = useState<any>();
   useEffect(() => {
@@ -172,10 +174,12 @@ const Updateprofile = () => {
                     type="text"
                     placeholder="Enter full name"
                     defaultValue={profile?.fullName}
-                    onChange={(e) => setProfile((prev: any) => ({
-                      ...prev,
-                      fullName: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        fullName: e.target.value,
+                      }))
+                    }
                     required
                     onFocus={() => setIsTouched(true)}
                   />
@@ -355,10 +359,12 @@ const Updateprofile = () => {
                     type="text"
                     placeholder="Enter full name"
                     defaultValue={profile?.address}
-                    onChange={(e) => setProfile((prev: any) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
                     onFocus={() => setIsTouched(true)}
                   />
                 </div>
@@ -378,10 +384,12 @@ const Updateprofile = () => {
                     type="text"
                     placeholder="Enter phone"
                     defaultValue={profile?.phone}
-                    onChange={(e) => setProfile((prev: any) => ({
-                      ...prev,
-                      phone: e.target.value,
-                    }))}
+                    onChange={(e) =>
+                      setProfile((prev: any) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     onFocus={() => setIsTouched(true)}
                     required
                   />
@@ -485,79 +493,106 @@ const Updateprofile = () => {
                   />
                 </div>
               </div>
-              <div className="flex flex-wrap -mx-3 mb-6">
-                <div className="w-full  px-3 mb-6 md:mb-0">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-first-name"
-                  >
-                    Avatar
-                  </label>
-                </div>
-              </div>
-              <div>
-                {!avatar ? (
-                  <div className="flex items-center justify-center w-64 h-64 border-2 border-gray-300 border-dashed rounded-full cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      id="upload-avatar"
-                    />
-                    <label
-                      htmlFor="upload-avatar"
-                      className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
-                    >
-                      <svg
-                        className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 16"
+              <div className="flex">
+                <div>
+                  <div className="flex flex-wrap -mx-3 mb-6">
+                    <div className="w-full  px-3 mb-6 md:mb-0">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-first-name"
                       >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        Avatar
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    {!avatar ? (
+                      <div className="flex items-center justify-center w-64 h-64 border-2 border-gray-300 border-dashed rounded-full cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                          id="upload-avatar"
                         />
-                      </svg>
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold">Upload</span> avatar
-                      </p>
-                    </label>
+                        <label
+                          htmlFor="upload-avatar"
+                          className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
+                        >
+                          <svg
+                            className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 20 16"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold">Upload</span> avatar
+                          </p>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="relative mt-4">
+                        <img
+                          src={avatar}
+                          className="rounded-full w-64 h-64 object-cover border-2 border-gray-300 border-dashed"
+                          alt="Selected"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                          onClick={handleRemoveImage}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="relative mt-4">
-                    <img
-                      src={avatar}
-                      className="rounded-full w-64 h-64 object-cover border-2 border-gray-300 border-dashed"
-                      alt="Selected"
-                    />
-                    <button
-                      type='button'
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                      onClick={handleRemoveImage}
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        ></path>
-                      </svg>
-                    </button>
+                </div>
+                <div className="ml-16">
+                  <div>
+                    <div className="flex flex-wrap -mx-3 mb-6">
+                      <div className="w-full  px-3 mb-6 md:mb-0">
+                        <label
+                          className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                          htmlFor="grid-first-name"
+                        >
+                          signature
+                        </label>
+                      </div>
+                    </div>
+                    <div className="relative mt-4">
+                      <div className="relative w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer">
+                        <img
+                          src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile?.signature}`}
+                          alt="Back CCCD"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>

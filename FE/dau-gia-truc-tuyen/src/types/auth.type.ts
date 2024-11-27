@@ -53,6 +53,7 @@ export interface profileResponse {
   district: string;
   address: string;
   avatar:string;
+  signature:string;
   frontCCCD: string;
   backsideCCCD: string;
   dateOfIssue: string;

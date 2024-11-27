@@ -13,7 +13,6 @@ export interface AuctionItemFormData {
   categoryID: string;
   imageAuction: File | null;
   imageVerification: File | null;
-  signatureImg: File | null;
 }
 
 interface ContractModalProps {
@@ -23,7 +22,6 @@ interface ContractModalProps {
 }
 
 const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData }) => {
-  const signatureImgUrl = formData.signatureImg ? URL.createObjectURL(formData.signatureImg) : null;
   const [profile, setProfile] = useState<profileResponse | null>();
   const navigate = useNavigate();
   useEffect(() => {
@@ -39,7 +37,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
   const onSubmit = async () => {
     try {
       const response = await submitAuctionForm(formData);
-      if(response.isSucceed){
+      if (response.isSucceed) {
         alert('Bạn đã tạo sản phẩm thành công');
         navigate('/listYourAuction');
         onClose();
@@ -69,10 +67,18 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           overflow: 'auto', // Cho phép cuộn khi nội dung dài
         }}
       >
-        <Typography variant="body1" align="center" sx={{ mb: 2, fontWeight: 'bold', textTransform: 'uppercase' }}>
+        <Typography
+          variant="body1"
+          align="center"
+          sx={{ mb: 2, fontWeight: 'bold', textTransform: 'uppercase' }}
+        >
           Cộng hòa Xã hội Chủ nghĩa Việt Nam
         </Typography>
-        <Typography variant="body1" align="center" sx={{ mb: 4, fontWeight: 'bold', textTransform: 'uppercase' }}>
+        <Typography
+          variant="body1"
+          align="center"
+          sx={{ mb: 4, fontWeight: 'bold', textTransform: 'uppercase' }}
+        >
           Độc lập - Tự do - Hạnh phúc
         </Typography>
         <Typography
@@ -160,7 +166,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
               }}
             >
               Chữ ký và đóng dấu
-              <p className='font-bold'>Phòng đấu giá trực tuyến</p>
+              <p className="font-bold">Phòng đấu giá trực tuyến</p>
             </Box>
           </Grid>
           <Grid item xs={6}>
@@ -177,21 +183,17 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
               }}
             >
               Chữ ký người tham gia
-              {signatureImgUrl ? (
-                <img
-                  src={signatureImgUrl}
-                  alt="Signature"
-                  style={{
-                    width: '100px',
-                    height: '50px',
-                    marginLeft: 'auto',
-                    marginRight: 'auto',
-                  }}
-                  className="signature-image"
-                />
-              ) : (
-                <p>Chưa có chữ ký</p>
-              )}
+              <img
+                src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile?.signature}`}
+                alt="Signature"
+                style={{
+                  width: '100px',
+                  height: '50px',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}
+                className="signature-image"
+              />
             </Box>
           </Grid>
         </Grid>
@@ -204,12 +206,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
             </Button>
           </Grid>
           <Grid item xs={6}>
-            <Button
-              onClick={() => onSubmit()}
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
+            <Button onClick={() => onSubmit()} variant="contained" color="primary" fullWidth>
               Đồng ý
             </Button>
           </Grid>

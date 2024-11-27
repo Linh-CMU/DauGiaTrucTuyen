@@ -17,7 +17,7 @@ const AuctionRoom = () => {
 
   const fetchDetailAuction = async () => {
     try {
-      const response = await getDetailAuctionAdmin(1); // Sử dụng id từ props
+      const response = await getDetailAuctionAdmin(Number(id)); // Sử dụng id từ props
       console.log(response, 'data');
       if (response?.isSucceed) {
         setDetailAuction(response.result);
