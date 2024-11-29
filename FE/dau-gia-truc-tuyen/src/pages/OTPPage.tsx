@@ -10,11 +10,9 @@ const OTPPage = () => {
   const [otp, setOtp] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { 
-    email
-  } = location.state || {};
+  const { email } = location.state || {};
   const { setIsLoading } = useLoading();
-    const { setSuccessMessage, setErrorMessage } = useMessage();
+  const { setSuccessMessage, setErrorMessage } = useMessage();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,9 +32,10 @@ const OTPPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow-md w-[25rem]">
-        <h2 className="text-2xl font-bold mb-4 text-center">XÁC THỰC OTP</h2>
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="absolute w-96 h-[40%] bg-blue-400 rounded-lg -rotate-6"></div>
+      <div className="relative w-96 h-[40%] bg-white rounded-lg shadow-lg p-8 z-10">
+        <h2 className="text-xl font-bold mb-6">OTP AUTHENTICATION</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
@@ -64,19 +63,9 @@ const OTPPage = () => {
               }}
             />
           </div>
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            sx={{
-              backgroundColor: '#6200ea',
-              '&:hover': {
-                backgroundColor: '#3700b3',
-              },
-            }}
-          >
-            Xác thực
-          </Button>
+          <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">
+            AUTHENTICATION
+          </button>
         </form>
       </div>
     </div>

@@ -43,7 +43,9 @@ const Updateprofile = () => {
         const response = await profileUser();
         console.log(response.result);
         setProfile(response.result);
-      } catch (error) {}
+      } catch (error) {
+        setErrorMessage('Error fetching user');
+      }
     };
     fetchData();
   }, []);

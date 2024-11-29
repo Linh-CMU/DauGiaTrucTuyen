@@ -171,7 +171,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Image Auction */}
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Auction
               </Typography>
@@ -195,7 +195,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Image Verification */}
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Verification
               </Typography>

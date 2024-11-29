@@ -79,7 +79,7 @@ const AppRoutes: React.FC = () => {
 
 const App = () => {
   const location = useLocation();
-  const hidenHeader = ['/login', '/forgot', '/sign-up'];
+  const hidenHeader = ['/login', '/forgot', '/sign-up', '/add-info', '/otp'];
   return (
     <LoadingProvider>
       <MessageProvider>

@@ -158,7 +158,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   };
 
   const formatMoney = (int: number) => {
-    return new Intl.NumberFormat('vi-VN').format(int);
+    return new Intl.NumberFormat('vi-VN').format(int ?? 0);
   };
 
   const calculateResult = () => {
@@ -171,7 +171,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   }, [inputValue, stepValue]);
 
   const calculateTotal = () => {
-    const total = currentPrice + (stepValue || 0) * inputValue; // Calculate total price
+    const total = (currentPrice ?? 0) + (stepValue || 0) * inputValue; // Calculate total price
     return new Intl.NumberFormat('vi-VN').format(total); // Format total to Vietnamese style
   };
 

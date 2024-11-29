@@ -18,23 +18,40 @@ const StyledTabList = styled(TabList)({
     borderBottom: '2px solid rgb(241, 155, 64)',
   },
 });
-
-const PropertiesList = () => {
+interface PropertySearch {
+  searchResults: any;
+  isSearch: boolean;
+  setIsSearch: (data: boolean) => void;
+}
+const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch) => {
   const [value, setValue] = useState('0');
-  const [listAllAuction, setListAllAuction] = useState<AuctionUser[]>([]); // Initialize as an empty array
-
+  const [listAllAuction, setListAllAuction] = useState<AuctionUser[]>([]); 
   useEffect(() => {
     const fetchListAuction = async () => {
-      const response = await getListAuctionOfContractor(value || "0"); // Call API function
-      if (response?.isSucceed) {
-        setListAllAuction(response?.result || []); // Ensure result is an array
-      } else {
-        console.error("fetch list failed");
+      try {
+        if (isSearch) {
+          setValue('0');
+          setListAllAuction(searchResults.result);
+          return;
+        }
+
+        // Lấy dữ liệu dựa trên giá trị `value`
+        const response = await getListAuctionOfContractor(value || "0");
+
+        if (response?.isSucceed) {
+          setListAllAuction(Array.isArray(response.result) ? response.result : []);
+        } else {
+          console.error('Failed to fetch auction list');
+        }
+      } catch (error) {
+        console.error('Error fetching auction list:', error);
       }
     };
+
     fetchListAuction();
-  }, [value]);
+  }, [value, isSearch, searchResults]);
   const handleChange = (event: any, newValue: string) => {
+    setIsSearch(false);
     setValue(newValue);
   };
   return (

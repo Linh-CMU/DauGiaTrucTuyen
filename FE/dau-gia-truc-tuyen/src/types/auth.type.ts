@@ -7,6 +7,35 @@ export interface SignUpRequest {
   password: string;
   email: string;
 }
+
+export interface CredentialResponse {
+  credential?: string; // JWT do Google Identity Services cung cấp
+  select_by?: string;  // Cách người dùng chọn tài khoản (tùy chọn)
+  clientId?: string;   // Client ID được sử dụng
+}
+export interface GoogleLoginResponse {
+  tokenId: string; // ID token được Google cung cấp (JWT token)
+  accessToken: string; // Access token từ Google
+  profileObj: {
+    email: string; // Email người dùng
+    name: string; // Tên người dùng
+    imageUrl: string; // URL ảnh đại diện
+    googleId: string; // Google ID của người dùng
+  };
+  tokenObj: {
+    id_token: string; // JWT token
+    expires_at: number; // Thời gian hết hạn của token (timestamp)
+    expires_in: number; // Thời gian còn lại (giây)
+    first_issued_at: number; // Lần đầu được cấp (timestamp)
+    login_hint: string;
+    scope: string; // Phạm vi của token
+  };
+};
+export interface GoogleLoginFailureResponse {
+  error: string; // Mô tả lỗi (e.g., "idpiframe_initialization_failed")
+  details?: string; // Chi tiết bổ sung về lỗi
+};
+
 export interface AuthResponse {
   result: any | null;
   isSucceed: boolean;

@@ -5,6 +5,8 @@ import axiosInstance from '@services/axiosInstance';
 import { useMessage } from '@contexts/MessageContext';
 import { addUserInformation } from '../../queries/AdminAPI';
 import { useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '@contexts/AuthContext';
 
 const AddInfo = () => {
   const [citys, setCitys] = useState<cityResponse[]>([]);
@@ -29,7 +31,7 @@ const AddInfo = () => {
   const [placeOfIssue, setPlaceOfIssue] = useState<string>('');
   const [dateOfIssue, setDateOfIssue] = useState<string>('');
   const navigate = useNavigate();
-
+  const { logout, isAuthenticated } = useAuth();
   const { setErrorMessage, setSuccessMessage } = useMessage();
 
   useEffect(() => {
@@ -148,11 +150,22 @@ const AddInfo = () => {
       setErrorMessage('Erro add infomation');
     }
   };
-
+  const onLogoutBtnClick = () => {
+    logout();
+    navigate('/');
+  };
   return (
     <>
-      <div className="w-full mt-16 flex items-center justify-center pt-10">
-        <h5 className="font-bold text-center text-2xl pl-9">ADD INFORMATION</h5>
+      <div className="w-full flex items-center justify-center pt-10">
+        <div className="ml-auto">
+          <h5 className="font-bold text-center text-2xl pl-9">ADD INFORMATION</h5>
+        </div>
+        <div className="ml-auto mr-10">
+          <LogoutIcon
+            onClick={onLogoutBtnClick}
+            className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+          />
+        </div>
       </div>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center pt-10">
@@ -164,7 +177,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    họ và tên
+                    FULL NAME
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!fullName && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -187,7 +200,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-gender"
                   >
-                    Giới tính
+                    gender
                   </label>
                   <select
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -211,7 +224,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ngày sinh
+                    birthDate
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!birthDate && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -333,13 +346,13 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    địa chỉ nhà
+                    address
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!address && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
-                    placeholder="Enter full name"
+                    placeholder="Address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
@@ -357,7 +370,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    số điện thoại
+                    phone
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!/^[0-9]{10}$/.test(phone) && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -382,13 +395,13 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    hộ khẩu thường trú
+                    permanent residence
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!placeOfResidence && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
-                    placeholder="Nhập hộ khẩu thường trú"
+                    placeholder="PERMANENT RESIDENCE"
                     value={placeOfResidence}
                     onChange={(e) => setPlaceOfResidence(e.target.value)}
                     required
@@ -409,7 +422,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ảnh CMND/CCCD
+                    picture CMND/CCCD
                   </label>
                 </div>
               </div>
@@ -526,13 +539,13 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Nơi cấp:
+                    Place of issue:
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!placeOfIssue && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
-                    placeholder="Enter full name"
+                    placeholder="Place of issue"
                     value={placeOfIssue}
                     onChange={(e) => setPlaceOfIssue(e.target.value)}
                     required
@@ -549,7 +562,7 @@ const AddInfo = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ngày Cấp
+                    Date of Issue
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!dateOfIssue && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -577,7 +590,7 @@ const AddInfo = () => {
                     </label>
                   </div>
                 </div>
-                <div className='mt-11'>
+                <div className="mt-11">
                   {!selectedImage ? (
                     <div className="flex items-center justify-center w-44 h-44 border-2 border-gray-300 border-dashed rounded-full cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                       <input
@@ -650,7 +663,7 @@ const AddInfo = () => {
                     </label>
                   </div>
                 </div>
-                <div className='mt-11'>
+                <div className="mt-11">
                   {signature ? (
                     <div className="relative w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer">
                       <img
@@ -709,7 +722,7 @@ const AddInfo = () => {
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            Thêm thông tin
+            ADD INFORMATION
           </button>
         </div>
       </form>
