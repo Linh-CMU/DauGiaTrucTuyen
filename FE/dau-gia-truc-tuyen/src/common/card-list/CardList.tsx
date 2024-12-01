@@ -33,7 +33,11 @@ const CardList = ({
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/${url}/${id}`);
+    if(url === 'thong-tin-chi-tiet'){
+      navigate(`/${url}/${id}`);
+    }else if(url === 'phien-dau-gia' && isEndTimePassed(endTime, endDay)){
+      navigate(`/${url}/${id}`);
+    }
   };
 
   const renderPrice = () => (

@@ -86,6 +86,19 @@ export const getSearchAuction = async (categoryId: number, vaule: string) => {
   }
 };
 
+export const searchauctionregistrationlist = async (categoryId: number, vaule: string) => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get(`api/searchauctionregistrationlist?category=${categoryId}&content=${vaule}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction details', error);
+    throw error;
+  }
+};
+
 // Fetch auction details
 export const getDetailAuctionUser = async (id: string = '0') => {
   try {
@@ -334,7 +347,6 @@ export const submitAuctionForm = async (data: AuctionItemFormData) => {
 
     if (data.imageAuction) formData.append('imageAuction', data.imageAuction);
     if (data.imageVerification) formData.append('imageVerification', data.imageVerification);
-    if (data.signatureImg) formData.append('signatureImg', data.signatureImg);
 
     const response = await axiosInstance.post('/api/addAuctionItem', formData, {
       headers: {

@@ -29,7 +29,6 @@ const AuctionItemForm: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<AuctionItemFormData>();
   const [previewImageAuction, setPreviewImageAuction] = useState('');
   const [previewImageVerification, setPreviewImageVerification] = useState('');
-  const [previewSignatureImg, setPreviewSignatureImg] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<AuctionItemFormData | null>(null);
 
@@ -172,7 +171,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Image Auction */}
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Auction
               </Typography>
@@ -196,7 +195,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Image Verification */}
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Verification
               </Typography>
@@ -211,29 +210,6 @@ const AuctionItemForm: React.FC = () => {
                       style={{ height: '200px' }}
                       src={previewImageVerification ? previewImageVerification : avt} 
                       alt="Image Verification Preview" 
-                      className="w-full h-full object-cover rounded" 
-                    />
-                  </div>
-                )}
-              />
-            </Grid>
-
-            {/* Signature Image */}
-            <Grid item xs={4}>
-              <Typography variant="subtitle1" gutterBottom>
-                Signature Image
-              </Typography>
-              <Controller
-                name="signatureImg"
-                control={control}
-                render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewSignatureImg)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
-                      style={{ height: '200px' }}
-                      src={previewSignatureImg ? previewSignatureImg : avt} 
-                      alt="Signature Image Preview" 
                       className="w-full h-full object-cover rounded" 
                     />
                   </div>
