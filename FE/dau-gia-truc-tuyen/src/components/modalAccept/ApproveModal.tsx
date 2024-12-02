@@ -40,16 +40,6 @@ export const ApproveModal: React.FC<ModalProps> = ({
           Xác nhận duyệt đấu giá
         </Typography>
         <Typography sx={{ mt: 2 }}>Bạn có chắc chắn muốn duyệt buổi đấu giá này không?</Typography>
-        <TextField
-          fullWidth
-          label="Giá raise"
-          InputProps={{
-            style: { fontSize: '14px' },
-          }}
-          onChange={(e) => (setPrice ? setPrice(Number(e.target.value)) : null)}
-          required
-          sx={{ marginTop: '20px' }}
-        />
         {/* Vòng thời gian */}
         <Box sx={{ display: 'flex', gap: 2, marginTop: '20px' }}>
           {/* Nhập số giờ */}

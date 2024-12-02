@@ -147,3 +147,26 @@ export const profileUser = async () => {
         throw new Error('Error fetching user profile'); 
     }
 };
+
+export const createAccount = async (username: string, password: string, email: string, category: string) => {
+    try {
+    const token = localStorage.getItem('token');
+      // Construct the request body as a JSON object
+      const data = {
+        username, 
+        password,
+        email,
+        category
+      };
+      const response = await axiosInstance.post('/api/Admin/make-admin', data, {
+        headers: {
+          'Content-Type': 'application/json', // Correct Content-Type for JSON requests
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error placing bid:', error);
+      throw error;
+    }
+  };

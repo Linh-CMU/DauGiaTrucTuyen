@@ -128,19 +128,19 @@ const HeaderTop1 = () => {
                       className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                       aria-current="page"
                     >
-                      Trang chủ
+                      HOME
                     </a>
                     <a
                       href="/listYourAuction"
                       className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
-                      Sản phẩm của bạn
+                      MY PRODUCT
                     </a>
                     <a
-                      href="#"
+                      href="/about"
                       className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
-                      Giới thiệu
+                      ABOUT
                     </a>
                   </div>
                 </>
@@ -173,13 +173,13 @@ const HeaderTop1 = () => {
                     className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                     aria-current="page"
                   >
-                    Trang chủ
+                    HOME
                   </a>
                   <a
-                    href="#"
+                    href="/about"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    Thông tin
+                    ABOUT
                   </a>
                 </div>
               )}

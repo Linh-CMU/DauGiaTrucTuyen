@@ -258,7 +258,7 @@ export const createPaymentDeposit = async (id: number) => {
   }
 };
 
-export const UpdatePayment = async (id: number, status: string) => {
+export const UpdatePayment = async (id: string, status: string) => {
   try {
     const token = localStorage.getItem("token");
 
@@ -310,12 +310,12 @@ export const registerForAuction = async (id: number) => {
   }
 };
 
-export const approveAuction = async (autioneerID: number, status: boolean, priceStep: number | null, timeRoom: string) => {
+export const approveAuction = async (autioneerID: number, status: boolean, timeRoom: string) => {
   try {
     const token = getToken();
     const response = await axiosInstance.put(
       `api/Admin/ApproveorRejectAuction`,
-      { autioneerID, status, priceStep, timeRoom },
+      { autioneerID, status, timeRoom },
       {
         headers: {
           Authorization: `Bearer ${token}`,
