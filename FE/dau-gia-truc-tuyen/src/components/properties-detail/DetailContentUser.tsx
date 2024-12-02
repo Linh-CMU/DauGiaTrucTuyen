@@ -3,7 +3,9 @@ interface DetailContentProps {
   auctionDetailInfor: AuctionDetailRegister | null; // Use shared Auction type
 }
 
+
 const DetailContentUser: React.FC<DetailContentProps> = ({auctionDetailInfor}) => {
+  console.log(auctionDetailInfor,"auctionDetailInfor")
     return (
   <div className="mx-auto bg-white p-6 shadow-lg rounded-md w-full">
         <h1 className="text-2xl font-bold text-center text-blue-800 mb-4">THÔNG BÁO ĐẤU GIÁ TÀI SẢN</h1>
@@ -17,21 +19,21 @@ const DetailContentUser: React.FC<DetailContentProps> = ({auctionDetailInfor}) =
         <h2 className="text-lg font-semibold text-gray-800 mb-3">1. Tên, địa chỉ tổ chức đấu giá:</h2>
         <p className="mb-4">Trung tâm dịch vụ đấu giá tài sản thành phố Đà Nẵng - Số 08 Phan Bội Châu, quận Hải Châu, thành phố Đà Nẵng.</p>
 
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">2. Tên, địa chỉ đơn vị có tài sản:</h2>
-        <p className="mb-4">Công ty cổ phần Rượu và Nước giải khát Hà Nội, địa chỉ: 94 Lò Đúc, phường Phạm Đình Hổ, quận Hai Bà Trưng, thành phố Hà Nội.</p>
+        {/* <h2 className="text-lg font-semibold text-gray-800 mb-3">2. Tên, địa chỉ đơn vị có tài sản:</h2>
+        <p className="mb-4">Công ty cổ phần Rượu và Nước giải khát Hà Nội, địa chỉ: 94 Lò Đúc, phường Phạm Đình Hổ, quận Hai Bà Trưng, thành phố Hà Nội.</p> */}
 
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">3. Tài sản, giá khởi điểm tài sản đấu giá:</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">2. Tài sản, giá khởi điểm tài sản đấu giá:</h2>
         <p className="mb-4"> {auctionDetailInfor?.description} <br/> Giá khởi điểm: {auctionDetailInfor?.startingPrice} đồng.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">4. Nơi có tài sản đấu giá:</h2>
-        <p className="mb-4">Lô B1 Đường Kinh Dương Vương, phường Thanh Khê Tây, quận Thanh Khê, thành phố Đà Nẵng.</p>
+        <p className="mb-4">Số 08 Phan Bội Châu, quận Hải Châu, thành phố Đà Nẵng.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">5. Thời gian, địa điểm xem tài sản đấu giá:</h2>
         <p className="mb-2"><span className="font-semibold">Thời gian:</span> từ ngày {auctionDetailInfor?.startDay} đến hết ngày {auctionDetailInfor?.endDay}.</p>
-        <p className="mb-4"><span className="font-semibold">Địa điểm:</span> Lô B1 Đường Kinh Dương Vương, phường Thanh Khê Tây, quận Thanh Khê, Đà Nẵng.</p>
+        <p className="mb-4"><span className="font-semibold">Địa điểm:</span> Số 08 Phan Bội Châu, quận Hải Châu, thành phố Đà Nẵng.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">6. Thời gian, điều kiện, cách thức đăng ký tham gia đấu giá:</h2>
-        <p className="mb-2"><span className="font-semibold">Thời gian:</span> đến 17:00 ngày 28/10/2024.</p>
+        <p className="mb-2"><span className="font-semibold">Thời gian:</span> đến {auctionDetailInfor?.endTime} ngày {auctionDetailInfor?.endDay}</p>
         <p className="mb-2"><span className="font-semibold">Điều kiện:</span> Cá nhân, tổ chức có hồ sơ hợp lệ và nộp tiền mua hồ sơ, tiền đặt trước.</p>
         {/* <p className="mb-4"><span className="font-semibold">Cách thức:</span> Truy cập website <a href="https://daugia.danang.gov.vn" className="text-blue-600 underline">daugia.danang.gov.vn</a> để đăng ký trực tuyến.</p> */}
 
