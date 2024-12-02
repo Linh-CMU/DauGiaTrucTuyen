@@ -83,10 +83,9 @@ const HeaderTop1 = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   return (
     <HeaderContainer className="fixed top-0 z-10">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div className="mx-auto px-2 sm:px-6 lg:px-8 w-full items-center">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <button
@@ -114,10 +113,15 @@ const HeaderTop1 = () => {
               </svg>
             </button>
           </div>
-
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex flex-shrink-0 items-center">
-              <img className="h-8 w-auto" src="logo.png" alt="Your Company " />
+          <div className="flex flex-1 w-full justify-between items-center">
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <img className="h-9 w-auto" src="logo.png" alt="Your Company " />
+              <div>
+                <h6 className="font-bold text-white">ĐẤU GIÁ TRỰC TUYẾN</h6>
+                <p className=" text-white">
+                  Trung tâm dịch vụ và đấu giá tài sản thành phố Đà Nẵng
+                </p>
+              </div>
             </div>
             <div className="hidden sm:ml-6 sm:block">
               {getRole() === 'user' ? (
@@ -184,101 +188,65 @@ const HeaderTop1 = () => {
                 </div>
               )}
             </div>
+            {isAuthenticated() ? (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="relative ml-3">
+                  <div>
+                    <Button
+                      id="basic-button"
+                      aria-controls={open ? 'basic-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? 'true' : undefined}
+                      onClick={handleClick}
+                    >
+                      {profile ? (
+                        <img
+                          className="h-8 w-auto"
+                          src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
+                          alt="Your Profile"
+                        />
+                      ) : (
+                        <img className="h-8 w-auto" src="logo.png" alt="Your Company" />
+                      )}
+                    </Button>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                      }}
+                    >
+                      <MenuItem onClick={onProfileClick}>Profile</MenuItem>
+                      <MenuItem onClick={onChangePassword}>Change password</MenuItem>
+                      <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
+                    </Menu>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="relative ml-3 flex">
+                  <div>
+                    <Button variant="outlined" onClick={onLoginBtnClick}>
+                      Đăng nhập
+                    </Button>
+                  </div>
+                  <div className="ml-6">
+                    <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
+                      Đăng kí
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          {isAuthenticated() ? (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <div className="relative ml-3">
-                <div>
-                  <Button
-                    id="basic-button"
-                    aria-controls={open ? 'basic-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                  >
-                    {profile ? (
-                      <img
-                        className="h-8 w-auto"
-                        src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
-                        alt="Your Profile"
-                      />
-                    ) : (
-                      <img className="h-8 w-auto" src="logo.png" alt="Your Company" />
-                    )}
-                  </Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    <MenuItem onClick={onProfileClick}>Profile</MenuItem>
-                    <MenuItem onClick={onChangePassword}>Change password</MenuItem>
-                    <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
-                  </Menu>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <div className="relative ml-3 flex">
-                <div>
-                  <Button variant="outlined" onClick={onLoginBtnClick}>
-                    Đăng nhập
-                  </Button>
-                </div>
-                <div className='ml-6'>
-                  <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
-                    Đăng kí
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenu && (
-        <div className="sm:hidden" id="mobile-menu">
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            <a
-              href="#"
-              className="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
-              aria-current="page"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Trang chủ
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Team
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Projects
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Calendar
-            </a>
-          </div>
-        </div>
-      )}
     </HeaderContainer>
   );
 };
 
 export default HeaderTop1;
+
