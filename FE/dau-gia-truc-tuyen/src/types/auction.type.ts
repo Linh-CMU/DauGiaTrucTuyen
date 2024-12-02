@@ -27,6 +27,7 @@ export interface AuctionUser {
 export interface AuctionDetails {
   listAuctionID: number;
   image: string;
+  owner: string;
   nameAuction: string;
   moneyDeposit: number;
   description: string;

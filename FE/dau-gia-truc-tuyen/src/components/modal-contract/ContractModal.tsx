@@ -1,10 +1,11 @@
 // ContractModal.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Grid, Modal, Typography } from '@mui/material';
-import { profileResponse } from '../../types/auth.type';
-import { profileUser } from '../../queries/AdminAPI';
+import { cityResponse, districtResponse, profileResponse, wardResponse } from '../../types/auth.type';
+import { getCity, getDistrict, getWard, profileUser } from '../../queries/AdminAPI';
 import { submitAuctionForm } from '../../queries/AuctionAPI';
 import { useNavigate } from 'react-router-dom';
+import { useMessage } from '@contexts/MessageContext';
 
 export interface AuctionItemFormData {
   nameAuction: string;
@@ -23,6 +24,14 @@ interface ContractModalProps {
 
 const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData }) => {
   const [profile, setProfile] = useState<profileResponse | null>();
+  const { setErrorMessage, setSuccessMessage } = useMessage();
+  const [filteredDistrict, setFilteredDistrict] = useState<districtResponse[]>([]);
+  const [filteredWards, setFilteredWards] = useState<cityResponse[]>([]);
+  const [locationData, setLocationData] = useState({
+    cities: [] as cityResponse[],
+    districts: [] as districtResponse[],
+    wards: [] as wardResponse[],
+  });
   const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
@@ -43,9 +52,37 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
         onClose();
       }
     } catch (error) {
-      console.error('Error creating auction item:', error);
+      setSuccessMessage('Error creating auction item: ' + error);
     }
   };
+  const fetchData = async () => {
+    try {
+      const [cityData, districtData, wardData] = await Promise.all([
+        getCity(),
+        getDistrict(),
+        getWard(),
+      ]);
+      setLocationData({ cities: cityData, districts: districtData, wards: wardData });
+    } catch (error) {
+      setErrorMessage('Error fetching data');
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  useEffect(() => {
+    if (profile) {
+      const districts = locationData.districts.filter(
+        (district) => district.code.toString() === profile.city
+      );
+      const wards = locationData.cities.filter((ward) => ward.code.toString() === profile.city);
+      console.log('wards', wards);
+
+      setFilteredDistrict(districts);
+      setFilteredWards(wards);
+    }
+  }, [profile, locationData]);
   return (
     <Modal
       open={isOpen}
@@ -99,14 +136,14 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
         <Typography variant="body1" sx={{ mb: 1 }}>
           <strong>Bên A (Bên tạo đấu giá):</strong> Công ty Đấu giá trực tuyến
           <br />
-          Địa chỉ: Số 123, Đường ABC, Quận 1, TP.HCM
+          Địa chỉ: Tổ 5, phường Hòa Thọ Tây, Quận Cẩm Lệ, Thành Phố Đà Nẵng
           <br />
-          Số điện thoại: 0123 456 789
+          Số điện thoại: 0779460350
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
           <strong>Bên B (Bên tham gia đấu giá):</strong> {formData?.nameAuction}
           <br />
-          Địa chỉ: {profile?.address}-{profile?.district}-{profile?.ward}-{profile?.city}
+          Địa chỉ: {filteredWards[0]?.name}-{filteredDistrict[0]?.name}-{profile?.ward}-{profile?.city}
           <br />
           Số điện thoại: {profile?.phone}
         </Typography>
@@ -134,11 +171,9 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           Quyền và Nghĩa Vụ Của Các Bên
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          5. <strong>Bên A:</strong> Cung cấp đầy đủ thông tin về sản phẩm đấu giá, đảm bảo tính
-          minh bạch và bảo mật cho thông tin của Bên B.
+          5. <strong>Bên A:</strong> Kiểm tra và đăng sản phẩm theo đúng thời gian quy định, đảm bảo đăng đúng theo nội dung bên B đã cung cấp. Đảm bảo tính minh bạch và bảo mật cho thông tin bên B.
           <br />
-          6. <strong>Bên B:</strong> Cam kết tham gia đấu giá đúng theo quy định, không có hành vi
-          gian lận và tuân thủ các điều kiện trong hợp đồng.
+          6. <strong>Bên B:</strong> Cung cấp đầy đủ thông tin về sản phẩm đấu giá, thẩm định chính xác và rõ ràng, không có hành vi gian lận và tuân thủ theo các điều kiện trong hợp đồng .
         </Typography>
 
         {/* Thời hạn hợp đồng */}
@@ -146,8 +181,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           Thời Hạn Hợp Đồng
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          Hợp đồng có hiệu lực từ ngày bắt đầu đấu giá và kết thúc khi sản phẩm đấu giá được bán
-          hoặc khi có thông báo từ hệ thống.
+          Hợp đồng có hiệu lực từ ngày bắt đầu đấu giá và kết thúc khi sản phẩm đấu giá được bán hoặc khi có thông báo từ hệ thống.
         </Typography>
 
         {/* Chữ ký */}

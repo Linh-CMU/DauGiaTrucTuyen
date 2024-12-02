@@ -19,7 +19,7 @@ const SuccessPage = () => {
         const updatePaymentStatus = async () => {
           try {
             if (id && status === 'PAID') {
-              await UpdatePayment(Number(id), 'success');
+              await UpdatePayment(id, 'success');
             }
           } catch (error) {
             console.error('Lỗi khi cập nhật trạng thái thanh toán', error);
