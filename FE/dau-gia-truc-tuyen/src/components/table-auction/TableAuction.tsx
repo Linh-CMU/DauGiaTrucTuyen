@@ -104,7 +104,7 @@ const TableAuction = ({ tabValue, id, name, status }: { tabValue: number; id?: s
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
       
-      const response = await approveAuction(selectedAuctionID, true, price, totalTime);
+      const response = await approveAuction(selectedAuctionID, true, totalTime);
       if (response.isSucceed) {
         fetchListAuction();
         alert('Bạn đã phê duyệt thành công');
@@ -117,7 +117,7 @@ const TableAuction = ({ tabValue, id, name, status }: { tabValue: number; id?: s
   };
   const handleModalReject = async () => {
     if (selectedAuctionID) {
-      const response = await approveAuction(selectedAuctionID, false, price, time);
+      const response = await approveAuction(selectedAuctionID, false, time);
       if (response.isSucceed) {
         fetchListAuction();
         alert('Bạn đã từ chối với đơn hàng đấu giá này');

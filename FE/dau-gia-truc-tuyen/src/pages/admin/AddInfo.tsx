@@ -112,11 +112,28 @@ const AddInfo = () => {
   const handleRemoveImage = () => {
     setSelectedImage(null);
   };
-
+  const isAtLeast18 = (birthDate: any) => {
+    const birthDateObj = new Date(birthDate);
+    const today = new Date();
+    const age = today.getFullYear() - birthDateObj.getFullYear();
+    const monthDifference = today.getMonth() - birthDateObj.getMonth();
+  
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDateObj.getDate())) {
+      return age - 1;
+    }
+  
+    return age;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsTouched(true);
+    const age = isAtLeast18(birthDate);
 
+    if (age < 18) {
+      setErrorMessage('You must be at least 18 years old to proceed.');
+      return;
+    }
     const formData = new FormData();
     formData.append('fullName', fullName);
     formData.append('gender', JSON.stringify(gender));
@@ -130,13 +147,32 @@ const AddInfo = () => {
     formData.append('placeOfResidence', placeOfResidence);
     formData.append('placeOfIssue', placeOfIssue);
 
-    const formattedDateOfIssue = new Date(dateOfIssue).toISOString();
     formData.append('dateOfIssue', dateOfIssue);
 
-    if (selectedImage) formData.append('avatar', selectedImage);
-    if (selectedFrontCCCD) formData.append('frontCCCD', selectedFrontCCCD);
-    if (selectedBacksideCCCD) formData.append('backsideCCCD', selectedBacksideCCCD);
-    if (signature) formData.append('signature', signature);
+    if (selectedImage) {
+      formData.append('avatar', selectedImage);
+    }else{
+      setErrorMessage('Please enter your avatar.');
+      return;
+    };
+    if (selectedFrontCCCD) {
+      formData.append('frontCCCD', selectedFrontCCCD);
+    }else{
+      setErrorMessage('Please enter your front cccd.');
+      return;
+    };
+    if (selectedBacksideCCCD) {
+      formData.append('backsideCCCD', selectedBacksideCCCD);
+    }else{
+      setErrorMessage('Please enter your back side cccd.');
+      return;
+    };
+    if (signature) {
+      formData.append('signature', signature);
+    }else{
+      setErrorMessage('Please enter your signature.');
+      return;
+    };
 
     try {
       const response = await addUserInformation(formData);
@@ -237,7 +273,7 @@ const AddInfo = () => {
                     required
                   />
                   {!birthDate && isTouched && (
-                    <p className="text-red-500 text-xs italic">Vio lòng chọn giới tính .</p>
+                    <p className="text-red-500 text-xs italic">Please enter your birthdate .</p>
                   )}
                 </div>
               </div>
@@ -359,7 +395,7 @@ const AddInfo = () => {
                     onFocus={() => setIsTouched(true)}
                   />
                   {!address && isTouched && (
-                    <p className="text-red-500 text-xs italic">Please enter your full name.</p>
+                    <p className="text-red-500 text-xs italic">Please enter your address.</p>
                   )}
                 </div>
               </div>
@@ -408,7 +444,7 @@ const AddInfo = () => {
                     onFocus={() => setIsTouched(true)}
                   />
                   {!placeOfResidence && isTouched && (
-                    <p className="text-red-500 text-xs italic">Please enter your full name.</p>
+                    <p className="text-red-500 text-xs italic">Please enter your permanent residence.</p>
                   )}
                 </div>
               </div>
@@ -552,7 +588,7 @@ const AddInfo = () => {
                     onFocus={() => setIsTouched(true)}
                   />
                   {!placeOfIssue && isTouched && (
-                    <p className="text-red-500 text-xs italic">Vui lòng nhập nơi cấp</p>
+                    <p className="text-red-500 text-xs italic">Please enter your place of issue.</p>
                   )}
                 </div>
               </div>
@@ -575,7 +611,7 @@ const AddInfo = () => {
                     required
                   />
                   {!dateOfIssue && isTouched && (
-                    <p className="text-red-500 text-xs italic">Vui lòng nhập ngày cung cấp</p>
+                    <p className="text-red-500 text-xs italic">Please enter your Date of Issue.</p>
                   )}
                 </div>
               </div>

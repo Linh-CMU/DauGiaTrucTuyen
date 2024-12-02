@@ -7,6 +7,7 @@ export { default as ForgotPage } from './Forgot';
 export { default as CancelPage } from './CancelPage';
 export { default as SuccessPage } from './SuccessPage';
 export { default as Contract } from './Contract';
+export { default as About } from './aboutPage';
 export { default as OTPPage } from './OTPPage';
 export { default as ResetPasswordPage } from './ResetPasswordPage';
 export { default as ChangePasswordPage } from './ChangePasswordPage';
@@ -16,4 +17,5 @@ export { default as ListYourAuction } from './User/ListYourAuction';
 export { default as DetailAuctionPage } from './User/DetailYourAuction';
 export { default as AuctionRoom } from './Admin/AuctionRoom';
 export { default as InforUser } from './Admin/InforUser';
+export { default as AddAdminPage } from './Admin/addAdminPage';
 
