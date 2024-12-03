@@ -13,8 +13,10 @@ interface CardListProps {
   startDay: string;
   endTime: string;
   targetDate: Date;
-  isApproved?: string;
+  isApproved: string;
   url: string;
+  description: string;
+  link: string;
 }
 
 const CardList = ({
@@ -29,14 +31,20 @@ const CardList = ({
   targetDate,
   isApproved,
   url,
+  description,
+  link
 }: CardListProps) => {
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    if(url === 'thong-tin-chi-tiet'){
-      navigate(`/${url}/${id}`);
-    }else if(url === 'phien-dau-gia' && isEndTimePassed(endTime, endDay)){
-      navigate(`/${url}/${id}`);
+    if(isProperties){
+      if(url === 'thong-tin-chi-tiet'){
+        navigate(`/${url}/${id}`);
+      }else if(url === 'phien-dau-gia' && isEndTimePassed(endTime, endDay)){
+        navigate(`/${url}/${id}`);
+      }
+    }else {
+      window.open(link, '_blank');
     }
   };
 
@@ -98,7 +106,7 @@ const CardList = ({
             src={
               isProperties
                 ? `http://capstoneauctioneer.runasp.net/api/read?filePath=${imgSrc}`
-                : news
+                : imgSrc
             }
             alt="Art Auction"
           />
@@ -124,13 +132,18 @@ const CardList = ({
       </div>
 
       <div className="p-4">
-        <h2 className="text-gray-900 font-semibold text-lg line-clamp-1">
-          {title ||
-            'Cho thuê Tầng 1 (sảnh) của Cơ quan Thông tấn xã Việt Nam khu vực Miền Trung - Tây Nguyên'}
+        <h2 className="text-gray-900 font-semibold text-lg line-clamp-2">
+          {title}
         </h2>
-        <p className="mt-2 text-gray-600">
+        {description ? (
+          <p className="mt-2 text-gray-600 line-clamp-3 min-h-28">{description}</p>
+        )
+        : (
+          <p className="mt-2 text-gray-600">
           <span className="text-black font-bold">{renderPrice() || '36.000.000 VNĐ'}</span>
-        </p>
+          </p>
+        )}
+        
         {url === 'phien-dau-gia' && !isEndTimePassed(endTime, endDay) ? (
           <></>
         ) : (

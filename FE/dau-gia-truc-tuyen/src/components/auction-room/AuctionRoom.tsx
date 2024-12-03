@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AuctionDetails } from 'types';
-import { Box, IconButton, TextField, Grid, Button } from '@mui/material';
+import { Box, IconButton, TextField, Grid, Button, Typography, Modal } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
@@ -10,6 +10,19 @@ import { getAuctionRoomDetail, postBidMoney } from '../../queries/AuctionAPI';
 import CountDownTimeForRoom from '@common/coutdown-timer/CountDownTimeForRoom';
 import useTimeDifference from '@hooks/useTimeDifference';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 interface AuctionRoomProps {
   auctionDetailInfor: AuctionDetails | null;
@@ -51,6 +64,11 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   //   startDay: roomAuctionDetails?.startDay || '',
   //   startTime: roomAuctionDetails?.startTime || '',
   // });
+    const navigate = useNavigate();
+
+  const handleGoHome = () => {
+    navigate('/'); // Redirect to the home page
+  };
 
   const calculateFinalTime = (
     endTime: string,
@@ -192,6 +210,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   };
 
   return (
+    <>
     <div className="container flex flex-col gap-2 h-full">
       <div>
         <div className="mb-5 flex gap-3 size-5 w-full font-bold">
@@ -313,6 +332,30 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
         </div>
       </div>
     </div>
+     <Modal
+        open={isTimeOut}
+        onClose={()=> setIsTimeOut(!isTimeOut)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2" className="text-center text-red-600">
+            Phiên đấu giá kết thúc !
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Giá trúng đấu giá: {currentPrice}
+          </Typography>
+           <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          onClick={handleGoHome}
+        >
+          Quay lại trang chủ
+        </Button>
+        </Box>
+      </Modal>
+    </>
   );
 };
 
