@@ -12,7 +12,6 @@ import { ApproveModal, CancelModal, UserModal } from '../../components/modalAcce
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { debounce } from 'lodash';
 
 const TableAuction = ({
   tabValue,
@@ -170,13 +169,13 @@ const TableAuction = ({
   };
 
   const headings = [
-    { key: 'daugia', value: 'Tên buổi đấu giá' },
-    { key: 'hinhanh', value: 'Hình ảnh' },
-    { key: 'start', value: 'Giá bắt đầu' },
-    { key: 'money', value: 'Tiền cọc' },
-    { key: 'category', value: 'Loại đấu giá' },
-    { key: 'status', value: 'Trạng thái	' },
-    { key: 'action', value: 'Hành động	' },
+    { key: 'daugia', value: 'Auction name' },
+    { key: 'hinhanh', value: 'Image' },
+    { key: 'start', value: 'Starting price' },
+    { key: 'money', value: 'Deposit' },
+    { key: 'category', value: 'Auction type' },
+    { key: 'status', value: 'Status ' },
+    { key: 'action', value: 'Action ' },
   ];
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -218,7 +217,7 @@ const TableAuction = ({
           className={`min-h-[38px] min-w-[38px] flex justify-center items-center border py-2 px-3 text-sm rounded-lg focus:outline-none ${
             i === currentPage
               ? 'border-blue-600 text-blue-600 bg-blue-100'
-              : 'border-gray-200 text-gray-800 hover:bg-gray-100'
+              : 'bg-slate-300 text-gray-800 hover:bg-slate-300'
           }`}
           onClick={() => setCurrenPage(i)}
         >
@@ -257,7 +256,7 @@ const TableAuction = ({
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
+              className="bg-slate-200 w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
               placeholder="Search..."
             />
             <div className="absolute top-0 left-0 inline-flex items-center p-2">
@@ -280,9 +279,9 @@ const TableAuction = ({
         <select
           id="countries"
           onChange={(event) => handleCategoryChange(event.target.value)} 
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
         >
-          <option value="">Danh mục</option> 
+          <option value="">Category</option> 
           {listCategory.map((category, index) => (
             <option
               value={category.nameCategory} 
@@ -336,7 +335,7 @@ const TableAuction = ({
                       })}
                     </td>
                     <td className="px-4 py-2 text-center">
-                      {auction.startingPrice.toLocaleString('vi-VN', {
+                      {auction.priceDeposit.toLocaleString('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
                       })}

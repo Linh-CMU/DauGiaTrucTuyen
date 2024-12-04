@@ -16,7 +16,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
   <>
     <div className="flex justify-between py-1">
       <div className="font-bold">{label}</div>
-      <div className="font-bold">{value}</div>
+      <div>{value}</div>
     </div>
     <div className="h-[2px] w-full bg-gray-200"></div>
   </>
@@ -120,16 +120,36 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
     return finalTime <= new Date(); // Kiểm tra nếu thời gian cuối đã qua
   };
   const auctionInfo = [
-    { label: 'Giá khởi điểm', value: `${auctionDetailInfor?.startingPrice} VNĐ` },
-    { label: 'Bước giá', value: `${auctionDetailInfor.priceStep} VNĐ` },
-    { label: 'Tiền đặt trước', value: `${auctionDetailInfor.moneyDeposit} VNĐ` },
+    { label: 'Giá khởi điểm', value: `${auctionDetailInfor?.startingPrice.toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    })
+    .replace('₫', '')} VNĐ` },
+    { label: 'Bước giá', value: `${auctionDetailInfor.priceStep.toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    })
+    .replace('₫', '')} VNĐ` },
+    { label: 'Tiền đặt trước', value: `${auctionDetailInfor.moneyDeposit.toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    })
+    .replace('₫', '')} VNĐ` },
     {
       label: 'Thời gian đăng kí tham gia',
-      value: `Từ ${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay} đến ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`,
+      value: `${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay}`,
+    },
+    {
+      label: '',
+      value: `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`,
     },
     {
       label: 'Thời gian bắt đầu đấu giá',
-      value: `Từ ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay} đến ${calculateNewEndTime(auctionDetailInfor.endTime, auctionDetailInfor.timePerLap)} ${auctionDetailInfor.endDay}`,
+      value: `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`,
+    },
+    {
+      label: '',
+      value: `${calculateNewEndTime(auctionDetailInfor.endTime, auctionDetailInfor.timePerLap)} ${auctionDetailInfor.endDay}`,
     },
     { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
     { label: 'Phương thức trả giá', value: auctionDetailInfor.paymentMethod },
@@ -214,7 +234,7 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
           ) : (
             <>
               <button
-                className="bg-blue-500 text-white px-2 py-1 rounded mr-2 w-56 h-10"
+                className={`${!isRegistrationAllowed(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay) ? `bg-red-500` : `bg-blue-500`} text-white px-2 py-1 rounded mr-2 w-56 h-10`}
                 onClick={handleNavigateToContract}
                 disabled={
                   !isRegistrationAllowed(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay)

@@ -22,7 +22,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
   <>
     <div className="flex justify-between py-1">
       <div className="font-bold">{label}</div>
-      <div className="font-bold">{value}</div>
+      <div>{value}</div>
     </div>
     <div className="h-[2px] w-full bg-gray-200"></div>
   </>
@@ -180,13 +180,25 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     {
       label: 'Thời gian đăng kí tham gia',
       value: newEndTime
-        ? `Từ ${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay} đến ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`
+        ? `${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay}`
+        : 'Chưa được duyệt',
+    },
+    {
+      label: '',
+      value: newEndTime
+        ? `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`
         : 'Chưa được duyệt',
     },
     {
       label: 'Thời gian bắt đầu đấu giá',
       value: newEndTime
-        ? `Từ ${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay} đến ${newEndTime} ${auctionDetailInfor.endDay}`
+        ? `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`
+        : 'Chưa được duyệt',
+    },
+    {
+      label: '',
+      value: newEndTime
+        ? `${newEndTime} ${auctionDetailInfor.endDay}`
         : 'Chưa được duyệt',
     },
     { label: 'Trạng thái sản phẩm', value: auctionDetailInfor.statusAuction || 'Không xác định' },

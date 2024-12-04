@@ -86,7 +86,7 @@ const NewsList = () => {
   return (
     <>
       <div className="container mx-auto p-6">
-        <h2 className="text-2xl font-bold">TIN TỨC MỚI NHẤT</h2>
+        <h2 className="text-2xl font-bold">LATEST NEWS</h2>
         <div className="grid grid-cols-4 gap-4 mt-4">
           {newsList.length > 0 ? (
             newsList.slice(0, 8).map((card) => (

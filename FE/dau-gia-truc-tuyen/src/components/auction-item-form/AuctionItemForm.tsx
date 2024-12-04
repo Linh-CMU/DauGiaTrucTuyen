@@ -214,7 +214,7 @@ const AuctionItemForm: React.FC = () => {
                       alt="Image Auction Preview"
                       className="w-full h-full object-cover rounded"
                     />
-                  </Box>
+                  </div>
                 )}
               />
             </Grid>

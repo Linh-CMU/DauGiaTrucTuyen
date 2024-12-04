@@ -23,18 +23,36 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+interface DataChart {
+  labels: string[]; // Array of strings for labels
+  datasets: {
+    label: string;
+    data: number[]; // Array of numbers for data points
+    backgroundColor: string;
+  }[];
+}
+
+interface DataMoneyChart {
+  labels: string[]; // Array of strings for labels
+  datasets: {
+    label: string;
+    data: number[]; // Array of numbers for data points
+    fill: boolean;
+    borderColor: string,
+    backgroundColor: string,
+  }[];
+}
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState(1);
-  const [dailyData, setDailyData] = useState<{
-    labels: string[];
-    datasets: { label: string; data: number[]; backgroundColor: string }[];
-  } | null>(null);
-
-  const [moneyData, setMoneyData] = useState<{
-    labels: string[];
-    datasets: { label: string; data: number[]; backgroundColor: string }[];
-  } | null>(null);
+  const [dailyData, setDailyData] = useState<DataChart>({
+    labels: [],
+    datasets: [{ label: "", data: [], backgroundColor: "" }],
+  });
+  const [monthlyData, setMonthlyData] = useState<DataMoneyChart>({
+    labels: [],
+    datasets: [{ label: "", data: [], fill: false, borderColor: "", backgroundColor: "" }],
+  });
 
   useEffect(() => {
     const fetchDailyData = async () => {
@@ -71,39 +89,13 @@ const Home = () => {
           })),
         };
 
-        setMoneyData(transformedData);
+        setMonthlyData(transformedData);
       } catch (error) {
         console.error('Error fetching money data:', error);
       }
     };
     fetchMoney();
   });
-
-  const dailyData1 = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Daily Money',
-        data: [5000, 10000, 7500, 15000, 20000, 30000, 25000],
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
-  };
-
-  const monthlyData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    datasets: [
-      {
-        label: 'Monthly Money',
-        data: [
-          53000, 75000, 64000, 85000, 78000, 102000, 120000, 95000, 123000, 140000, 130000, 150000,
-        ],
-        fill: false,
-        borderColor: 'rgba(54, 162, 235, 0.6)',
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      },
-    ],
-  };
 
   const yearlyData = {
     labels: ['2020', '2021', '2022', '2023', '2024'],
@@ -177,7 +169,7 @@ const Home = () => {
                     <path d="M10.5 14.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
                   </svg>
                   <div>
-                    <div className="text-3xl font-bold text-gray-800">$53k</div>
+                    <div className="text-3xl font-bold text-gray-800">500.000 vnđ</div>
                     <div className="text-sm text-gray-500">Today's Money</div>
                   </div>
                 </div>
@@ -205,7 +197,7 @@ const Home = () => {
                     <path d="M10.5 14.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
                   </svg>
                   <div>
-                    <div className="text-3xl font-bold text-gray-800">$53k</div>
+                    <div className="text-3xl font-bold text-gray-800">500.000 vnđ</div>
                     <div className="text-sm text-gray-500">Today's Money</div>
                   </div>
                 </div>
@@ -233,7 +225,7 @@ const Home = () => {
                     <path d="M10.5 14.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
                   </svg>
                   <div>
-                    <div className="text-3xl font-bold text-gray-800">$53k</div>
+                    <div className="text-3xl font-bold text-gray-800">500.000 vnđ</div>
                     <div className="text-sm text-gray-500">Today's Money</div>
                   </div>
                 </div>
@@ -261,7 +253,7 @@ const Home = () => {
                     <path d="M10.5 14.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
                   </svg>
                   <div>
-                    <div className="text-3xl font-bold text-gray-800">$53k</div>
+                    <div className="text-3xl font-bold text-gray-800">500.000 vnđ</div>
                     <div className="text-sm text-gray-500">Today's Money</div>
                   </div>
                 </div>
@@ -285,7 +277,7 @@ const Home = () => {
             <>
               <h2 className="text-lg font-semibold">Yearly Money</h2>
               <Line
-                data={moneyData}
+                data={monthlyData}
                 options={{ responsive: true, plugins: { legend: { display: true } } }}
               />
             </>

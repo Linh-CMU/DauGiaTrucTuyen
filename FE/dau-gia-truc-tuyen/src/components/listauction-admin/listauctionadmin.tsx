@@ -30,16 +30,16 @@ const ListAuctionAdmin: React.FC<ListAuctionAdminProps> = ({ id, name, status })
   return (
     <>
       <Typography variant="h5" component="h2" fontWeight="bold">
-        TÀI SẢN ĐẤU GIÁ
+        AUCTION ASSETS
       </Typography>
       <div>
         <TabContext value={value.toString()}> {/* Chuyển đổi value sang chuỗi */}
           <Box>
             <StyledTabList onChange={handleChange} aria-label="lab">
-              <Tab label="Tất cả" value='0' />
-              <Tab label="Chưa được chấp thuận" value='1' />
-              <Tab label="Từ chối" value='2' />
-              <Tab label="Đã Duyệt" value='3' />
+              <Tab label="All" value='0' />
+              <Tab label="Not approved yet" value='1' />
+              <Tab label="Refuse" value='2' />
+              <Tab label="Approved" value='3' />
             </StyledTabList>
           </Box>
           <TabPanel value="0">

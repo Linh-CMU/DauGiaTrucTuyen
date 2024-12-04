@@ -70,7 +70,7 @@ const SearchBox = ({ handleSubmit }: PropertySearch) => {
       <div className="flex gap-8 h-10">
         <TextFieldSearch
           id="outlined-textarea"
-          placeholder="Nhập từ khoá tìm kiếm (tên, trạng thái, mã số)"
+          placeholder="Enter search keyword"
           onChange={(e) => setSearch(e.target.value)}
           multiline
         />
@@ -79,10 +79,10 @@ const SearchBox = ({ handleSubmit }: PropertySearch) => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             value={statusSearch}
-            label="Trạng thái"
+            label="Status"
             onChange={(e: any) => setStatusSearch(e.target.value)}
           >
-            <MenuItem value={0}>Tất cả</MenuItem>
+            <MenuItem value={0}>ALL</MenuItem>
             {listCategory.map((category) => (
               <MenuItem key={category.categoryID} value={category.categoryID}>
                 {category.nameCategory}

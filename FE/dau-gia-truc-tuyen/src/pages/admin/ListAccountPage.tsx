@@ -72,7 +72,7 @@ const ListAccountPage = () => {
           className={`min-h-[38px] min-w-[38px] flex justify-center items-center border py-2 px-3 text-sm rounded-lg focus:outline-none ${
             i === currentPage
               ? 'border-blue-600 text-blue-600 bg-blue-100'
-              : 'border-gray-200 text-gray-800 hover:bg-gray-100'
+              : 'bg-slate-300 text-gray-800 hover:bg-gray-100'
           }`}
           onClick={() => setCurrenPage(i)}
         >
@@ -127,7 +127,7 @@ const ListAccountPage = () => {
               type="search"
               value={searchUser}
               onChange={(e) => setSearchUser(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
+              className="bg-slate-300 w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
               placeholder="Search..."
             />
             <div className="absolute top-0 left-0 inline-flex items-center p-2">
