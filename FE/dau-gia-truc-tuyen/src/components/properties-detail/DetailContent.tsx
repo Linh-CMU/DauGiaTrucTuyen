@@ -44,13 +44,13 @@ const DetailContent: React.FC<DetailContentProps> = ({auctionDetailInfor}) => {
         <p className="mb-4"><span className="font-semibold">Bước giá:</span> {auctionDetailInfor?.priceStep} đồng.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">8. Thời gian, địa điểm tổ chức cuộc đấu giá:</h2>
-        <p className="mb-4"><span className="font-semibold">Địa điểm:</span> Trực tuyến tại <a href="https://daugia.danang.gov.vn" className="text-blue-600 underline">daugia.danang.gov.vn</a>.</p>
+        <p className="mb-4"><span className="font-semibold">Địa điểm:</span> Trực tuyến tại <a href="http://localhost:5175/" className="text-blue-600 underline">Đấu giá trực tuyến</a>.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">9. Hình thức, phương thức đấu giá:</h2>
         <p className="mb-4">Đấu giá trực tuyến; Phương thức trả giá lên với thời gian {auctionDetailInfor?.timePerLap}.</p>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-3">10. Địa điểm:</h2>
-        <p className="mb-4">Trung tâm dịch vụ đấu giá tài sản thành phố Đà Nẵng - Số 08 Phan Bội Châu, quận Hải Châu, Đà Nẵng. Điện thoại: 0236-3889627 – 3887678. Website: <a href="https://www.daugia.danang.gov.vn" className="text-blue-600 underline">daugia.danang.gov.vn</a>.</p>
+        <p className="mb-4">Trung tâm dịch vụ đấu giá tài sản thành phố Đà Nẵng - Số 08 Phan Bội Châu, quận Hải Châu, Đà Nẵng. Điện thoại: 0236-3889627 – 3887678. Website: <a href="http://localhost:5175/" className="text-blue-600 underline">Đấu giá trực tuyến</a>.</p>
 
         <p className="text-sm text-gray-700 italic">Giờ hành chính: Thứ 2 - Thứ 6, Sáng: 07:30 - 11:30, Chiều: 13:30 - 17:30 (trừ ngày lễ).</p>
     </div>
