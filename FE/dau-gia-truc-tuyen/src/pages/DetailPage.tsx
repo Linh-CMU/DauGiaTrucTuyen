@@ -35,6 +35,8 @@ const DetailPage = () => {
     fetchData();
   }, []);
 
+  console.log(switchdetail,"JOIN THE AUCTION")
+
   return (
    <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
     {auctionDetailInfor && (
