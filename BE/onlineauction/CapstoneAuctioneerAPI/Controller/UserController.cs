@@ -56,7 +56,6 @@ namespace CapstoneAuctioneerAPI.Controller
                 Description = request.description,
                 StartingPrice = request.startingPrice,
                 CategoryID = request.categoryID,
-                signatureImg = request.signatureImg,
                 image = request.imageVerification
             };
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -178,6 +177,26 @@ namespace CapstoneAuctioneerAPI.Controller
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _userService.ListYourAuctioneer(userId, status);
+            if (!result.IsSucceed)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Auctionregistrationlists the specified status.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Policy = "USER")]
+        [Route("searchauctionregistrationlist")]
+        public async Task<ActionResult> searchauctionregistrationlist(int category, string content)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _userService.SearchListYourAuctioneer(userId, category, content);
             if (!result.IsSucceed)
             {
                 return BadRequest(result);

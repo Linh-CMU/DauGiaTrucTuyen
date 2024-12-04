@@ -12,11 +12,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Security.Claims;
+using System.Security.Cryptography.Xml;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,6 +57,8 @@ namespace DataAccess.Repository
         /// </summary>
         private readonly IUploadRepository _uploadRepository;
 
+        private readonly DigitalSignatureHelper _signatureHelper;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountRepository"/> class.
         /// </summary>
@@ -69,6 +74,7 @@ namespace DataAccess.Repository
             RoleManager<IdentityRole> roleManager,
             IUploadRepository uploadRepository,
             IUploadRepository upload,
+            DigitalSignatureHelper signatureHelper,
             IConfiguration configuration)
         {
             _context = context;
@@ -77,6 +83,7 @@ namespace DataAccess.Repository
             _configuration = configuration;
             _uploadRepository = uploadRepository;
             _upload = upload;
+            _signatureHelper = signatureHelper;
         }
 
         /// <summary>
@@ -84,7 +91,7 @@ namespace DataAccess.Repository
         /// </summary>
         /// <param name="loginDTO">The login dto.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> LoginAsync(Login loginDTO)
+        public async Task<ResponseDTO> LoginAsync(Login loginDTO, bool google = false)
         {
             Account account = null;
 
@@ -96,10 +103,12 @@ namespace DataAccess.Repository
             {
                 account = await _accountManager.FindByNameAsync(loginDTO.username);
             }
-
-            if (account == null || !await _accountManager.CheckPasswordAsync(account, loginDTO.password))
+            if (!google)
             {
-                return new ResponseDTO() { IsSucceed = false, Message = "Invalid credentials" };
+                if (account == null || !await _accountManager.CheckPasswordAsync(account, loginDTO.password))
+                {
+                    return new ResponseDTO() { IsSucceed = false, Message = "Invalid credentials" };
+                }
             }
             if (account.Status == true && account.EmailConfirmed != false)
             {
@@ -154,7 +163,7 @@ namespace DataAccess.Repository
 
         public string GenerateJwtToken(string email, string role)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])); // Key từ appsettings
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"])); // Key từ appsettings
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             // Thêm claims, bao gồm role
@@ -167,8 +176,8 @@ namespace DataAccess.Repository
 
             // Tạo token
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1), // Thời gian hết hạn
                 signingCredentials: credentials);
@@ -212,7 +221,7 @@ namespace DataAccess.Repository
 
             var createAccountDetail = new AccountDetail
             {
-                AccountID = createAccount.Id,
+                AccountID = createAccount.Id
             };
 
             var createAccountDetailResult = await AccountDAO.Instance.AddAccountDetailAsync(createAccountDetail);
@@ -233,6 +242,43 @@ namespace DataAccess.Repository
                     return new ResponseDTO() { IsSucceed = false, Message = "Failed to send OTP. Please try again." };
                 }
             }
+            return new ResponseDTO() { IsSucceed = true, Message = "User created successfully" };
+        }
+
+        public async Task<ResponseDTO> CreateGoogle(AddAccountDTO account)
+        {
+            var createAccount = new Account
+            {
+                UserName = account.UserName,
+                Email = account.Email,
+                Warning = 0,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                Status = false,
+                EmailConfirmed = true,
+            };
+
+
+            var createUserResult = await _accountManager.CreateAsync(createAccount, account.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                var errorString = string.Join(" ", createUserResult.Errors.Select(e => e.Description));
+                return new ResponseDTO() { IsSucceed = false, Message = "User creation failed because: " + errorString };
+            }
+
+            var createAccountDetail = new AccountDetail
+            {
+                AccountID = createAccount.Id
+            };
+
+            var createAccountDetailResult = await AccountDAO.Instance.AddAccountDetailAsync(createAccountDetail);
+
+            if (!createAccountDetailResult)
+            {
+                return new ResponseDTO() { IsSucceed = false, Message = "Account detail creation failed" };
+            }
+
+            await _accountManager.AddToRoleAsync(createAccount, StaticUserRoles.USER);
             return new ResponseDTO() { IsSucceed = true, Message = "User created successfully" };
         }
 
@@ -282,6 +328,7 @@ namespace DataAccess.Repository
             }
 
             accountDetail = await AccountDAO.Instance.ProfileDAO(account.Id);
+            var signature = await AccountDAO.Instance.getSignature(account.Id);
             if (accountDetail == null)
             {
                 return new ResponseDTO { IsSucceed = false, Message = "Account details not found" };
@@ -293,6 +340,7 @@ namespace DataAccess.Repository
                 Avatar = accountDetail.Avatar,
                 FrontCCCD = accountDetail.FrontCCCD,
                 BacksideCCCD = accountDetail.BacksideCCCD,
+                signature = signature != null ? signature.SignatureImg : "",
                 Email = account.Email,
                 FullName = accountDetail.FullName,
                 Phone = accountDetail.Phone,
@@ -308,8 +356,19 @@ namespace DataAccess.Repository
                 dateOfIssue = accountDetail.DateOfIssue,
                 placeOfIssue = accountDetail.PlaceOfIssue,
                 placeOfResidence = accountDetail.PlaceOfResidence,
+                categoryId = accountDetail.CategoryId,
             };
             return new ResponseDTO { Result = profileDTO, IsSucceed = true, Message = "Successfully" };
+        }
+
+        public async Task<bool> checkLoginEmail(string email)
+        {
+            var check = await _accountManager.FindByEmailAsync(email);
+            if (check != null)
+            {
+                return true;
+            }
+            return false;
         }
         /// <summary>
         /// Gets the content of the reset password email.
@@ -460,7 +519,30 @@ namespace DataAccess.Repository
             {
                 return new ResponseDTO { IsSucceed = false, Message = "Account not found" };
             }
+            var keys = _signatureHelper.GenerateKeys();
+            if (uProfileDTO.signature == null || uProfileDTO.signature.Length == 0)
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Hình ảnh chữ ký không được để trống." };
+            }
+            string base64SignatureImage;
 
+            using (var memoryStream = new MemoryStream())
+            {
+                await uProfileDTO.signature.CopyToAsync(memoryStream);
+                byte[] imageBytes = memoryStream.ToArray();
+                base64SignatureImage = Convert.ToBase64String(imageBytes);
+            }
+            var signature = _signatureHelper.SignData(base64SignatureImage, keys.privateKey);
+            var fileAttach = new DigitalSignature
+            {
+                AccountID = userID,
+                Base64SignatureImage = base64SignatureImage,
+                SignatureImg = await _upload.SaveFileAsync(uProfileDTO.signature, "DigitalSignature", userID),
+                Signature = signature,
+                PublicKey = keys.publicKey,
+                PrivateKey = keys.privateKey,
+                CreatedAt = DateTime.Now,
+            };
             var accountDetail = new AccountDetail
             {
                 AccountID = userID,
@@ -482,6 +564,7 @@ namespace DataAccess.Repository
 
             try
             {
+                await FileAttachmentsDAO.Instance.AddFileAttachment(fileAttach);
                 await AccountDAO.Instance.UpdateAccountDetail(accountDetail);
                 return new ResponseDTO { IsSucceed = true, Message = "Profile updated successfully" };
             }
@@ -566,7 +649,8 @@ namespace DataAccess.Repository
 
             var createAccountDetail = new AccountDetail
             {
-                AccountID = createAccount.Id
+                AccountID = createAccount.Id,
+                CategoryId = updatePermissionDTO.category == 0 ? null : updatePermissionDTO.category,
             };
 
             var createAccountDetailResult = await AccountDAO.Instance.AddAccountDetailAsync(createAccountDetail);

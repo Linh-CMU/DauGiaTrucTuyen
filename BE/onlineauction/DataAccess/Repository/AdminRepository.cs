@@ -1,4 +1,5 @@
-﻿using BusinessObject.Model;
+﻿using BusinessObject.Context;
+using BusinessObject.Model;
 using DataAccess.DAO;
 using DataAccess.DTO;
 using DataAccess.IRepository;
@@ -268,6 +269,11 @@ namespace DataAccess.Repository
             return result;
         }
 
+        /// <summary>
+        /// Res up auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> ReUpAuction(int id)
         {
             var result = await AuctionDAO.Instance.ReUpAuction(id);
@@ -282,12 +288,17 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Lists the bidder in auction.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public async Task<ResponseDTO> listBidderInAuction(int id)
         {
             var result = await AuctionDAO.Instance.listBidderInAuction(id);
             if (result != null)
             {
-                return new ResponseDTO {Result = result, IsSucceed = true, Message = "Successfully" };
+                return new ResponseDTO { Result = result, IsSucceed = true, Message = "Successfully" };
             }
             else
             {
@@ -296,10 +307,45 @@ namespace DataAccess.Repository
             }
         }
 
+        /// <summary>
+        /// Auctions the room admin.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public async Task<AuctionRoomAdminDTO> AuctionRoomAdmin(int id)
         {
             var result = await AuctionDAO.Instance.AuctionRoomAdmin(id);
             return result;
+        }
+        /// <summary>
+        /// Productstatisticses this instance.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<List<(string Day, int Count)>> Productstatistics()
+        {
+            try
+            {
+                var result = await AuctionDAO.Instance.Productstatistics();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<(string Month, decimal Count)>> MonthlyIncomeStatistics()
+        {
+            try
+            {
+                var result = await AuctionDAO.Instance.MonthlyIncomeStatistics();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ namespace BusinessObject.Model
         public int ListAuctionID { get; set; }
         public string? PaymentTerm { get; set; }
         public bool? AuctionStatus { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.Now;
 
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<Deposit> Deposits { get; set; } = new List<Deposit>();

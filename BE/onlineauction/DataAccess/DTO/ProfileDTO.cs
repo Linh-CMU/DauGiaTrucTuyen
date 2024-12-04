@@ -14,6 +14,7 @@ namespace DataAccess.DTO
         public string Avatar { get; set; }
         public string? FrontCCCD { get; set; }
         public string? BacksideCCCD { get; set; }
+        public string? signature { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
         public string Phone { get; set; }
@@ -29,5 +30,6 @@ namespace DataAccess.DTO
         public string? placeOfResidence { get; set; }
         public string? placeOfIssue { get; set; }
         public string? dateOfIssue { get; set; }
+        public int? categoryId { get; set; }
     }
 }

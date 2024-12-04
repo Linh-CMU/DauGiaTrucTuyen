@@ -14,6 +14,7 @@ namespace DataAccess.DTO
         public string? phone { get; set; }
         public IFormFile? frontCCCD { get; set; }
         public IFormFile? backsideCCCD { get; set; }
+        public IFormFile? signature { get; set; }
         public string? city { get; set; }
         public string? ward { get; set; }
         public string? district { get; set; }

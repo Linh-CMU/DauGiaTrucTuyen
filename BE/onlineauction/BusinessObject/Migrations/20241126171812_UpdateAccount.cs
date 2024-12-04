@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class DbInit : Migration
+    public partial class UpdateAccount : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -84,32 +84,6 @@ namespace BusinessObject.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AccountDetails",
-                columns: table => new
-                {
-                    AccountID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Phone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    FrontCCCD = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BacksideCCCD = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Ward = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    District = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccountDetails", x => x.AccountID);
-                    table.ForeignKey(
-                        name: "FK_AccountDetails_AspNetUsers_AccountID",
-                        column: x => x.AccountID,
-                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -252,19 +226,78 @@ namespace BusinessObject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserOtp",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Otp = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpirationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Attempts = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserOtp", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserOtp_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccountDetails",
+                columns: table => new
+                {
+                    AccountID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    FrontCCCD = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BacksideCCCD = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    District = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Birthdate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Gender = table.Column<bool>(type: "bit", nullable: true),
+                    PlaceOfResidence = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PlaceOfIssue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateOfIssue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CategoryId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountDetails", x => x.AccountID);
+                    table.ForeignKey(
+                        name: "FK_AccountDetails_AspNetUsers_AccountID",
+                        column: x => x.AccountID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AccountDetails_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "CategoryID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuctionDetail",
                 columns: table => new
                 {
                     ListAuctionID = table.Column<int>(type: "int", nullable: false),
                     CategoryID = table.Column<int>(type: "int", nullable: true),
-                    StartDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EndDay = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EndTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NumberofAuctionRounds = table.Column<int>(type: "int", nullable: false),
-                    TimePerLap = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDay = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EndDay = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EndTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumberofAuctionRounds = table.Column<int>(type: "int", nullable: true),
+                    TimePerLap = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PriceStep = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -316,7 +349,7 @@ namespace BusinessObject.Migrations
                 {
                     FileAID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ListAuctionID = table.Column<int>(type: "int", nullable: false),
+                    AccountID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Base64SignatureImage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SignatureImg = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Signature = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -328,10 +361,30 @@ namespace BusinessObject.Migrations
                 {
                     table.PrimaryKey("PK_DigitalSignature", x => x.FileAID);
                     table.ForeignKey(
-                        name: "FK_DigitalSignature_AuctionDetail_ListAuctionID",
+                        name: "FK_DigitalSignature_AccountDetails_AccountID",
+                        column: x => x.AccountID,
+                        principalTable: "AccountDetails",
+                        principalColumn: "AccountID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TImage",
+                columns: table => new
+                {
+                    TImageId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ListAuctionID = table.Column<int>(type: "int", nullable: false),
+                    Imange = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TImage", x => x.TImageId);
+                    table.ForeignKey(
+                        name: "FK_TImage_AuctionDetail_ListAuctionID",
                         column: x => x.ListAuctionID,
                         principalTable: "AuctionDetail",
-                        principalColumn: "ListAuctionID");
+                        principalColumn: "ListAuctionID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -404,7 +457,7 @@ namespace BusinessObject.Migrations
                 name: "PlacingABid",
                 columns: table => new
                 {
-                    BetID = table.Column<int>(type: "int", nullable: false)
+                    PlacingABidID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RAID = table.Column<int>(type: "int", nullable: false),
                     PriceBit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -412,7 +465,7 @@ namespace BusinessObject.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlacingABid", x => x.BetID);
+                    table.PrimaryKey("PK_PlacingABid", x => x.PlacingABidID);
                     table.ForeignKey(
                         name: "FK_PlacingABid_RegistAuction_RAID",
                         column: x => x.RAID,
@@ -421,34 +474,19 @@ namespace BusinessObject.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "TImage",
-                columns: table => new
-                {
-                    TImageId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FileAID = table.Column<int>(type: "int", nullable: false),
-                    Imange = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TImage", x => x.TImageId);
-                    table.ForeignKey(
-                        name: "FK_TImage_DigitalSignature_FileAID",
-                        column: x => x.FileAID,
-                        principalTable: "DigitalSignature",
-                        principalColumn: "FileAID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "4ee3c56c-818a-4d9d-8310-523a2acda174", null, "admin", "ADMIN" },
-                    { "aa723f91-f3c5-4703-852e-f4d129770cbc", null, "user", "USER" }
+                    { "4f2d897e-02bf-411c-900d-fc1508aeda71", null, "admin", "ADMIN" },
+                    { "b3bfff3b-e2a8-4644-8dad-8666960d1399", null, "user", "USER" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountDetails_CategoryId",
+                table: "AccountDetails",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -500,9 +538,9 @@ namespace BusinessObject.Migrations
                 column: "RAID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DigitalSignature_ListAuctionID",
+                name: "IX_DigitalSignature_AccountID",
                 table: "DigitalSignature",
-                column: "ListAuctionID");
+                column: "AccountID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Feedback_AccountID",
@@ -545,17 +583,19 @@ namespace BusinessObject.Migrations
                 column: "ListAuctionID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TImage_FileAID",
+                name: "IX_TImage_ListAuctionID",
                 table: "TImage",
-                column: "FileAID");
+                column: "ListAuctionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserOtp_UserId",
+                table: "UserOtp",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AccountDetails");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -575,6 +615,9 @@ namespace BusinessObject.Migrations
                 name: "Deposit");
 
             migrationBuilder.DropTable(
+                name: "DigitalSignature");
+
+            migrationBuilder.DropTable(
                 name: "Feedback");
 
             migrationBuilder.DropTable(
@@ -590,13 +633,16 @@ namespace BusinessObject.Migrations
                 name: "TImage");
 
             migrationBuilder.DropTable(
+                name: "UserOtp");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "RegistAuction");
+                name: "AccountDetails");
 
             migrationBuilder.DropTable(
-                name: "DigitalSignature");
+                name: "RegistAuction");
 
             migrationBuilder.DropTable(
                 name: "AuctionDetail");

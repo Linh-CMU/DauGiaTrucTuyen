@@ -80,6 +80,7 @@ namespace DataAccess.Repository
                 var auction = new AutionDTO()
                 {
                     ListAuctionID = result.ID,
+                    owner = result.User.AccountId,
                     Image = result.Image,
                     moneyDeposit = result.MoneyDeposit,
                     NameAuction = result.NameAuction,

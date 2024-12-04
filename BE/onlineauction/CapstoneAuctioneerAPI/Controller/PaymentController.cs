@@ -66,7 +66,10 @@ namespace CapstoneAuctioneerAPI.Controller
                 ItemData item = new ItemData(payment.nameAuction, 1, payment.priceAuction);
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
-                PaymentData paymentData = new PaymentData(payment.IdResgiter, payment.priceAuction, "Thanh Toán", items, "http://localhost:5173/cancel", "http://localhost:5173/success");
+                string shortenedName = payment.nameAuction.Length > 20
+                        ? payment.nameAuction.Substring(0, 20)
+                        : payment.nameAuction;
+                PaymentData paymentData = new PaymentData(payment.IdResgiter, payment.priceAuction, $"Thanh Toán {shortenedName}", items, "http://localhost:5173/cancel", "http://localhost:5173/success");
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment);
             }
@@ -87,20 +90,25 @@ namespace CapstoneAuctioneerAPI.Controller
                 ItemData item = new ItemData(deposit.nameAuction, 1, deposit.priceAuction);
                 List<ItemData> items = new List<ItemData>();
                 items.Add(item);
+                var did = GenerateUniqueId();
                 var deposits = new Deposit
                 {
-                    DID = deposit.IdResgiter.ToString(),
+                    DID = did.ToString(),
                     RAID = deposit.IdResgiter,
                     PaymentType = "Payos",
                     PaymentDate = DateTime.Now.ToString(),
-                    status = "success"
+                    status = "wait"
                 };
                 var pay = await _userService.PaymentForDeposit(deposits);
                 if (pay != true)
                 {
                     return BadRequest(StatusCodes.Status500InternalServerError);
                 }
-                PaymentData paymentData = new PaymentData(deposit.IdResgiter, deposit.priceAuction, "Tiền Cọc", items, "http://localhost:5173/cancel", "http://localhost:5173/success");
+                string shortenedName = deposit.nameAuction.Length > 10
+                        ? deposit.nameAuction.Substring(0, 10)
+                        : deposit.nameAuction;
+                var expirationTime = DateTime.Now.AddMinutes(15).ToString("yyyy-MM-dd HH:mm:ss");
+                PaymentData paymentData = new PaymentData(did, deposit.priceAuction, $"Tiền Cọc {shortenedName}", items, "http://localhost:5173/cancel", "http://localhost:5173/success", expirationTime);
                 CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
                 return Ok(createPayment.checkoutUrl);
             }
@@ -216,7 +224,7 @@ namespace CapstoneAuctioneerAPI.Controller
         }
         [HttpPut]
         [Route("update-payment/{id}")]
-        public async Task<IActionResult> UpdatePayment(int id, UpdatePaymentDTO status)
+        public async Task<IActionResult> UpdatePayment(string id, UpdatePaymentDTO status)
        {
             try
             {
@@ -263,6 +271,16 @@ namespace CapstoneAuctioneerAPI.Controller
         private string FormatDecimal(decimal value)
         {
             return value.ToString("F2", CultureInfo.InvariantCulture);
+        }
+        private int GenerateUniqueId()
+        {
+            byte[] buffer = Guid.NewGuid().ToByteArray();
+            long longValue = BitConverter.ToInt64(buffer, 0); // Chuyển GUID thành long
+
+            // Giới hạn giá trị trả về chỉ trong phạm vi 5 chữ số
+            int uniqueId = (int)(Math.Abs(longValue) % 100000); // Lấy giá trị dương và chỉ lấy 5 chữ số cuối cùng
+
+            return uniqueId;
         }
 
     }

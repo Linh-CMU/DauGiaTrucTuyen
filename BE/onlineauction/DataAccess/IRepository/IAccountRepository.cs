@@ -20,7 +20,7 @@ namespace DataAccess.IRepository
         /// </summary>
         /// <param name="loginDTO">The login dto.</param>
         /// <returns></returns>
-        Task<ResponseDTO> LoginAsync(Login loginDTO);
+        Task<ResponseDTO> LoginAsync(Login loginDTO, bool google = false);
         /// <summary>
         /// Makes the user asynchronous.
         /// </summary>
@@ -91,5 +91,7 @@ namespace DataAccess.IRepository
 
         Task<ResponseDTO> VerifyOtp(VerifyOtpViewModel model);
         string GenerateJwtToken(string email, string role);
+        Task<bool> checkLoginEmail(string email);
+        Task<ResponseDTO> CreateGoogle(AddAccountDTO account);
     }
 }

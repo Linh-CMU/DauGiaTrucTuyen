@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using BusinessObject.Model;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace CapstoneAuctioneerAPI.Controller
 {
@@ -75,28 +76,40 @@ namespace CapstoneAuctioneerAPI.Controller
                 {
                     Audience = new[] { "800544947907-gqq1fut5e84qhsdtapqs1nf1f3rao28r.apps.googleusercontent.com" }
                 });
-
-                // Tạo JWT Token
-                var role = "user";
-                var token = _accountService.GenerateNewJsonWebToken(payload.Email, role);
-
-                //var check = new
-                //{
-                //    Role = role,
-                //    Token = token,
-                //    Check = user.Result.BacksideCCCD == null ? false : true,
-                //};
-                //return new ResponseDTO() { Result = check, IsSucceed = true, Message = "Successfully" };
-                return Ok(new
+                var check = await _accountService.checkLoginEmail(payload.Email);
+                if(check)
                 {
-                    token,
-                    user = new
+                    var login = new Login
                     {
-                        payload.Email,
-                        payload.Name,
-                        payload.Picture
+                        username = payload.Email,
+                    };
+                    var resultLogin = await _accountService.loginService(login, true);
+                    if (resultLogin.IsSucceed)
+                    {
+                        return Ok(resultLogin);
                     }
-                });
+                    return BadRequest(resultLogin);
+                }
+                else
+                {
+                    var account = new AddAccountDTO
+                    {
+                        UserName = payload.Email,
+                        Email= payload.Email,
+                        Password = "Auction@123"
+                    };
+                    var result = await _accountService.CreateGoogle(account);
+                    var login = new Login
+                    {
+                        username = payload.Email,
+                    };
+                    var resultLogin = await _accountService.loginService(login, true);
+                    if (resultLogin.IsSucceed)
+                    {
+                        return Ok(resultLogin);
+                    }
+                    return BadRequest(resultLogin);
+                }
             }
             catch (Exception ex)
             {

@@ -18,7 +18,7 @@ namespace BusinessObject.Model
         [ForeignKey("RegistAuction")]
         public int RAID { get; set; }
         public decimal PriceBit { get; set; }
-        public string BidTime { get; set; }
+        public DateTime BidTime { get; set; }
         public virtual RegistAuction RegistAuctioneer { get; set; }
     }
 }

@@ -10,12 +10,13 @@ namespace DataAccess.DTO
     {
         public string EmailAdmin { get; set; }
         public string AuctioneerEmail { get; set; }
-        public string BidderEmail { get; set; }
+        public string? BidderEmail { get; set; }
         public DateTime endTime { get; set; }
         public decimal Price { get; set; }
-        public string AccountId { get; set; }
+        public string? AccountId { get; set; }
         public string AccountAdminId { get; set; }
         public string AccountAuctionId { get; set; }
         public string Title { get; set; }
+        public int RAID { get; set; }
     }
 }

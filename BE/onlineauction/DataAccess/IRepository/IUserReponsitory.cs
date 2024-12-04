@@ -83,7 +83,8 @@ namespace DataAccess.IRepository
         /// <param name="acutionId">The acution identifier.</param>
         /// <returns></returns>
         Task<InforPayMentDTO> TotalPayDeposit(int acutionId, string uid);
-
-        Task<ResponseDTO> UpdatePayment(int id, string status);
+        Task<bool> Payment(Payment deposit);
+        Task<ResponseDTO> UpdatePayment(string id, string status);
+        Task<ResponseDTO> SearchListYourAuctioneer(string id, int status, string content);
     }
 }

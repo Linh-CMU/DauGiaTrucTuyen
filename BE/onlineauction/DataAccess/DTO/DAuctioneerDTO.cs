@@ -10,7 +10,7 @@ namespace DataAccess.DTO
     public class DAuctioneerDTO
     {
         public int ID { get; set; }
-        public object User { get; set; }
+        public ProfileDTO User { get; set; }
         public string Manager { get; set; }
         public string Image { get; set; }
         public string NameAuction { get; set; }

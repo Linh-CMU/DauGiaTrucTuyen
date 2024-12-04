@@ -103,6 +103,12 @@ namespace DataAccess.Service
             var result = await _userReponsitory.ListYourAuctioneer(id, status);
             return result;
         }
+
+        public async Task<ResponseDTO> SearchListYourAuctioneer(string id, int status, string content)
+        {
+            var result = await _userReponsitory.SearchListYourAuctioneer(id, status, content);
+            return result;
+        }
         /// <summary>
         /// Lists your autioneer detail.
         /// </summary>
@@ -165,6 +171,11 @@ namespace DataAccess.Service
             var result = await _userReponsitory.PaymentForDeposit(deposit);
             return result;
         }
+        public async Task<bool> Payment(Payment deposit)
+        {
+            var result = await _userReponsitory.Payment(deposit);
+            return result;
+        }
         public async Task<int> getIdRegisterAuction(int id)
         {
             var result = await _userReponsitory.getIdRegisterAuction(id);
@@ -175,7 +186,7 @@ namespace DataAccess.Service
             var result = await _userReponsitory.TotalPayDeposit(acutionId, uid);
             return result;
         }
-        public async Task<ResponseDTO> UpdatePayment(int id, string status)
+        public async Task<ResponseDTO> UpdatePayment(string id, string status)
         {
             var result = await _userReponsitory.UpdatePayment(id, status);
             return result;

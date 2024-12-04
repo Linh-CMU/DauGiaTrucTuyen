@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -135,7 +136,7 @@ namespace DataAccess.DAO
                                                                 join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                                                 join r in context.RegistAuctioneers on a.ListAuctionID equals r.ListAuctionID into adGroup
                                                                 from rg in adGroup.DefaultIfEmpty()
-                                                                where a.StatusAuction == true && (a.Creator != uid || 1 == 1)
+                                                                where a.StatusAuction == true && a.Creator != uid && (rg == null || rg.AccountID != uid)
                                                                 select new ListAuctioneerDTO
                                                                 {
                                                                     Id = a.ListAuctionID,
@@ -282,10 +283,10 @@ namespace DataAccess.DAO
 
                     var auctioneerList = await (from a in context.ListAuctions
                                                 join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
+                                                join ds in context.FileAttachments on a.Creator equals ds.AccountID
                                                 join us in context.Accounts on a.Creator equals us.Id
                                                 join ct in context.Categorys on ad.CategoryID equals ct.CategoryID
-                                                join ds in context.FileAttachments on a.Creator equals ds.AccountID
-                                                join i in context.TImages on ds.FileAID equals i.FileAID
+                                                join i in context.TImages on ad.ListAuctionID equals i.ListAuctionID
                                                 join ud in context.AccountDetails on us.Id equals ud.AccountID
                                                 join m in context.AccountDetails on a.Manager equals m.AccountID into adGroup
                                                 from m in adGroup.DefaultIfEmpty() // Sử dụng LEFT JOIN
@@ -446,8 +447,7 @@ namespace DataAccess.DAO
                         .FirstOrDefaultAsync(ad => ad.ListAuctionID == auctioneer.auctionID);
                     var auctionDetail = await context.AuctionDetails
                         .FirstOrDefaultAsync(ad => ad.ListAuctionID == auctioneer.auctionID);
-                    var file = await context.FileAttachments.FirstOrDefaultAsync(a => a.ListAuctionID == existingAuctioneer.ListAuctionID);
-                    var img = await context.TImages.FirstOrDefaultAsync(a => a.FileAID == file.FileAID);
+                    var img = await context.TImages.FirstOrDefaultAsync(a => a.ListAuctionID == auctionDetail.ListAuctionID);
 
                     if (existingAuctioneer == null || auctionDetail == null)
                     {
@@ -535,21 +535,6 @@ namespace DataAccess.DAO
                     var ad = await context.AuctionDetails.FirstOrDefaultAsync(a => a.ListAuctionID == id);
                     if (ad != null)
                     {
-                        // File Attachments
-                        var file = await context.FileAttachments.Where(a => a.ListAuctionID == id).ToListAsync();
-                        if (file.Any())
-                        {
-                            foreach (var item in file)
-                            {
-                                // Images related to FileAttachment
-                                var img = await context.TImages.Where(i => i.FileAID == item.FileAID).ToListAsync();
-                                if (img.Any())
-                                {
-                                    context.TImages.RemoveRange(img); // Remove images in bulk
-                                }
-                                context.FileAttachments.Remove(item); // Remove the file attachment
-                            }
-                        }
                         context.AuctionDetails.Remove(ad); // Remove AuctionDetail
                     }
 
@@ -610,10 +595,10 @@ namespace DataAccess.DAO
                         existingAutioneerDetail.EndDay = DateTime.Now.AddDays(3).ToString("dd/MM/yyyy");
                         existingAutioneerDetail.StartTime = DateTime.Now.AddDays(2).ToString("HH:mm");
                         existingAutioneerDetail.EndTime = DateTime.Now.AddDays(3).ToString("HH:mm");
+                        existingAutioneerDetail.PriceStep = existingAutioneer.StartingPrice * 0.1m;
                     }
                     existingAutioneer.StatusAuction = autioneer.Status;
                     existingAutioneer.Manager = idManager;
-                    existingAutioneerDetail.PriceStep = autioneer.PriceStep == null ? 0 : autioneer.PriceStep;
                     existingAutioneerDetail.TimePerLap = autioneer.TimeRoom;
 
                     // Mark entities as modified
@@ -669,7 +654,7 @@ namespace DataAccess.DAO
                                     StartingPrice = a.StartingPrice,
                                     StartDay = ad.StartDay,
                                     StartTime = ad.StartTime,
-                                    TimePerLap= ad.TimePerLap,
+                                    TimePerLap = ad.TimePerLap,
                                     EndDay = ad.EndDay,
                                     EndTime = ad.EndTime,
                                     StatusAuction = a.StatusAuction == null ? "Not approved yet"
@@ -708,6 +693,52 @@ namespace DataAccess.DAO
                 throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
             }
         }
+
+        public async Task<List<AuctionDetailDTO>> SearchListYourAuctioneer(string id, int category, string content)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    // Base query
+                    var query = from a in context.ListAuctions
+                                join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
+                                join c in context.Categorys on ad.CategoryID equals c.CategoryID
+                                join m in context.AccountDetails on a.Manager equals m.AccountID into adGroup
+                                from m in adGroup.DefaultIfEmpty()
+                                where a.Creator == id && a.NameAuction.Contains(content.ToLower()) && (category != 0 ? ad.CategoryID == category : 1 == 1)
+                                select new AuctionDetailDTO
+                                {
+                                    ListAuctionID = a.ListAuctionID,
+                                    Category = c.NameCategory,
+                                    Name = a.Manager == null ? "No management yet" : m.FullName,
+                                    Image = a.Image,
+                                    NameAuction = a.NameAuction,
+                                    StartingPrice = a.StartingPrice,
+                                    StartDay = ad.StartDay,
+                                    StartTime = ad.StartTime,
+                                    TimePerLap = ad.TimePerLap,
+                                    EndDay = ad.EndDay,
+                                    EndTime = ad.EndTime,
+                                    StatusAuction = a.StatusAuction == null ? "Not approved yet"
+                                                : a.StatusAuction == false ? "Reject"
+                                                : "Approved"
+                                };
+
+                    // Execute and return result
+                    return await query.OrderByDescending(o => o.ListAuctionID).ToListAsync();
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while retrieving the auctioneer: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
+            }
+        }
+
         public async Task<List<AuctionDetailDTO>> ListAuctioneerByUser(string id, int status)
         {
             try
@@ -852,8 +883,8 @@ namespace DataAccess.DAO
                     var result = await (from a in context.ListAuctions
                                         join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                         join c in context.Categorys on ad.CategoryID equals c.CategoryID
-                                        join d in context.FileAttachments on a.ListAuctionID equals d.ListAuctionID
-                                        join i in context.TImages on d.FileAID equals i.FileAID
+                                        //join d in context.FileAttachments on a.ListAuctionID equals d.ListAuctionID
+                                        join i in context.TImages on a.ListAuctionID equals i.ListAuctionID
                                         join m in context.AccountDetails
                                         on a.Manager equals m.AccountID into adGroup
                                         from m in adGroup.DefaultIfEmpty()
@@ -1032,7 +1063,10 @@ namespace DataAccess.DAO
                                 join ad in context.AuctionDetails on a.ListAuctionID equals ad.ListAuctionID
                                 join c in context.Categorys on ad.CategoryID equals c.CategoryID
                                 join u in context.AccountDetails on a.Creator equals u.AccountID
-                                where a.Manager == id || a.Manager == null
+                                join ac in context.AccountDetails on a.Manager equals ac.AccountID into acGroup
+                                from acd in acGroup.DefaultIfEmpty()
+                                where (a.Manager == id && (acd.CategoryId == null || acd.CategoryId == ad.CategoryID))
+                                || a.Manager == null
                                 select new AuctionDetailDTO
                                 {
                                     ListAuctionID = a.ListAuctionID,
@@ -1214,7 +1248,7 @@ namespace DataAccess.DAO
                                        join rd in context.RegistAuctioneers on a.ListAuctionID equals rd.ListAuctionID into rGroup
                                        from r in rGroup.DefaultIfEmpty() // left join
                                        join u in context.Accounts on r.AccountID equals u.Id into userGroup // sử dụng into để tạo nhóm
-                                       from u in userGroup.DefaultIfEmpty() // left join
+                                       from ud in userGroup.DefaultIfEmpty() // left join
                                        join adm in context.Accounts on a.Manager equals adm.Id
                                        join c in context.Accounts on a.Creator equals c.Id
                                        where a.ListAuctionID == Convert.ToInt32(id)
@@ -1230,16 +1264,16 @@ namespace DataAccess.DAO
                                                           where ra.ListAuctionID == a.ListAuctionID
                                                           orderby b.PriceBit descending
                                                           select acc.Email).FirstOrDefault(),
-
-                                           endTime = ConvertToDateTime(ad.EndDay, ad.EndTime),
-
+                                           endTime = ad.EndTime,
+                                           endDay = ad.EndDay,
                                            // Lấy giá đấu cao nhất
                                            Price = r.RAID != null ? (from b in context.Bets
                                                                      where b.RAID == r.RAID
                                                                      select b.PriceBit).OrderByDescending(x => x).FirstOrDefault() : 0,
-                                           Account = u,
+                                           Account = ud,
                                            Title = a,
                                            Admin = adm,
+                                           RAID = r.RAID,
                                            Auction = c
                                        }).FirstOrDefaultAsync();
 
@@ -1250,12 +1284,13 @@ namespace DataAccess.DAO
                             EmailAdmin = query.EmailAdmin,
                             AuctioneerEmail = query.AuctioneerEmail,
                             BidderEmail = query.BidderEmail,
-                            endTime = query.endTime,
+                            endTime = ConvertToDateTime(query.endDay, query.endTime),
                             Price = query.Price,
-                            AccountId = query.Account.Id,
+                            AccountId = query.Account?.Id,
                             Title = query.Title.NameAuction,
                             AccountAdminId = query.Admin.Id,
                             AccountAuctionId = query.Auction.Id,
+                            RAID = query.RAID,
                         };
                     }
 
@@ -1302,7 +1337,8 @@ namespace DataAccess.DAO
         {
             string combinedDateTime = $"{endDay} {endTime}";
 
-            if (DateTime.TryParseExact(combinedDateTime, "yyyy-MM-dd HH:mm:ss",
+            // Sử dụng định dạng phù hợp cho ngày và giờ
+            if (DateTime.TryParseExact(combinedDateTime, "dd/MM/yyyy HH:mm",
                                         System.Globalization.CultureInfo.InvariantCulture,
                                         System.Globalization.DateTimeStyles.None, out DateTime endDateTime))
             {
@@ -1401,6 +1437,83 @@ namespace DataAccess.DAO
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task<List<(string Day, int Count)>> Productstatistics()
+        {
+            using (var context = new ConnectDB())
+            {
+                var startOfWeek = StartOfWeek(DayOfWeek.Monday);
+                var endOfWeek = startOfWeek.AddDays(7);
+                // Lấy dữ liệu từ cơ sở dữ liệu và chuyển đổi thành danh sách (sử dụng ToListAsync để tải lên phía client).
+                var rawData = await context.AuctionDetails
+                    .Where(a => a.CreateDate >= startOfWeek && a.CreateDate <= endOfWeek)
+                    .ToListAsync(); // Chỉ lọc dữ liệu, chưa nhóm.
+
+                // Nhóm dữ liệu trên phía client.
+                var groupedData = rawData
+                    .GroupBy(a => a.CreateDate.DayOfWeek)
+                    .Select(g => new
+                    {
+                        Day = g.Key.ToString(), // Chuyển đổi DayOfWeek thành chuỗi.
+                        Count = g.Count()
+                    })
+                    .ToList(); // Chuyển kết quả thành danh sách.
+
+                // Chuyển đổi kết quả thành dạng tuple (Day, Count) để trả về.
+                return groupedData.Select(r => (Day: r.Day.Substring(0, 3), Count: r.Count)).ToList();
+            }
+        }
+
+        public async Task<List<(string Month, decimal Count)>> MonthlyIncomeStatistics()
+        {
+            using (var context = new ConnectDB())
+            {
+                // Lấy toàn bộ dữ liệu từ cơ sở dữ liệu, áp dụng AsEnumerable để thực hiện trên client.
+                var rawData = await context.Bets
+                    .Include(r => r.RegistAuctioneer)
+                    .ToListAsync();
+
+                // Lọc dữ liệu trên client để chỉ lấy các bản ghi trong khoảng từ đầu năm đến hiện tại.
+                var filteredData = rawData
+                    .Where(a => a.BidTime >= new DateTime(DateTime.Now.Year, 1, 1) && a.BidTime <= DateTime.Now)
+                    .ToList();
+
+                // Nhóm dữ liệu theo tháng và tính tổng thu nhập cho mỗi tháng.
+                var groupedData = filteredData
+                    .GroupBy(b => b.BidTime.Month) // Nhóm theo tháng.
+                    .Select(g => new
+                    {
+                        Month = g.Key, // Lấy tháng từ nhóm.
+                        TotalIncome = g.Sum(x => x.PriceBit) // Tính tổng thu nhập cho mỗi nhóm tháng.
+                    })
+                    .OrderBy(g => g.Month) // Sắp xếp theo thứ tự từ tháng 1 đến tháng 12.
+                    .ToList();
+
+                // Chuyển đổi kết quả thành dạng tuple (Month, TotalIncome) để trả về.
+                var result = groupedData
+                    .Select(r => (Month: GetMonthName(r.Month), Count: r.TotalIncome)) // Chuyển đổi tháng từ số thành tên tháng.
+                    .ToList();
+
+                return result;
+            }
+        }
+
+
+        public DateTime StartOfWeek(DayOfWeek startOfWeek)
+        {
+            var today = DateTime.Now;
+            int diff = today.DayOfWeek - startOfWeek;
+            if (diff < 0)
+            {
+                diff += 7;
+            }
+            return today.AddDays(-diff).Date;
+        }
+        private string GetMonthName(int monthNumber)
+        {
+            var months = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+            return months[monthNumber - 1]; 
         }
     }
 }

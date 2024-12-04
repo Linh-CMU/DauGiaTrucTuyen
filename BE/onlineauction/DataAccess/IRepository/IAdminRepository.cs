@@ -97,7 +97,18 @@ namespace DataAccess.IRepository
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         Task<ResponseDTO> listBidderInAuction(int id);
+        /// <summary>
+        /// Auctions the room admin.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         Task<AuctionRoomAdminDTO> AuctionRoomAdmin(int id);
+        /// <summary>
+        /// Productstatisticses this instance.
+        /// </summary>
+        /// <returns></returns>
+        Task<List<(string Day, int Count)>> Productstatistics();
+        Task<List<(string Month, decimal Count)>> MonthlyIncomeStatistics();
 
     }
 }

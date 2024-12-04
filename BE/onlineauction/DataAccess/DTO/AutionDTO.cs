@@ -9,6 +9,7 @@ namespace DataAccess.DTO
     public class AutionDTO
     {
         public int ListAuctionID { get; set; }
+        public string owner { get; set; }
         public string Image { get; set; }
         public string NameAuction { get; set; }
         public decimal moneyDeposit { get; set; }

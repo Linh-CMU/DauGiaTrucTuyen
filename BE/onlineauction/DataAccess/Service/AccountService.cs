@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -35,9 +36,9 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="sign">The sign.</param>
         /// <returns></returns>
-        public async Task<ResponseDTO> loginService(Login sign)
+        public async Task<ResponseDTO> loginService(Login sign, bool google = false)
         {
-            var login = await _accountRepository.LoginAsync(sign);
+            var login = await _accountRepository.LoginAsync(sign, google);
             return login;
         }
 
@@ -163,6 +164,17 @@ namespace DataAccess.Service
         public string GenerateNewJsonWebToken(string email, string role)
         {
             var result = _accountRepository.GenerateJwtToken(email, role);
+            return result;
+        }
+
+        public async Task<bool> checkLoginEmail(string email)
+        {
+            var result = await _accountRepository.checkLoginEmail(email);
+            return result;
+        }
+        public async Task<ResponseDTO> CreateGoogle(AddAccountDTO account)
+        {
+            var result = await _accountRepository.CreateGoogle(account);
             return result;
         }
     }

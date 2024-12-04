@@ -80,21 +80,21 @@ namespace DataAccess.DAO
         /// <param name="AuctioneerID">The auctioneer identifier.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task<DigitalSignature> GetFileAttachments(int AuctioneerID)
-        {
-            try
-            {
-                using (var context = new ConnectDB())
-                {
-                    var file = await context.FileAttachments.FirstOrDefaultAsync(f => f.ListAuctionID == AuctioneerID);
-                    return file;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        //public async Task<DigitalSignature> GetFileAttachments(int AuctioneerID)
+        //{
+        //    try
+        //    {
+        //        using (var context = new ConnectDB())
+        //        {
+        //            var file = await context.FileAttachments.FirstOrDefaultAsync(f => f.ListAuctionID == AuctioneerID);
+        //            return file;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
         /// <summary>
         /// Adds the image.
         /// </summary>

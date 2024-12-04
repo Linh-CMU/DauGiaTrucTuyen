@@ -16,6 +16,8 @@ namespace BusinessObject.Model
         public int PayID { get; set; }
         [ForeignKey("RegistAuction")]
         public int RAID { get; set; }
+        public bool Status { get; set; }
+        public string OrderCode { get; set; }
         public string PaymentType { get; set; }
         public string PaymentDate { get; set; }
         public virtual RegistAuction RegistAuctions { get; set; }

@@ -14,7 +14,6 @@ namespace DataAccess.DTO
         public string Description { get; set; }
         public decimal StartingPrice { get; set; }
         public int CategoryID { get; set; }
-        public IFormFile signatureImg { get; set; }
         public IFormFile image { get; set; }
     }
 }

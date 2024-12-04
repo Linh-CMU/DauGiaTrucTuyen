@@ -31,9 +31,9 @@ namespace DataAccess.Service
         /// </summary>
         /// <param name="adminRepository">The admin repository.</param>
         /// <param name="accountRepository">The account repository.</param>
-        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository, IAuctioneerRepository auctioneerRepository) 
+        public AdminService(IAdminRepository adminRepository, IAccountRepository accountRepository, IAuctioneerRepository auctioneerRepository)
         {
-            _adminRepository= adminRepository;
+            _adminRepository = adminRepository;
             _accountRepository = accountRepository;
             _auctioneerRepository = auctioneerRepository;
         }
@@ -236,6 +236,84 @@ namespace DataAccess.Service
             var result = await _adminRepository.listBidderInAuction(id);
             return result;
         }
+        public async Task<object> Productstatistics()
+        {
+            var rawData = await _adminRepository.Productstatistics();
+
+            var weekDays = new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+
+            var data = weekDays
+                .Select(day =>
+                {
+                    var item = rawData.FirstOrDefault(d => d.Day == day);
+                    return item.Equals(default) ? 0 : item.Count;
+                })
+                .ToList();
+
+            return new
+            {
+                labels = weekDays,
+                datasets = new[]
+                {
+                    new
+                    {
+                        label = "Daily Product Count",
+                        data = data,
+                        backgroundColor = "rgba(75, 192, 192, 0.6)"
+                    }
+                }
+            };
+        }
+
+        public async Task<object> MonthlyIncomeStatistics()
+        {
+            var rawData = await _adminRepository.MonthlyIncomeStatistics();
+
+            // Danh sách các tháng
+            var months = new List<string>
+                {
+                    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                };
+
+            // Tạo một ánh xạ từ tên tháng sang số tháng.
+            var monthMap = months.Select((month, index) => new { Month = month, MonthNumber = index + 1 })
+                                 .ToDictionary(m => m.Month, m => m.MonthNumber);
+
+            // Nhóm dữ liệu theo tháng và tính tổng thu nhập cho mỗi tháng.
+            var data = months
+                .Select(month =>
+                {
+                    if (!monthMap.TryGetValue(month, out int monthNumber))
+                        return 0; // Nếu tháng không có trong ánh xạ, trả về 0.
+
+                    // Tính tổng thu nhập cho tháng đó từ dữ liệu rawData.
+                    var totalCount = rawData
+                        .Where(d => monthMap.TryGetValue(d.Month, out int monthValue) && monthValue == monthNumber) // Chuyển đổi month từ chuỗi sang số và so sánh.
+                        .Sum(d => d.Count); // Giả sử 'Count' là trường lưu số tiền thu nhập.
+
+                    return totalCount;
+                })
+                .ToList();
+
+            // Trả về cấu trúc dữ liệu theo định dạng JSON.
+            return new
+            {
+                labels = months,
+                datasets = new[]
+                {
+            new
+            {
+                label = "Monthly Income",
+                data = data,
+                backgroundColor = "rgba(75, 192, 192, 0.6)"
+            }
+        }
+            };
+        }
+
+
+
+
         public async Task<ResponseDTO> ListAuctioneerByUser(string id, int status)
         {
             var result = await _auctioneerRepository.ListAuctioneerByUser(id, status);

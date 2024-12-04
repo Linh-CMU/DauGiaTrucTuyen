@@ -52,8 +52,13 @@ namespace BusinessObject.Context
                 .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<PlacingABid>()
                 .HasOne(b => b.RegistAuctioneer)
-                .WithMany(r => r.Bets)
+                .WithMany(r => r.PlacingABids)
                 .HasForeignKey(b => b.RAID);
+            modelBuilder.Entity<TImage>()
+                .HasOne(t => t.AuctionDetails)            // Navigation property
+                .WithMany(a => a.TImages)                 // Related collection
+                .HasForeignKey(t => t.ListAuctionID);     // Foreign key property
+
             modelBuilder.Entity<RegistAuction>()
                 .HasOne(b => b.ListAuctions)
                 .WithMany(r => r.RegistAuctions)
@@ -64,9 +69,9 @@ namespace BusinessObject.Context
                 .HasForeignKey(p => p.RAID)
                 .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<DigitalSignature>()
-                .HasOne(p => p.AuctionDetails)
-                .WithMany(r => r.FileAttachments)
-                .HasForeignKey(p => p.ListAuctionID)
+                .HasOne(p => p.AccountDetails)
+                .WithMany(r => r.DigitalSignatures)
+                .HasForeignKey(p => p.AccountID)
                 .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<ListAuction>()
                 .HasOne(p => p.CreatorAccount)
@@ -84,10 +89,10 @@ namespace BusinessObject.Context
                 .HasForeignKey(p => p.RAID)
                 .OnDelete(DeleteBehavior.NoAction);
             var adminRoleId = Guid.NewGuid().ToString();
-            //modelBuilder.Entity<IdentityRole>().HasData(
-            //  new IdentityRole { Id = adminRoleId, Name = "admin", NormalizedName = "ADMIN" },
-            //  new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "user", NormalizedName = "USER" }
-            //  );
+            modelBuilder.Entity<IdentityRole>().HasData(
+              new IdentityRole { Id = adminRoleId, Name = "admin", NormalizedName = "ADMIN" },
+              new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "user", NormalizedName = "USER" }
+              );
         }
     }
 }

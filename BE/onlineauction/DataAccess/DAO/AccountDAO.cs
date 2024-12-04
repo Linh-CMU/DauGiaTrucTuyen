@@ -107,6 +107,25 @@ namespace DataAccess.DAO
                 using (var context = new ConnectDB())
                 {
                     accountDetail = await context.AccountDetails.FirstOrDefaultAsync(a => a.AccountID == accountID);
+
+                    return accountDetail;
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<DigitalSignature> getSignature(string accountID)
+        {
+            DigitalSignature accountDetail = null;
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    accountDetail = await context.FileAttachments.FirstOrDefaultAsync(a => a.AccountID == accountID);
+
                     return accountDetail;
                 }
             }
@@ -224,6 +243,7 @@ namespace DataAccess.DAO
                         user.EmailConfirmed = true; // Mark the email as confirmed
                         user.Status = false;
                         _context.Entry(user).State = EntityState.Modified;
+                        _context.UserOtp.Remove(otpRecord);
                         await _context.SaveChangesAsync();
                     }
                     otpRecord.Attempts++;

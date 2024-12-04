@@ -206,9 +206,8 @@ namespace DataAccess.DAO
             using (var context = new ConnectDB())
             {
                 var result = await (from r in context.RegistAuctioneers
-                                    join b in context.Bets on r.RAID equals b.RAID
                                     where r.AccountID == userid && r.ListAuctionID == id
-                                    select r.ListAuctionID)
+                                    select r.RAID)
                                 .FirstOrDefaultAsync();  // Get the top 1 record
 
                 return result;
@@ -240,13 +239,13 @@ namespace DataAccess.DAO
                     {
                         // Existing bet found, so update it
                         bet.PriceBit = check.ListAuction.StartingPrice + price;
-                        bet.BidTime = DateTime.Now.ToString("dd/MM/yyyy : HH:mm:ss");
+                        bet.BidTime = DateTime.Now;
                         context.Bets.Add(bet);  // Add the new bet
                     }
                     else
                     {
                         bet.PriceBit = bet.PriceBit + price;
-                        bet.BidTime = DateTime.Now.ToString("dd/MM/yyyy : HH:mm:ss");
+                        bet.BidTime = DateTime.Now;
                         context.Bets.Add(bet);  // Add the new bet
                     }
                     await context.SaveChangesAsync();
@@ -262,15 +261,15 @@ namespace DataAccess.DAO
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<ResponseDTO> UpdatePayment(int id, string status)
+        public async Task<ResponseDTO> UpdatePayment(string id, string status)
         {
             try
             {
                 using (var context = new ConnectDB())
                 {
                     // Tìm kiếm các bản ghi tương ứng với `RAID` trong hai bảng
-                    var re = await context.RegistAuctioneers.FirstOrDefaultAsync(rg => rg.RAID == id);
-                    var find = await context.Deposits.FirstOrDefaultAsync(rg => rg.RAID == id);
+                    var find = await context.Deposits.FirstOrDefaultAsync(rg => rg.DID == id);
+                    var re = await context.RegistAuctioneers.FirstOrDefaultAsync(rg => rg.RAID == find.RAID);
 
                     // Kiểm tra trạng thái "cancel" và thực hiện xóa nếu phù hợp
                     if (status == "cancel")
@@ -289,7 +288,17 @@ namespace DataAccess.DAO
                     }
                     else
                     {
-                        // Trả về thông báo nếu không tìm thấy bản ghi
+                        var pay = await context.Payments.FirstOrDefaultAsync(p => p.OrderCode == id);
+                        if(status == "cancel")
+                        {
+                            context.Payments.Remove(pay);
+                        }
+                        else
+                        {
+                            pay.Status = true;
+                            context.Entry(pay).State = EntityState.Modified;
+                        }
+                        await context.SaveChangesAsync();
                         return new ResponseDTO { IsSucceed = false, Message = "Record not found" };
                     }
                 }
@@ -368,7 +377,7 @@ namespace DataAccess.DAO
                                     ID = b.PlacingABidID,
                                     userId = r.AccountID,
                                     Price = b.PriceBit,
-                                    DateAndTime = b.BidTime
+                                    DateAndTime = b.BidTime.ToString("dd/MM/yyyy HH:mm")
                                 };
                     return await query.OrderByDescending(o => o.ID).ToListAsync();
                 }
@@ -508,7 +517,7 @@ namespace DataAccess.DAO
                     var query = (from r in context.RegistAuctioneers
                                  where r.ListAuctionID == id
                                  select r).FirstOrDefault();
-                    query.PaymentTerm = DateTime.UtcNow.AddDays(2).ToString();
+                    query.PaymentTerm = DateTime.UtcNow.AddDays(1).ToString();
                     context.Entry(query).State = EntityState.Modified;
                     context.SaveChangesAsync();
                 }
@@ -536,7 +545,7 @@ namespace DataAccess.DAO
                 {
                     var query = (from r in context.RegistAuctioneers
                                  join p in context.Payments on r.RAID equals p.RAID
-                                 where r.RAID == id
+                                 where r.RAID == id && p.Status == true
                                  select r).FirstOrDefault();
                     if (query == null)
                     {
@@ -574,6 +583,12 @@ namespace DataAccess.DAO
                         context.Entry(account).State = EntityState.Modified;
                         query.AuctionStatus = false;
                         context.Entry(query).State = EntityState.Modified;
+                        var search = context.Bets.Where(a => a.RAID == id).ToList();
+                        foreach(var item in search)
+                        {
+                            var plac = context.Bets.FirstOrDefault(a => a.PlacingABidID== item.PlacingABidID);
+                            context.Bets.Remove(plac);
+                        }
                         await context.SaveChangesAsync();
                         if (account.Warning >= 3)
                         {
@@ -703,6 +718,22 @@ namespace DataAccess.DAO
                 using (var context = new ConnectDB())
                 {
                     context.Deposits.Add(deposit);
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public async Task<bool> Payment(Payment deposit)
+        {
+            try
+            {
+                using (var context = new ConnectDB())
+                {
+                    context.Payments.Add(deposit);
                     await context.SaveChangesAsync();
                     return true;
                 }
