@@ -292,11 +292,19 @@ const AuctionDetail = () => {
     },
     {
       label: 'Thời gian đăng kí tham gia',
-      value: `Từ ${detailAuction.startTime} ${detailAuction.startDay} đến ${detailAuction.endTime} ${detailAuction.endDay}`,
+      value: `${detailAuction.startTime} ${detailAuction.startDay}`,
+    },
+    {
+      label: '',
+      value: `${detailAuction.endTime} ${detailAuction.endDay}`,
     },
     {
       label: 'Thời gian bắt đầu đấu giá',
-      value: `Từ ${detailAuction.endTime} ${detailAuction.endDay} đến ${calculateNewEndTime(detailAuction.endTime, detailAuction.timePerLap)} ${detailAuction.endDay}`,
+      value: `${detailAuction.endTime} ${detailAuction.endDay}`,
+    },
+    {
+      label: '',
+      value: `${calculateNewEndTime(detailAuction.endTime, detailAuction.timePerLap)} ${detailAuction.endDay}`,
     },
     { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
     { label: 'Phương thức trả giá', value: detailAuction.paymentMethod },
@@ -316,7 +324,7 @@ const AuctionDetail = () => {
               <img
                 src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.image}`}
                 alt={detailAuction.nameAuction}
-                className="object-cover w-full h-full"
+                className="object-cover w-full h-full mt-[10%]"
               />
             </Box>
           </Grid>

@@ -77,17 +77,17 @@ const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch
   return (
     <>
       <Typography variant="h5" component="h2" fontWeight="bold">
-        TÀI SẢN ĐẤU GIÁ
+        AUCTION ASSETS
       </Typography>
       <div>
         <TabContext value={value}>
           <Box>
             <StyledTabList onChange={handleChange} aria-label="lab">
-              <Tab label="Tất cả" value="0" />
-              <Tab label="Đang diễn ra" value="1" />
-              <Tab label="Sắp diễn ra" value="2" />
-              <Tab label="Đã kết thúc" value="3" />
-              <Tab label="Đã đăng ký" value="4" />
+              <Tab label="ALL" value="0" />
+              <Tab label="In progress" value="1" />
+              <Tab label="Coming soon" value="2" />
+              <Tab label="Ended" value="3" />
+              <Tab label="Registered" value="4" />
             </StyledTabList>
           </Box>
           <TabPanel value={value}>

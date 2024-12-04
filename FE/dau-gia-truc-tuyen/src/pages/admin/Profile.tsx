@@ -109,7 +109,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    họ và tên
+                    full name
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -127,7 +127,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-gender"
                   >
-                    Giới tính
+                    gender
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -145,7 +145,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ngày sinh
+                    birthdate
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -262,7 +262,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    địa chỉ nhà
+                    address
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -281,7 +281,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    số điện thoại
+                    phone
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -299,7 +299,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    hộ khẩu thường trú
+                    permanent residence
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border  border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -321,7 +321,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ảnh CMND/CCCD
+                    ID card/CCCD photo
                   </label>
                 </div>
               </div>
@@ -356,7 +356,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Nơi cấp:
+                    Place of issue:
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
@@ -374,7 +374,7 @@ const Profile = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
                   >
-                    Ngày Cấp
+                    Date of Issue
                   </label>
                   <input
                     className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
