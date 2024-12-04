@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 const NewsList = () => {
   const cards = Array.from({ length: 34 }, (_, index) => ({
     id: index + 1, // Assuming the id is just the index + 1
-  }));
+   }));
 
   const [currentPage, setCurrenPage] = useState(1);
   const pageSize = 4;

@@ -5,6 +5,7 @@ import { profileResponse } from '../../types/auth.type';
 import { profileUser } from '../../queries/AdminAPI';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { HeaderContainer } from './HeaderTop.styles';
+import { getListNotification } from '@queries/AuctionAPI';
 
 const HeaderTop1 = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const HeaderTop1 = () => {
   const [isProfileMenu, setIsProfileMenu] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
   const [profile, setProfile] = useState<profileResponse | null>();
+
   const getRole = () => {
     const role = localStorage.getItem('role');
     return role;
@@ -83,6 +85,29 @@ const HeaderTop1 = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+
+  const handleNotificationClick = (event : any) => {
+    setNotificationAnchorEl(event.currentTarget);
+    setNotificationOpen(!notificationOpen);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
+    setNotificationOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchNotifi = async () => {
+      try {
+        const userData = await getListNotification();
+        setNotifications(userData.result);
+      } catch (error) {}
+    };
+    fetchNotifi();
+  }, []);
   return (
     <HeaderContainer className="fixed top-0 z-10">
       <div className="mx-auto px-2 sm:px-6 lg:px-8 w-full items-center">
