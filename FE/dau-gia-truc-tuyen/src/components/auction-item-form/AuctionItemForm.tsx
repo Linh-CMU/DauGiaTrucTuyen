@@ -61,12 +61,37 @@ const AuctionItemForm: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 4, height: '100%', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3, top: '10', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Box sx={{ maxWidth: 600, width: '100%' }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#3f51b5', textAlign:'center', paddingBottom:'10px', marginTop:'50px'}}>
-          Create Auction Item
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit(onSubmits)} noValidate autoComplete="off">
+    <Box
+  sx={{
+    p: 4,
+    height: '100%',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 2,
+    boxShadow: 3,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  <Box sx={{ maxWidth: 1200, width: '100%' }}>
+    <Typography
+      variant="h6"
+      gutterBottom
+      sx={{
+        fontWeight: 'bold',
+        color: '#3f51b5',
+        textAlign: 'center',
+        paddingBottom: '10px',
+        marginTop: '50px',
+        marginBottom: '50px',
+      }}
+    >
+      Create Auction Item
+    </Typography>
+    <Box component="form" onSubmit={handleSubmit(onSubmits)} noValidate autoComplete="off">
+      <Grid container spacing={4}>
+        {/* Bên trái - Input Fields */}
+        <Grid item xs={6}>
           <Grid container spacing={3}>
             {/* Name Auction */}
             <Grid item xs={12}>
@@ -84,7 +109,6 @@ const AuctionItemForm: React.FC = () => {
                     sx={{
                       borderRadius: 1,
                       boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
                     }}
                   />
                 )}
@@ -109,7 +133,6 @@ const AuctionItemForm: React.FC = () => {
                     sx={{
                       borderRadius: 1,
                       boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
                     }}
                   />
                 )}
@@ -133,7 +156,6 @@ const AuctionItemForm: React.FC = () => {
                     sx={{
                       borderRadius: 1,
                       boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
                     }}
                   />
                 )}
@@ -158,7 +180,6 @@ const AuctionItemForm: React.FC = () => {
                     sx={{
                       borderRadius: 1,
                       boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
                     }}
                   >
                     {listCategory.map((category) => (
@@ -170,10 +191,15 @@ const AuctionItemForm: React.FC = () => {
                 )}
               />
             </Grid>
+          </Grid>
+        </Grid>
 
+        {/* Bên phải - Upload Hình ảnh */}
+        <Grid item xs={6}>
+          <Grid container spacing={3}>
             {/* Image Auction */}
-            <Grid item xs={4}>
-              <Typography variant="subtitle1" gutterBottom>
+            <Grid item xs={6} sx={{ padding: '10px' }}>
+              <Typography variant="subtitle1" gutterBottom sx={{ fontSize: 12, fontWeight: 'bold'}}>
                 Image Auction
               </Typography>
               <Controller
@@ -181,14 +207,15 @@ const AuctionItemForm: React.FC = () => {
                 control={control}
                 rules={{ required: 'Image is required' }}
                 render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewImageAuction)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
+                  <div
+                    onClick={() => handleImageClick(field, setPreviewImageAuction)}
+                    className="w-[280px] h-[200px] cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100"
+                  >
+                    <img
                       style={{ height: '200px' }}
-                      src={previewImageAuction ? previewImageAuction : avt} 
-                      alt="Image Auction Preview" 
-                      className="w-full h-full object-cover rounded" 
+                      src={previewImageAuction ? previewImageAuction : avt}
+                      alt="Image Auction Preview"
+                      className="w-full h-full object-cover rounded"
                     />
                   </div>
                 )}
@@ -196,62 +223,45 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Image Verification */}
-            <Grid item xs={4}>
-              <Typography variant="subtitle1" gutterBottom>
+            <Grid item xs={6} >
+              <Typography variant="subtitle1" gutterBottom sx={{ fontSize: 12, fontWeight: 'bold'}}>
                 Image Verification
               </Typography>
               <Controller
                 name="imageVerification"
                 control={control}
                 render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewImageVerification)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
+                  <div
+                    onClick={() => handleImageClick(field, setPreviewImageVerification)}
+                    className="w-[280px] h-[200px] cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100"
+                  >
+                    <img
                       style={{ height: '200px' }}
-                      src={previewImageVerification ? previewImageVerification : avt} 
-                      alt="Image Verification Preview" 
-                      className="w-full h-full object-cover rounded" 
+                      src={previewImageVerification ? previewImageVerification : avt}
+                      alt="Image Verification Preview"
+                      className="w-full h-full object-cover rounded"
                     />
                   </div>
                 )}
               />
-            </Grid>
-
-            {/* Signature Image */}
-            <Grid item xs={4}>
-              <Typography variant="subtitle1" gutterBottom>
-                Signature Image
-              </Typography>
-              <Controller
-                name="signatureImg"
-                control={control}
-                render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewSignatureImg)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
-                      style={{ height: '200px' }}
-                      src={previewSignatureImg ? previewSignatureImg : avt} 
-                      alt="Signature Image Preview" 
-                      className="w-full h-full object-cover rounded" 
-                    />
-                  </div>
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center',marginTop:'40px', marginBottom:'50px' }}>
-              <Button type="submit" variant="contained" color="primary">Create Auction Item</Button>
             </Grid>
           </Grid>
-        </Box>
+        </Grid>
+      </Grid>
 
-        {formData && (
-          <ContractModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} />
-        )}
-      </Box>
+      {/* Nút Submit */}
+      <Grid container justifyContent="center" sx={{ marginTop: 10, marginBottom:6 }}>
+        <Button type="submit" variant="contained" color="primary">
+          Create Auction Item
+        </Button>
+      </Grid>
     </Box>
+
+    {formData && (
+      <ContractModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} />
+    )}
+  </Box>
+</Box>
   );
 };
 

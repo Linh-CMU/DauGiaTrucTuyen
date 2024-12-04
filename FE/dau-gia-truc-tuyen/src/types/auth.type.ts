@@ -24,6 +24,7 @@ export interface Account {
   district: string;
   address: string;
   status: boolean;
+  avatar: string;
 }
 
 export interface cityResponse {

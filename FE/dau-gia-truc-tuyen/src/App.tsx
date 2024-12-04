@@ -6,7 +6,6 @@ import ProtectedRoute from '@common/protected-route/ProtectedRoute';
 import { LoadingProvider, useLoading } from '@contexts/LoadingContext';
 import { MessageProvider } from '@contexts/MessageContext';
 import AddInfo from '@pages/Admin/AddInfo';
-import ListAccountPage from '@pages/Admin/ListAccountPage';
 import Profile from '@pages/Admin/Profile';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
@@ -35,6 +34,7 @@ import {
   AuctionRoom,
 } from '@pages/index';
 import Updateprofile from '@pages/UpdateProfile';
+import ListAccountPage from '@pages/Admin/ListAccountPage';
 
 const AppRoutes: React.FC = () => {
   const { isLoading } = useLoading();
