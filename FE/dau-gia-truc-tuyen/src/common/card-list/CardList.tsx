@@ -32,18 +32,14 @@ const CardList = ({
   isApproved,
   url,
   description,
-  link
+  link,
 }: CardListProps) => {
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    if(isProperties){
-      if(url === 'thong-tin-chi-tiet'){
-        navigate(`/${url}/${id}`);
-      }else if(url === 'phien-dau-gia' && isEndTimePassed(endTime, endDay)){
-        navigate(`/${url}/${id}`);
-      }
-    }else {
+    if (isProperties) {
+      navigate(`/${url}/${id}`);
+    } else {
       window.open(link, '_blank');
     }
   };
@@ -97,7 +93,10 @@ const CardList = ({
         <div className="group hover:cursor-pointer relative" onClick={handleDetailClick}>
           {/* Overlay trạng thái "approved" */}
           {isApproved && (
-            <div className="absolute top-2 left-2 bg-green-600 text-white font-semibold px-2 py-1 rounded" style={{zIndex : '2'}}>
+            <div
+              className="absolute top-2 left-2 bg-green-600 text-white font-semibold px-2 py-1 rounded"
+              style={{ zIndex: '2' }}
+            >
               {isApproved}
             </div>
           )}
@@ -132,18 +131,15 @@ const CardList = ({
       </div>
 
       <div className="p-4">
-        <h2 className="text-gray-900 font-semibold text-lg line-clamp-2">
-          {title}
-        </h2>
+        <h2 className="text-gray-900 font-semibold text-lg line-clamp-2">{title}</h2>
         {description ? (
           <p className="mt-2 text-gray-600 line-clamp-3 min-h-28">{description}</p>
-        )
-        : (
+        ) : (
           <p className="mt-2 text-gray-600">
-          <span className="text-black font-bold">{renderPrice() || '36.000.000 VNĐ'}</span>
+            <span className="text-black font-bold">{renderPrice() || '36.000.000 VNĐ'}</span>
           </p>
         )}
-        
+
         {url === 'phien-dau-gia' && !isEndTimePassed(endTime, endDay) ? (
           <></>
         ) : (

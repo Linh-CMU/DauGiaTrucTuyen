@@ -56,6 +56,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const [currentPrice, setCurrentPrice] = useState(0);
   const [roomAuctionDetails, setRoomAuctionDetails] = useState<RoomAuctionDetails | null>(null);
   const [isTimeOut, setIsTimeOut] = useState(false);
+  const [close, setClose] = useState(true);
   const [timeRound, setTimeRound] = useState('');
   const [bidStep, setBidStep] = useState(0);
   const { id } = useParams<{ id: string }>();
@@ -64,10 +65,9 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   //   startDay: roomAuctionDetails?.startDay || '',
   //   startTime: roomAuctionDetails?.startTime || '',
   // });
-    const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate('/'); // Redirect to the home page
+    setClose(false);
   };
 
   const calculateFinalTime = (
@@ -151,7 +151,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setBidHistory(data);
-      setCurrentPrice(data[0]?.Price);
+      setCurrentPrice(data[0]?.Price ?? auctionDetailInfor?.startingPrice);
     };
 
     return () => {
@@ -333,7 +333,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
       </div>
     </div>
      <Modal
-        open={isTimeOut}
+        open={isTimeOut && close}
         onClose={()=> setIsTimeOut(!isTimeOut)}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -351,7 +351,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
           sx={{ mt: 2 }}
           onClick={handleGoHome}
         >
-          Quay lại trang chủ
+          Close
         </Button>
         </Box>
       </Modal>

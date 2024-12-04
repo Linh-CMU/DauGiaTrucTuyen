@@ -1,16 +1,15 @@
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { getCategory, submitAuctionForm } from '../../queries/index';
+import { getCategory } from '../../queries/index';
 import ContractModal, { AuctionItemFormData } from '../modal-contract/ContractModal';
-import avt from '../../../public/2937095.png'
+import avt from '../../../public/2937095.png';
 
 const AuctionItemForm: React.FC = () => {
-
   const [listCategory, setCategory] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Lấy danh sách danh mục
+  // Fetch categories
   const fetchListCategory = async () => {
     try {
       const response = await getCategory();
@@ -60,13 +59,13 @@ const AuctionItemForm: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 4, height: '100%', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3, top: '10', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Box sx={{ maxWidth: 600, width: '100%' }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#3f51b5', textAlign:'center', paddingBottom:'10px', marginTop:'50px'}}>
+    <Box sx={{ p: 4, marginTop : '46px', backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <Box sx={{ maxWidth: 700, width: '100%' }}>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#3f51b5', textAlign: 'center', mb: 4 }}>
           Create Auction Item
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmits)} noValidate autoComplete="off">
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {/* Name Auction */}
             <Grid item xs={12}>
               <Controller
@@ -80,11 +79,7 @@ const AuctionItemForm: React.FC = () => {
                     fullWidth
                     error={!!errors.nameAuction}
                     helperText={errors.nameAuction?.message}
-                    sx={{
-                      borderRadius: 1,
-                      boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
-                    }}
+                    sx={{ borderRadius: 1 }}
                   />
                 )}
               />
@@ -105,18 +100,14 @@ const AuctionItemForm: React.FC = () => {
                     fullWidth
                     error={!!errors.description}
                     helperText={errors.description?.message}
-                    sx={{
-                      borderRadius: 1,
-                      boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
-                    }}
+                    sx={{ borderRadius: 1 }}
                   />
                 )}
               />
             </Grid>
 
             {/* Starting Price */}
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Controller
                 name="startingPrice"
                 control={control}
@@ -129,18 +120,14 @@ const AuctionItemForm: React.FC = () => {
                     fullWidth
                     error={!!errors.startingPrice}
                     helperText={errors.startingPrice?.message}
-                    sx={{
-                      borderRadius: 1,
-                      boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
-                    }}
+                    sx={{ borderRadius: 1 }}
                   />
                 )}
               />
             </Grid>
 
             {/* Category */}
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Controller
                 name="categoryID"
                 control={control}
@@ -154,11 +141,7 @@ const AuctionItemForm: React.FC = () => {
                     error={!!errors.categoryID}
                     helperText={errors.categoryID?.message}
                     disabled={loading}
-                    sx={{
-                      borderRadius: 1,
-                      boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-                      '.MuiInputBase-input': { padding: 1.5 },
-                    }}
+                    sx={{ borderRadius: 1 }}
                   >
                     {listCategory.map((category) => (
                       <MenuItem key={category.categoryID} value={category.categoryID}>
@@ -170,8 +153,8 @@ const AuctionItemForm: React.FC = () => {
               />
             </Grid>
 
-            {/* Image Auction */}
-            <Grid item xs={6}>
+            {/* Images */}
+            <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Auction
               </Typography>
@@ -180,22 +163,31 @@ const AuctionItemForm: React.FC = () => {
                 control={control}
                 rules={{ required: 'Image is required' }}
                 render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewImageAuction)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
-                      style={{ height: '200px' }}
-                      src={previewImageAuction ? previewImageAuction : avt} 
-                      alt="Image Auction Preview" 
-                      className="w-full h-full object-cover rounded" 
+                  <Box
+                    onClick={() => handleImageClick(field, setPreviewImageAuction)}
+                    sx={{
+                      height: 200,
+                      border: '1px dashed #ccc',
+                      borderRadius: 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      backgroundColor: '#f5f5f5',
+                    }}
+                  >
+                    <img
+                      src={previewImageAuction || avt}
+                      alt="Image Auction Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                  </div>
+                  </Box>
                 )}
               />
             </Grid>
 
-            {/* Image Verification */}
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" gutterBottom>
                 Image Verification
               </Typography>
@@ -203,22 +195,37 @@ const AuctionItemForm: React.FC = () => {
                 name="imageVerification"
                 control={control}
                 render={({ field }) => (
-                  <div 
-                    onClick={() => handleImageClick(field, setPreviewImageVerification)} 
-                    className="w-full h-full cursor-pointer border border-gray-300 rounded flex items-center justify-center bg-gray-100">
-                    <img 
-                      style={{ height: '200px' }}
-                      src={previewImageVerification ? previewImageVerification : avt} 
-                      alt="Image Verification Preview" 
-                      className="w-full h-full object-cover rounded" 
+                  <Box
+                    onClick={() => handleImageClick(field, setPreviewImageVerification)}
+                    sx={{
+                      height: 200,
+                      border: '1px dashed #ccc',
+                      borderRadius: 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      backgroundColor: '#f5f5f5',
+                    }}
+                  >
+                    <img
+                      src={previewImageVerification || avt}
+                      alt="Image Verification Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                  </div>
+                  </Box>
                 )}
               />
             </Grid>
-            
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center',marginTop:'40px', marginBottom:'50px' }}>
-              <Button type="submit" variant="contained" color="primary">Create Auction Item</Button>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Box sx={{ textAlign: 'center', mt: 3 }}>
+                <Button type="submit" variant="contained" color="primary">
+                  Create Auction Item
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </Box>

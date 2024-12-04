@@ -19,7 +19,7 @@ const CancelPage = () => {
       const updatePaymentStatus = async () => {
         try {
           if (id && status === 'CANCELLED') {
-            await UpdatePayment(Number(id), 'cancel');
+            await UpdatePayment(id, 'cancel');
           }
         } catch (error) {
           console.error('Lỗi khi cập nhật trạng thái thanh toán', error);
