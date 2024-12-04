@@ -62,6 +62,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   const [currentPrice, setCurrentPrice] = useState(0);
   const [roomAuctionDetails, setRoomAuctionDetails] = useState<RoomAuctionDetails | null>(null);
   const [isTimeOut, setIsTimeOut] = useState(false);
+  const [close, setClose] = useState(true);
   const [timeRound, setTimeRound] = useState('');
   const [bidStep, setBidStep] = useState(0);
   const { id } = useParams<{ id: string }>();
@@ -70,7 +71,15 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
   //   startDay: roomAuctionDetails?.startDay || '',
   //   startTime: roomAuctionDetails?.startTime || '',
   // });
-  const calculateFinalTime = (endTime: string, endDay: string): Date => {
+
+  const handleGoHome = () => {
+    setClose(false);
+  };
+
+  const calculateFinalTime = (
+    endTime: string,
+    endDay: string
+  ): Date => {
     const [endHours, endMinutes] = endTime.split(':').map(Number); // Tách giờ và phút từ endTime
 
     const endDate = new Date(endDay); // Tạo đối tượng Date từ endDay
@@ -139,7 +148,7 @@ const AuctionRoom: React.FC<AuctionRoomProps> = ({ auctionDetailInfor }) => {
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setBidHistory(data);
-      setCurrentPrice(data[0]?.Price);
+      setCurrentPrice(data[0]?.Price ?? auctionDetailInfor?.startingPrice);
     };
 
     return () => {

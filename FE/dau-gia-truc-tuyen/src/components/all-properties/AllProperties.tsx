@@ -63,8 +63,11 @@ const AllProperties = ({ listAllAuction, value }: AllPropertiesProps) => {
             priceStart={card.priceStart}
             startDay={card.startDay}
             targetDate={targetDate}
-            url={value}
-          />
+            url={value} 
+            isApproved={''}
+            description={''}
+            link={''}
+            />
         );
       })}
     </div>

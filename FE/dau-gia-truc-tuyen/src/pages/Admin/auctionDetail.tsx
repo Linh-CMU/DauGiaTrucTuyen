@@ -60,7 +60,7 @@ const AuctionDetail = () => {
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
-      const response = await approveAuction(Number(id), true, price, totalTime);
+      const response = await approveAuction(Number(id), true, totalTime);
       if (response.isSucceed) {
         fetchDetailAuction();
         alert('Bạn đã phê duyệt thành công');
@@ -73,7 +73,7 @@ const AuctionDetail = () => {
   };
   const handleModalReject = async () => {
     if (id) {
-      const response = await approveAuction(Number(id), false, price, '00:00');
+      const response = await approveAuction(Number(id), false, '00:00');
       if (response.isSucceed) {
         fetchDetailAuction();
         alert('Bạn đã từ chối với đơn hàng đấu giá này');
@@ -94,13 +94,16 @@ const AuctionDetail = () => {
   const handleClosepopup = () => {
     setSwith(false); // Close cancel modal
   };
+  const formatMoney = (int: number) => {
+    return new Intl.NumberFormat('vi-VN').format(int ?? 0);
+  };
   useEffect(() => {
     const socket = new WebSocket(`ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${id}`);
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setBidHistory(data);
-      setCurrentPrice(data[0]?.Price);
+      setCurrentPrice(data[0]?.Price ?? detailAuction?.startingPrice);
     };
 
     return () => {
@@ -300,7 +303,7 @@ const AuctionDetail = () => {
   ];
 
   return (
-    <Box className="relative h-[150vh] mt-16">
+    <Box className="relative h-[100%] mt-16">
       <Box className="flex items-center justify-center">
         <Typography className="pt-4 pl-4 text-yellow-700">Trang chủ</Typography>
         <span className="pl-2 pr-2 pt-3">|</span>
@@ -348,7 +351,7 @@ const AuctionDetail = () => {
                           <>
                             <div
                               className={`flex justify-between w-full items-center mb-2 mt-2 ${
-                                index % 2 === 0 ? 'text-green-600' : 'text-blue-600'
+                                index === 0 ? 'text-green-600' : 'text-red-600'
                               }`}
                             >
                               <div>
@@ -364,9 +367,18 @@ const AuctionDetail = () => {
                         ))}
                       </div>
                     </div>
-                    <button className="bg-green-600" onClick={() => setSwith(false)}>
-                      Back
-                    </button>
+                    <div className=' mt-3 ml-4 mr-5'>
+                      <div className="flex justify-between w-full">
+                        <p>Giá hiện tại</p>
+                        <span>{formatMoney(currentPrice)} VNĐ</span>
+                      </div>
+                      <div className="h-[2px] w-full bg-gray-200"></div>
+                    </div>
+                    <div className="ml-[90%] mt-5">
+                      <button className="bg-green-600" onClick={() => setSwith(false)}>
+                        Back
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -376,10 +388,6 @@ const AuctionDetail = () => {
                       <InfoRow key={index} label={item.label} value={item.value} />
                     ))}
                     <Box className="pt-3 flex justify-end h-14 mr-24">
-                      <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
-                        ReUp
-                      </button>
-
                       {detailAuction.statusAuction == 'Approved' ? (
                         <>
                           <button
@@ -406,7 +414,10 @@ const AuctionDetail = () => {
                       <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
                         Tải file thông tin
                       </button>
-                      <button className="bg-blue-600" onClick={() => setSwith(true)}>
+                      <button
+                        className="bg-blue-600 text-white px-2 py-1 rounded mr-2"
+                        onClick={() => setSwith(true)}
+                      >
                         Join Room
                       </button>
                       <button
@@ -424,7 +435,7 @@ const AuctionDetail = () => {
             </div>
           </Grid>
         </Grid>
-        <Box className="h-[40vh] w-full justify-center mt-5">
+        <Box className="h-[40%] w-full justify-center mt-5 mb-2">
           <Typography className="text-center px-4" variant="h5" component="h2" fontWeight="bold">
             {detailAuction.nameAuction}
           </Typography>
@@ -444,7 +455,7 @@ const AuctionDetail = () => {
                   <img
                     src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.signatureImg}`}
                     alt={detailAuction.signatureImg}
-                    className="absolute ml-[9%] h-[28%] pt-3"
+                    className="absolute ml-[11%] h-[18%] pt-3"
                   />
                 </Box>
               </Grid>
@@ -456,7 +467,7 @@ const AuctionDetail = () => {
                   <img
                     src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.tImange.imange}`}
                     alt={detailAuction.tImange.imange}
-                    className="absolute ml-[18%] h-[28%] pt-3"
+                    className="absolute ml-[22%] h-[18%] pt-3"
                   />
                 </Box>
               </Grid>
