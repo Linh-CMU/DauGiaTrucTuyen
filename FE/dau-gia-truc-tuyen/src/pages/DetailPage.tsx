@@ -5,12 +5,13 @@ import { CarouselDetail, DetailInformation, DetailContent } from '@components/pr
 import AuctionRoom from '@components/auction-room/AuctionRoom';
 import { getDetailAuction, profileUser } from '../queries/index';
 import { AuctionDetails, Account } from 'types';
+import { Button } from '@mui/material';
 
 const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [auctionDetailInfor, setAuctionDetailInfor] = useState<AuctionDetails | null>(null);
   const [userProfile, setUserProfile] = useState<Account | null>(null);
-  const currentPath = window?.location?.pathname;
+  const [ switchdetail, setSwitchdetail ] = useState(false);
 
   useEffect(() => {
     const fetchListAuction = async () => {
@@ -34,16 +35,18 @@ const DetailPage = () => {
     fetchData();
   }, []);
 
+  console.log(switchdetail,"JOIN THE AUCTION")
+
   return (
    <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
     {auctionDetailInfor && (
       <div className="flex gap-6 max-w-1/2">
         <CarouselDetail imgList={auctionDetailInfor.image} />
         <div className="col-span-2 w-full">
-          {currentPath.includes("phien-dau-gia") ? (
+          {switchdetail ? (
             <AuctionRoom auctionDetailInfor={auctionDetailInfor} />
           ) : (
-            <DetailInformation auctionDetailInfor={auctionDetailInfor} />
+            <DetailInformation auctionDetailInfor={auctionDetailInfor} setSwitchdetail={setSwitchdetail}/>
           )}
         </div>
       </div>

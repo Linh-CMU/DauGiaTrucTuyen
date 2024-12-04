@@ -14,6 +14,7 @@ interface profileResponse {
   address: string;
   avatar: string;
   frontCCCD: string;
+  signature: string;
   backsideCCCD: string;
   gender: boolean;
   birthdate: string;
@@ -385,27 +386,52 @@ const Profile = () => {
                   />
                 </div>
               </div>
-              <div className="flex flex-wrap -mx-3 mb-6">
-                <div className="w-full  px-3 mb-6 md:mb-0">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-first-name"
-                  >
-                    Avatar
-                  </label>
-                </div>
-              </div>
-              <div>
-                <div className="relative mt-4">
-                  <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
-                    className="rounded-full w-64 h-64 object-cover border-2 border-gray-300 border-dashed"
-                    alt="Selected"
-                  />
-                </div>
+              <div className="flex">
+                <div>
+                  <div className="flex flex-wrap -mx-3 mb-6">
+                    <div className="w-full  px-3 mb-6 md:mb-0">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-first-name"
+                      >
+                        Avatar
+                      </label>
+                    </div>
+                  </div>
+                  <div className="relative mt-4">
+                    <img
+                      src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
+                      className="rounded-full w-64 h-64 object-cover border-2 border-gray-300 border-dashed"
+                      alt="Selected"
+                    />
+                  </div>
+                  </div>
+                  <div className='ml-16'>
+                    <div>
+                      <div className="flex flex-wrap -mx-3 mb-6">
+                        <div className="w-full  px-3 mb-6 md:mb-0">
+                          <label
+                            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                            htmlFor="grid-first-name"
+                          >
+                            signature
+                          </label>
+                        </div>
+                      </div>
+                      <div className="relative mt-4">
+                        <div className="relative w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer">
+                          <img
+                            src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.signature}`}
+                            alt="Back CCCD"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               </div>
             </div>
-            <div className='mt-16'>
+            <div className="mt-16">
               <Button
                 className="bg-green-900 hover:bg-green-800 text-white"
                 disableElevation

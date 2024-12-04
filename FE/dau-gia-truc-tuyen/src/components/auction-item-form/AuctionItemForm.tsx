@@ -1,16 +1,15 @@
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { getCategory, submitAuctionForm } from '../../queries/index';
+import { getCategory } from '../../queries/index';
 import ContractModal, { AuctionItemFormData } from '../modal-contract/ContractModal';
-import avt from '../../../public/2937095.png'
+import avt from '../../../public/2937095.png';
 
 const AuctionItemForm: React.FC = () => {
-
   const [listCategory, setCategory] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Lấy danh sách danh mục
+  // Fetch categories
   const fetchListCategory = async () => {
     try {
       const response = await getCategory();
@@ -29,7 +28,6 @@ const AuctionItemForm: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<AuctionItemFormData>();
   const [previewImageAuction, setPreviewImageAuction] = useState('');
   const [previewImageVerification, setPreviewImageVerification] = useState('');
-  const [previewSignatureImg, setPreviewSignatureImg] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<AuctionItemFormData | null>(null);
 
@@ -140,7 +138,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Starting Price */}
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Controller
                 name="startingPrice"
                 control={control}
@@ -163,7 +161,7 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
 
             {/* Category */}
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Controller
                 name="categoryID"
                 control={control}
@@ -193,7 +191,6 @@ const AuctionItemForm: React.FC = () => {
             </Grid>
           </Grid>
         </Grid>
-
         {/* Bên phải - Upload Hình ảnh */}
         <Grid item xs={6}>
           <Grid container spacing={3}>
@@ -217,7 +214,7 @@ const AuctionItemForm: React.FC = () => {
                       alt="Image Auction Preview"
                       className="w-full h-full object-cover rounded"
                     />
-                  </div>
+                  </Box>
                 )}
               />
             </Grid>

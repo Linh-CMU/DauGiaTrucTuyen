@@ -1,6 +1,7 @@
+import { CredentialResponse } from '@react-oauth/google';
 import axios from 'axios';
 import React, { ReactNode, createContext, useContext, useState } from 'react';
-import { AuthResponse, LoginRequest, SignUpRequest } from 'types';
+import { AuthResponse, GoogleLoginFailureResponse, LoginRequest, SignUpRequest } from 'types';
 
 interface AuthContextType {
   token: string | null;
@@ -9,6 +10,8 @@ interface AuthContextType {
   logout: () => void;
   signUp: (data: SignUpRequest) => Promise<boolean>;
   isAuthenticated: () => boolean;
+  handleSuccess: (data: CredentialResponse) => Promise<any>;
+  handleFailure: (error: any) => Promise<any>;
 }
 
 interface AuthProviderProps {
@@ -63,11 +66,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const handleSuccess = async (response: CredentialResponse) => {
+    if (response.credential) {
+      try {
+        const result = await axios.post<AuthResponse>('/api/google', {
+          tokenId: response.credential, // Google Identity Services trả về credential thay vì tokenId
+        });
+
+        const token = result.data.result.token;
+        const role = result.data.result.role;
+
+        // Store token and username in localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('role', role);
+        
+        // Update state
+        setToken(token);
+        return result.data;
+      } catch (error) {
+        console.error('Error logging in with Google:', error);
+      }
+    } else {
+      console.error('No credential received');
+    }
+  };
+
+  const handleFailure = async (error: any) => {
+    console.error('Login failed:', error);
+  };
+
   // Check if user is authenticated
   const isAuthenticated = () => !!token;
 
   return (
-    <AuthContext.Provider value={{ token, username, login, logout, signUp, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        username,
+        login,
+        logout,
+        signUp,
+        isAuthenticated,
+        handleSuccess,
+        handleFailure,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -75,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

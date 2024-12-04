@@ -29,9 +29,11 @@ import {
   InforUser,
   CancelPage,
   ResetPasswordPage,
+  About,
   ChangePasswordPage,
   ListYourAuction,
   AuctionRoom,
+  AddAdminPage,
 } from '@pages/index';
 import Updateprofile from '@pages/UpdateProfile';
 import ListAccountPage from '@pages/Admin/ListAccountPage';
@@ -66,8 +68,10 @@ const AppRoutes: React.FC = () => {
           <Route path="/listYourAuction" element={<ListYourAuction />} />
           <Route path="/inforUser" element={<InforUser />} />
           <Route path="/update-profile" element={<Updateprofile />} />
+          <Route path="/addAdminPage" element={<AddAdminPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/about" element={<About />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/otp" element={<OTPPage />} />
@@ -79,7 +83,7 @@ const AppRoutes: React.FC = () => {
 
 const App = () => {
   const location = useLocation();
-  const hidenHeader = ['/login', '/forgot', '/sign-up'];
+  const hidenHeader = ['/login', '/forgot', '/sign-up', '/add-info', '/otp'];
   return (
     <LoadingProvider>
       <MessageProvider>

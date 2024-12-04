@@ -34,6 +34,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
   const navigate = useNavigate();
   const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false);
   const [getId, setGetId] = useState(0);
+  const [currentPrice, setCurrentPrice] = useState(0);
   const handleModalCancelClose = () => {
     setApproveModalCancelOpen(false); // Close cancel modal
   };
@@ -51,7 +52,9 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     setGetId(id);
     setApproveModalCancelOpen(true); // Open cancel modal
   };
-
+  const formatMoney = (int: number) => {
+    return new Intl.NumberFormat('vi-VN').format(int ?? 0);
+  };
   useEffect(() => {
     const socket = new WebSocket(
       `ws://capstoneauctioneer.runasp.net/api/viewBidHistory?id=${auctionDetailInfor.listAuctionID}`
@@ -60,6 +63,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setBidHistory(data);
+      setCurrentPrice(data[0]?.Price ?? auctionDetailInfor?.startingPrice);
     };
 
     return () => {
@@ -271,7 +275,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
                     <>
                       <div
                         className={`flex justify-between w-full items-center mb-2 mt-2 ${
-                          index % 2 === 0 ? 'text-green-600' : 'text-blue-600'
+                          index === 0 ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
                         <div>
@@ -288,9 +292,16 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
                 </div>
               </div>
               <div className="mt-8 ml-auto mr-auto">
-                <button className="bg-green-600" onClick={() => setSwith(false)}>
-                  Back
-                </button>
+                <div className="flex justify-between w-full">
+                  <p>Giá hiện tại</p>
+                  <span>{formatMoney(currentPrice)} VNĐ</span>
+                </div>
+                <div className="h-[2px] w-full bg-gray-200"></div>
+                <div className='mt-2'>
+                  <button className="bg-green-600" onClick={() => setSwith(false)}>
+                    Back
+                  </button>
+                </div>
               </div>
             </div>
           </>

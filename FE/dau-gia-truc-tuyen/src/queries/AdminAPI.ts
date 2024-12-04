@@ -19,7 +19,7 @@ export const getListAccount = async () => {
 export const inforUser = async (id?: string) => {
     try {
         const token = localStorage.getItem('token');
-        const response = await axiosInstance.get(`/api/Admin/inforuser?id=${id}`, {
+        const response = await axiosInstance.get(`/api/Admin/userDetail?uid=${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -175,3 +175,25 @@ export const moneyStatistics = async () => {
         throw new Error('Error fetching user'); 
     }
 };
+export const createAccount = async (username: string, password: string, email: string, category: string) => {
+    try {
+    const token = localStorage.getItem('token');
+      // Construct the request body as a JSON object
+      const data = {
+        username, 
+        password,
+        email,
+        category
+      };
+      const response = await axiosInstance.post('/api/Admin/make-admin', data, {
+        headers: {
+          'Content-Type': 'application/json', // Correct Content-Type for JSON requests
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error placing bid:', error);
+      throw error;
+    }
+  };

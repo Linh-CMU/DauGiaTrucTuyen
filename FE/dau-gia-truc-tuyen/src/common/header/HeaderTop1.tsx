@@ -85,7 +85,6 @@ const HeaderTop1 = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -109,12 +108,9 @@ const HeaderTop1 = () => {
     };
     fetchNotifi();
   }, []);
-
-
-
   return (
     <HeaderContainer className="fixed top-0 z-10">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div className="mx-auto px-2 sm:px-6 lg:px-8 w-full items-center">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <button
@@ -142,10 +138,15 @@ const HeaderTop1 = () => {
               </svg>
             </button>
           </div>
-
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex flex-shrink-0 items-center">
-              <img className="h-8 w-auto" src="logo.png" alt="Your Company " />
+          <div className="flex flex-1 w-full justify-between items-center">
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <img className="h-9 w-auto" src="logo.png" alt="Your Company " />
+              <div>
+                <h6 className="font-bold text-white">ĐẤU GIÁ TRỰC TUYẾN</h6>
+                <p className=" text-white">
+                  Trung tâm dịch vụ và đấu giá tài sản thành phố Đà Nẵng
+                </p>
+              </div>
             </div>
             <div className="hidden sm:ml-6 sm:block">
               {getRole() === 'user' ? (
@@ -156,19 +157,19 @@ const HeaderTop1 = () => {
                       className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                       aria-current="page"
                     >
-                      Trang chủ
+                      HOME
                     </a>
                     <a
                       href="/listYourAuction"
                       className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
-                      Sản phẩm của bạn
+                      MY PRODUCT
                     </a>
                     <a
-                      href="#"
+                      href="/about"
                       className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
-                      Giới thiệu
+                      ABOUT
                     </a>
                   </div>
                 </>
@@ -201,156 +202,76 @@ const HeaderTop1 = () => {
                     className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                     aria-current="page"
                   >
-                    Trang chủ
+                    HOME
                   </a>
                   <a
-                    href="#"
+                    href="/about"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    Thông tin
+                    ABOUT
                   </a>
                 </div>
               )}
             </div>
-          </div>
-          {isAuthenticated() ? (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <div className="relative ml-3">
-                <div>
-                  <Button
-                    id="basic-button"
-                    aria-controls={open ? 'basic-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                  >
-                    {profile ? (
-                      <img
-                        className="h-8 w-auto"
-                        src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
-                        alt="Your Profile"
-                      />
-                    ) : (
-                      <img className="h-8 w-auto" src="logo.png" alt="Your Company" />
-                    )}
-                  </Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    <MenuItem onClick={onProfileClick}>Profile</MenuItem>
-                    <MenuItem onClick={onChangePassword}>Change password</MenuItem>
-                    <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
-                  </Menu>
+            {isAuthenticated() ? (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="relative ml-3">
+                  <div>
+                    <Button
+                      id="basic-button"
+                      aria-controls={open ? 'basic-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? 'true' : undefined}
+                      onClick={handleClick}
+                    >
+                      {profile ? (
+                        <img
+                          className="h-8 w-auto"
+                          src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${profile.avatar}`}
+                          alt="Your Profile"
+                        />
+                      ) : (
+                        <img className="h-8 w-auto" src="logo.png" alt="Your Company" />
+                      )}
+                    </Button>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                      }}
+                    >
+                      <MenuItem onClick={onProfileClick}>Profile</MenuItem>
+                      <MenuItem onClick={onChangePassword}>Change password</MenuItem>
+                      <MenuItem onClick={onLogoutBtnClick}>Logout</MenuItem>
+                    </Menu>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <div className="relative ml-3 flex">
-                <div>
-                  <Button variant="outlined" onClick={onLoginBtnClick}>
-                    Đăng nhập
-                  </Button>
-                </div>
-                <div className='ml-6'>
-                  <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
-                    Đăng kí
-                  </Button>
+            ) : (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="relative ml-3 flex">
+                  <div>
+                    <Button variant="outlined" onClick={onLoginBtnClick}>
+                      Đăng nhập
+                    </Button>
+                  </div>
+                  <div className="ml-6">
+                    <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
+                      Đăng kí
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 ">
-            <div className="relative ml-3">
-              <Button
-                id="notification-button"
-                aria-controls={notificationOpen ? 'notification-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={notificationOpen ? 'true' : undefined}
-                onClick={handleNotificationClick}
-              >
-                <svg className="w-6 h-6 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m10.827 5.465-.435-2.324m.435 2.324a5.338 5.338 0 0 1 6.033 4.333l.331 1.769c.44 2.345 2.383 2.588 2.6 3.761.11.586.22 1.171-.31 1.271l-12.7 2.377c-.529.099-.639-.488-.749-1.074C5.813 16.73 7.538 15.8 7.1 13.455c-.219-1.169.218 1.162-.33-1.769a5.338 5.338 0 0 1 4.058-6.221Zm-7.046 4.41c.143-1.877.822-3.461 2.086-4.856m2.646 13.633a3.472 3.472 0 0 0 6.728-.777l.09-.5-6.818 1.277Z"/>
-                </svg>
-
-              </Button>
-              <Menu
-                id="notification-menu"
-                anchorEl={notificationAnchorEl}
-                open={notificationOpen}
-                onClose={handleNotificationClose}
-                MenuListProps={{
-                  'aria-labelledby': 'notification-button',
-                }}
-                className='w-[250px] max-h-[300px]'
-              >
-                  {notifications.map((notification) => (
-            <div
-              key={notification.noticationID}
-              className="p-4 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
-              onClick={handleNotificationClose}
-            >
-              <div className="font-bold text-gray-700 truncate w-full text-[10px]">{notification.title}</div>
-              <div className="text-sm text-gray-500 text-[8px]">{notification.description}</div>
-              <div className="text-xs text-gray-400 text-[6px]">
-                {new Date(notification.createDate).toLocaleString()}
-              </div>
-            </div>
-          ))}
-          {notifications.length === 0 && (
-            <div className="p-4 text-center text-gray-500">Không có thông báo nào.</div>
-          )}
-              </Menu>
-            </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenu && (
-        <div className="sm:hidden" id="mobile-menu">
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            <a
-              href="#"
-              className="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
-              aria-current="page"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Trang chủ
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Team
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Projects
-            </a>
-            <a
-              href="#"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-              onClick={() => setIsMobileMenu(false)}
-            >
-              Calendar
-            </a>
-          </div>
-        </div>
-      )}
     </HeaderContainer>
   );
 };
 
 export default HeaderTop1;
+
