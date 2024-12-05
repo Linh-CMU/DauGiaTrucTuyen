@@ -1,39 +1,30 @@
-import {
-  getCity,
-  getDistrict,
-  getListAccount,
-  getWard,
-  lockUser,
-  unLockUser,
-} from '../../queries/AdminAPI';
 import { useEffect, useState } from 'react';
-import { useMessage } from '@contexts/MessageContext';
-import { Account, cityResponse, districtResponse, wardResponse } from '../../types/auth.type';
 import { useNavigate } from 'react-router-dom';
+import { getListAccount, lockUser, unLockUser } from '../../queries/AdminAPI';
+import { useMessage } from '@contexts/MessageContext';
+import { Account } from '../../types/auth.type';
 
 const ListAccountPage = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const { setErrorMessage, setSuccessMessage } = useMessage();
-  const [citys, setCitys] = useState<cityResponse[]>([]);
-  const [districts, setDistricts] = useState<districtResponse[]>([]);
-  const [wards, setWards] = useState<wardResponse[]>([]);
   const navigate = useNavigate();
+  const [searchUser, setSearchUser] = useState('');
+  
   const headings = [
+    
     { key: 'userName', value: 'User Name' },
     { key: 'email', value: 'Email' },
     { key: 'fullName', value: 'Full Name' },
     { key: 'phone', value: 'Phone' },
-    { key: 'city', value: 'City' },
-    { key: 'ward', value: 'Ward' },
-    { key: 'district', value: 'District' },
-    { key: 'address', value: 'Address' },
     { key: 'action', value: 'Action' },
   ];
 
+  const [currentPage, setCurrenPage] = useState(1);
+  const pageSize = 4;
+
   useEffect(() => {
     const fetchListAccount = async () => {
-      const response = await getListAccount(); //  call api
-      console.log(response, 'data');
+      const response = await getListAccount();
       if (response?.isSucceed) {
         setAccounts(Array.isArray(response.result) ? response.result : []);
       } else {
@@ -43,50 +34,59 @@ const ListAccountPage = () => {
     };
     fetchListAccount();
   }, []);
-  useEffect(() => {
-    const fetchCity = async () => {
-      try {
-        const cityData = await getCity();
-        console.log(cityData);
 
-        setCitys(cityData);
-      } catch (error) {
-        setErrorMessage('Error fetching city');
-      }
-    };
-    fetchCity();
-  }, []);
+  // filter username
+  const filterUser = accounts.filter((account) => 
+    account.userName.toLowerCase().includes(searchUser.toLocaleLowerCase())
+  );
 
-  useEffect(() => {
-    const fetchDistricts = async () => {
-      try {
-        const districtData = await getDistrict();
-        setDistricts(districtData);
-      } catch (error) {
-        setErrorMessage('Error fetching districts');
-      }
-    };
-    fetchDistricts();
-  }, []);
+  // Pagination logic
+  const totalPages = Math.ceil(filterUser.length / pageSize);
+  const currentAccounts = filterUser.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
-  useEffect(() => {
-    const fetchWard = async () => {
-      try {
-        const wardData = await getWard();
-        console.log(wardData);
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      setCurrenPage((prev) => prev - 1);
+    }
+  };
 
-        setWards(wardData);
-      } catch (error) {
-        setErrorMessage('Error fetching wards');
-      }
-    };
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrenPage((prev) => prev + 1);
+    }
+  };
 
-    fetchWard();
-  }, []);
-  // lock account
+  const renderPaginationBtn = () => {
+    const btns = [];
+    const startPage = Math.max(1, currentPage - 1);
+    const endPage = Math.min(totalPages, currentPage + 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      btns.push(
+        <button
+          key={i}
+          type="button"
+          className={`min-h-[38px] min-w-[38px] flex justify-center items-center border py-2 px-3 text-sm rounded-lg focus:outline-none ${
+            i === currentPage
+              ? 'border-blue-600 text-blue-600 bg-blue-100'
+              : 'bg-slate-300 text-gray-800 hover:bg-gray-100'
+          }`}
+          onClick={() => setCurrenPage(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return btns;
+  };
+
+  // Lock account
   const handleLock = async (accountId: string) => {
     try {
-      console.log(accountId);
       const response = await lockUser(accountId);
       if (response.isSucceed) {
         const updatedAccounts = await getListAccount();
@@ -96,11 +96,11 @@ const ListAccountPage = () => {
         console.error('Lock user operation was not successful:', response.message);
       }
     } catch (error) {
-      console.error('Error unlocking account:', error);
+      console.error('Error locking account:', error);
     }
   };
 
-  // unlock account
+  // Unlock account
   const handleUnlock = async (accountId: string) => {
     try {
       const response = await unLockUser(accountId);
@@ -109,32 +109,25 @@ const ListAccountPage = () => {
         setAccounts(Array.isArray(updatedAccounts.result) ? updatedAccounts.result : []);
         setSuccessMessage('UnLock');
       } else {
-        console.error('Lock user operation was not successful:', response.message);
+        console.error('Unlock user operation was not successful:', response.message);
       }
     } catch (error) {
       console.error('Error unlocking account:', error);
     }
   };
 
-  const getNameCity = (code: any) => {
-    const selectedCity = citys.find((city) => city.code.toString() === code);
-    const cityName = selectedCity ? selectedCity.name : '';
-    return cityName;
-  };
-  const getNameDistrict = (code: any) => {
-    const selectedCity = districts.find((city) => city.code.toString() === code);
-    const cityName = selectedCity ? selectedCity.name : '';
-    return cityName;
-  };
+  
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="mb-4 flex justify-between items-center">
+    <div className="container mx-auto py-24 px-32">
+      <div className="mb-4 flex justify-between items-center  pb-5">
         <div className="flex-1 pr-4">
           <div className="relative md:w-1/6">
             <input
               type="search"
-              className="w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
+              value={searchUser}
+              onChange={(e) => setSearchUser(e.target.value)}
+              className="bg-slate-300 w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
               placeholder="Search..."
             />
             <div className="absolute top-0 left-0 inline-flex items-center p-2">
@@ -142,13 +135,12 @@ const ListAccountPage = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-6 h-6 text-gray-400"
                 viewBox="0 0 24 24"
-                stroke-width="2"
+                strokeWidth="2"
                 stroke="currentColor"
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <rect x="0" y="0" width="24" height="24" stroke="none"></rect>
                 <circle cx="10" cy="10" r="7" />
                 <line x1="21" y1="21" x2="15" y2="15" />
               </svg>
@@ -173,36 +165,24 @@ const ListAccountPage = () => {
             </tr>
           </thead>
           <tbody>
-            {accounts.map((account, index) => (
+            {currentAccounts.map((account, index) => (
               <tr
                 key={account.accountId}
                 className={`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}
               >
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
+              
+                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3 flex items-center space-x-4 w-auto">
+                  <img
+                        src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${account.avatar}`}
+                        alt="Front CCCD"
+                        className="flex-shrink-0 w-10 h-10 object-cover rounded-full mr-2"
+                      />
                   {account.userName}
                 </td>
-                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">
-                  {account.email}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">
-                  {account.fullName}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
-                  {account.phone}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
-                  {getNameCity(account.city)}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
-                  {account.ward}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
-                  {getNameDistrict(account.district)}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
-                  {account.address}
-                </td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3 flex">
+                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">{account.email}</td>
+                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">{account.fullName}</td>
+                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">{account.phone}</td>
+                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3 flex ">
                   {account.status ? (
                     <button
                       type="button"
@@ -234,6 +214,29 @@ const ListAccountPage = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4 space-x-2 pt-8">
+        <button
+          onClick={handlePrev}
+          className="px-4 py-2 bg-gray-200 rounded-md text-sm"
+          disabled={currentPage === 1}
+        >
+          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+        </button>
+        {renderPaginationBtn()}
+        <button
+          onClick={handleNext}
+          className="px-4 py-2 bg-gray-200 rounded-md text-sm"
+          disabled={currentPage === totalPages}
+        >
+          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </button>
       </div>
     </div>
   );

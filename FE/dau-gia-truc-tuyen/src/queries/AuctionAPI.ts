@@ -405,3 +405,16 @@ export const deleteAuction = async (id: number) => {
     throw new Error('Failed to fetch category-based auction list');
   }
 };
+
+export const getListNotification = async () => {
+  try {
+    const token = getToken();
+    const response = await axiosInstance.get('api/notification/listNotification', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch auction details', error);
+    throw error;
+  }
+};

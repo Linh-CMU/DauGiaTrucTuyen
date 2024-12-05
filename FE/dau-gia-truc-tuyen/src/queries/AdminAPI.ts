@@ -148,6 +148,33 @@ export const profileUser = async () => {
     }
 };
 
+export const productStatistics = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get('/api/Admin/product-statistics', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user'); 
+    }
+};
+
+export const moneyStatistics = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get('/api/Admin/money-statistics', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user'); 
+    }
+};
 export const createAccount = async (username: string, password: string, email: string, category: string) => {
     try {
     const token = localStorage.getItem('token');

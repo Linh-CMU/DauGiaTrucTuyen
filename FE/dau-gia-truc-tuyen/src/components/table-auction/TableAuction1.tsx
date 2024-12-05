@@ -8,22 +8,12 @@ import {
   getListAuctionOfUser,
   getListAuctionRegisterOfUser,
 } from '../../queries/index';
-import { ApproveModal, CancelModal, UserModal } from '../../components/modalAccept/ApproveModal'; // Import modal
+import { ApproveModal, CancelModal, UserModal } from '../modalAccept/ApproveModal'; // Import modal
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const TableAuction = ({
-  tabValue,
-  id,
-  name,
-  status,
-}: {
-  tabValue: number;
-  id?: string;
-  name?: string;
-  status?: boolean;
-}) => {
+const TableAuction1 = ({ tabValue, id, name, status }: { tabValue: number; id?: string; name?: string; status?: boolean }) => {
   const [listAllAuction, setListAllAuction] = useState<any[]>([]);
   const [listCategory, setCategory] = useState<any[]>([]);
   const [listUser, setUser] = useState<any[]>([]);
@@ -35,9 +25,10 @@ const TableAuction = ({
   const [time, setTime] = useState('');
   const [hours, setHours] = useState<number | ''>('');
   const [minutes, setMinutes] = useState<number | ''>('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    
     fetchListAuction();
     fetchListCategory();
     fetchListUser();
@@ -46,17 +37,15 @@ const TableAuction = ({
   const fetchListAuction = async () => {
     if (id) {
       console.log('status', status);
-      if (status) {
+      if(status) {
         const response = await getListAuctionOfUser(id, tabValue);
         console.log(response, 'data');
         if (response?.isSucceed) {
           setListAllAuction(response?.result);
-          console.log('a1');
-          console.log(response?.result);
         } else {
           console.error('fetch list fail');
         }
-      } else {
+      }else{
         const response = await getListAuctionRegisterOfUser(id, tabValue);
         console.log(response, 'data');
         if (response?.isSucceed) {
@@ -116,7 +105,7 @@ const TableAuction = ({
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
       
-      const response = await approveAuction(selectedAuctionID, true, totalTime);
+      const response = await approveAuction(selectedAuctionID, true, price, totalTime);
       if (response.isSucceed) {
         fetchListAuction();
         alert('Bạn đã phê duyệt thành công');
@@ -129,7 +118,7 @@ const TableAuction = ({
   };
   const handleModalReject = async () => {
     if (selectedAuctionID) {
-      const response = await approveAuction(selectedAuctionID, false, time);
+      const response = await approveAuction(selectedAuctionID, false, price, time);
       if (response.isSucceed) {
         fetchListAuction();
         alert('Bạn đã từ chối với đơn hàng đấu giá này');
@@ -148,7 +137,15 @@ const TableAuction = ({
     setApproveModalCancelOpen(false); // Close cancel modal
   };
   const navigate = useNavigate();
-
+  const handleCategoryClick = async (category: number) => {
+    const response = await getCategoryId(category, tabValue);
+    console.log(response, 'data');
+    if (response?.isSucceed) {
+      setListAllAuction(response?.result);
+    } else {
+      console.error('fetch list fail');
+    }
+  };
   const handleTimeChange = () => {
     const formattedHours = (hours || 0).toString().padStart(2, '0');
     const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
@@ -168,29 +165,30 @@ const TableAuction = ({
     p: 4,
   };
 
+
   const headings = [
-    { key: 'daugia', value: 'Auction name' },
-    { key: 'hinhanh', value: 'Image' },
-    { key: 'start', value: 'Starting price' },
-    { key: 'money', value: 'Deposit' },
-    { key: 'category', value: 'Auction type' },
-    { key: 'status', value: 'Status ' },
-    { key: 'action', value: 'Action ' },
+    { key: 'daugia', value: 'Tên buổi đấu giá' },
+    { key: 'hinhanh', value: 'Hình ảnh' },
+    { key: 'start', value: 'Giá bắt đầu' },
+    { key: 'money', value: 'Tiền cọc' },
+    { key: 'category', value: 'Loại đấu giá' },
+    { key: 'status', value: 'Trạng thái	' },
+    { key: 'action', value: 'Hành động	' },
   ];
 
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrenPage] = useState(1);
   const pageSize = 4;
 
-  const filteredAuctions = listAllAuction.filter((account) => {
-    const matchesSearch = account.nameAuction.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || account.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filterUser = listAllAuction.filter((account) => 
+    account.userName.toLowerCase().includes(searchTerm.toLocaleLowerCase())
+  );
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredAuctions.length / pageSize);
-  const currentList = filteredAuctions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(filterUser.length / pageSize);
+  const currentList = filterUser.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handlePrev = () => {
     if (currentPage > 1) {
@@ -203,6 +201,7 @@ const TableAuction = ({
       setCurrenPage((prev) => prev + 1);
     }
   };
+
 
   const renderPaginationBtn = () => {
     const btns = [];
@@ -217,7 +216,7 @@ const TableAuction = ({
           className={`min-h-[38px] min-w-[38px] flex justify-center items-center border py-2 px-3 text-sm rounded-lg focus:outline-none ${
             i === currentPage
               ? 'border-blue-600 text-blue-600 bg-blue-100'
-              : 'bg-slate-300 text-gray-800 hover:bg-slate-300'
+              : 'border-gray-200 text-gray-800 hover:bg-gray-100'
           }`}
           onClick={() => setCurrenPage(i)}
         >
@@ -229,74 +228,27 @@ const TableAuction = ({
     return btns;
   };
 
-  const handleCategoryChange = (selectedCategoryName : any) => {
-    console.log("Danh mục được chọn:", selectedCategoryName);
-    setSelectedCategory(selectedCategoryName); 
-  };
-
   return (
     <>
       {name ? (
         <>
           <div className="ml-[30%] mr-[30%] mb-10 p-4 bg-gray-100 rounded-lg shadow-md text-center">
-            <h2 className="text-lg font-semibold text-gray-800">
-              {' '}
-              {status ? 'Chủ sản phẩm:' : 'Sản phẩm tham gia:'} {name}
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-800"> {status ? 'Chủ sản phẩm:' : 'Sản phẩm tham gia:'} {name}</h2>
           </div>
         </>
       ) : (
         ''
       )}
 
-      <div className="mb-4 flex justify-between items-center pb-5 ">
-        <div className="flex-1 pr-4">
-          <div className="relative md:w-1/6">
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-200 w-full pl-10 pr-4 py-2 rounded-lg shadow focus:outline-none focus:shadow-outline text-gray-600 font-medium"
-              placeholder="Search..."
-            />
-            <div className="absolute top-0 left-0 inline-flex items-center p-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 text-gray-400"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="10" cy="10" r="7" />
-                <line x1="21" y1="21" x2="15" y2="15" />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <select
-          id="countries"
-          onChange={(event) => handleCategoryChange(event.target.value)} 
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
+      <div className="flex justify-between items-start">
+        <div
+          className={`w-full max-w-7xl ${
+            listAllAuction.length > 0
+              ? 'h-[500px] overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200'
+              : ''
+          }`}
         >
-          <option value="">Category</option> 
-          {listCategory.map((category, index) => (
-            <option
-              value={category.nameCategory} 
-              key={index}
-              className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
-            >
-              {category.nameCategory}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="w-full">
-        <div>
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+           <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
               <tr>
                 {headings.map((heading) => (
@@ -318,8 +270,8 @@ const TableAuction = ({
                     className={`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}
                     onClick={() => navigate(`/auctionDetail/${auction.listAuctionID}`)}
                   >
-                    <td className="px-4 py-2 text-left w-96">{auction.nameAuction}</td>
-                    <td className="px-4 py-2 text-center">
+                    <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">{auction.nameAuction}</td>
+                    <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">
                       <img
                         src={
                           `http://capstoneauctioneer.runasp.net/api/read?filePath=` + auction.image
@@ -335,14 +287,14 @@ const TableAuction = ({
                       })}
                     </td>
                     <td className="px-4 py-2 text-center">
-                      {auction.priceDeposit.toLocaleString('vi-VN', {
+                      {auction.startingPrice.toLocaleString('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
                       })}
                     </td>
                     <td className="px-4 py-2 text-center">{auction.category}</td>
                     <td className="px-4 py-2 text-center">{auction.statusAuction}</td>
-                    <td className="px-4 py-2 text-center flex items-center space-x-2 w-auto">
+                    <td className="px-4 py-2 text-center">
                       {auction.statusAuction == 'Approved' ? (
                         <>
                           <Button
@@ -363,7 +315,7 @@ const TableAuction = ({
                               e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
                               handleApprove(auction.listAuctionID);
                             }}
-                            className="bg-green-500 text-white px-2 py-1 rounded mr-2 "
+                            className="bg-green-500 text-white px-2 py-1 rounded mr-2"
                           >
                             Duyệt
                           </button>
@@ -375,7 +327,7 @@ const TableAuction = ({
                           e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
                           handleReject(auction.listAuctionID);
                         }}
-                        className="bg-red-500 text-white px-2 py-1 rounded w-20 pt-3 pb-3"
+                        className="bg-red-500 text-white px-2 py-1 rounded"
                       >
                         Từ chối
                       </button>
@@ -391,51 +343,21 @@ const TableAuction = ({
               )}
             </tbody>
           </table>
-          <div className="flex justify-center mt-4 space-x-2 pt-8">
-            <button
-              onClick={handlePrev}
-              className="px-4 py-2 bg-gray-200 rounded-md text-sm"
-              disabled={currentPage === 1}
-            >
-              <svg
-                className="shrink-0 size-3.5"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+        </div>
+        <div className="flex flex-col items-start justify-center ml-4">
+          <div className="font-semibold text-xl mb-2">Danh mục:</div>
+          <div className="flex flex-col bg-gray-100 p-4 rounded-lg shadow-md w-64">
+            {listCategory.map((category, index) => (
+              <span
+                key={index}
+                className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
+                onClick={() => handleCategoryClick(category.categoryID)}
               >
-                <path d="m15 18-6-6 6-6"></path>
-              </svg>
-            </button>
-            {renderPaginationBtn()}
-            <button
-              onClick={handleNext}
-              className="px-4 py-2 bg-gray-200 rounded-md text-sm"
-              disabled={currentPage === totalPages}
-            >
-              <svg
-                className="shrink-0 size-3.5"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m9 18 6-6-6-6"></path>
-              </svg>
-            </button>
+                {category.nameCategory}
+              </span>
+            ))}
           </div>
         </div>
-
         <ApproveModal
           open={isApproveModalOpen}
           onClose={handleModalClose}
@@ -462,4 +384,4 @@ const TableAuction = ({
   );
 };
 
-export default TableAuction;
+export default TableAuction1;

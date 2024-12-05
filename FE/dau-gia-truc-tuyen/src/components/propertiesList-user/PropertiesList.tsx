@@ -58,7 +58,7 @@ const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch
     <>
       <Box className="flex">
         <Typography variant="h5" component="h2" fontWeight="bold">
-          TÀI SẢN ĐẤU GIÁ CỦA BẠN
+          YOUR AUCTION ASSETS
         </Typography>
         <Box className="ml-auto">
           <Button
@@ -67,7 +67,7 @@ const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch
             variant="contained"
             style={{ backgroundColor: '#1f8f1f', color: 'white' }}
           >
-            Thêm sản phẩm
+            Add product
           </Button>
         </Box>
       </Box>
@@ -75,10 +75,10 @@ const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch
       <TabContext value={value}>
           <Box>
             <StyledTabList onChange={handleChange} aria-label="lab">
-              <Tab label="Tất cả" value="0" />
-              <Tab label="Chưa được chấp thuận" value="1" />
-              <Tab label="Từ chối" value="2" />
-              <Tab label="Chấp nhận" value="3" />
+              <Tab label="ALL" value="0" />
+              <Tab label="Not approved yet" value="1" />
+              <Tab label="Refuse" value="2" />
+              <Tab label="Accept" value="3" />
             </StyledTabList>
           </Box>
           <TabPanel value={value}>

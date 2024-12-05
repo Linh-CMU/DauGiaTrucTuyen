@@ -36,13 +36,13 @@ const ChangePasswordPage = () => {
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100" >
       <div className="absolute w-96 h-96 bg-blue-400 rounded-lg -rotate-6"></div>
       <div className="relative w-96 h-96 bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-xl font-bold mb-6">Thay đổi mật khẩu</h2>
+        <h2 className="text-xl font-bold mb-6">Change Password</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <TextField
               fullWidth
               type="password"
-              label="Mật Khẩu Cũ"
+              label="Old Password"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               required
@@ -52,7 +52,7 @@ const ChangePasswordPage = () => {
             <TextField
               fullWidth
               type="password"
-              label="Mật Khẩu Mới"
+              label="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
@@ -62,14 +62,14 @@ const ChangePasswordPage = () => {
             <TextField
               fullWidth
               type="password"
-              label="Xác Nhận Mật Khẩu Mới"
+              label="Confirm New Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
           <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">
-            Thay đổi
+            CHANGE
           </button>
         </form>
       </div>

@@ -5,6 +5,7 @@ import { profileResponse } from '../../types/auth.type';
 import { profileUser } from '../../queries/AdminAPI';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { HeaderContainer } from './HeaderTop.styles';
+import { getListNotification } from '@queries/AuctionAPI';
 
 const HeaderTop1 = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const HeaderTop1 = () => {
   const [isProfileMenu, setIsProfileMenu] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
   const [profile, setProfile] = useState<profileResponse | null>();
+
   const getRole = () => {
     const role = localStorage.getItem('role');
     return role;
@@ -83,6 +85,29 @@ const HeaderTop1 = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [notifications, setNotifications] = useState<any>([]);
+
+  const handleNotificationClick = (event: any) => {
+    setNotificationAnchorEl(event.currentTarget);
+    setNotificationOpen(!notificationOpen);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
+    setNotificationOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchNotifi = async () => {
+      try {
+        const userData = await getListNotification();
+        setNotifications(userData.result);
+      } catch (error) {}
+    };
+    fetchNotifi();
+  }, []);
   return (
     <HeaderContainer className="fixed top-0 z-10">
       <div className="mx-auto px-2 sm:px-6 lg:px-8 w-full items-center">
@@ -117,9 +142,9 @@ const HeaderTop1 = () => {
             <div className="flex flex-shrink-0 items-center gap-2">
               <img className="h-9 w-auto" src="logo.png" alt="Your Company " />
               <div>
-                <h6 className="font-bold text-white">ĐẤU GIÁ TRỰC TUYẾN</h6>
+                <h6 className="font-bold text-white">ONLINE AUCTION</h6>
                 <p className=" text-white">
-                  Trung tâm dịch vụ và đấu giá tài sản thành phố Đà Nẵng
+                  Danang City Property Auction and Service Center
                 </p>
               </div>
             </div>
@@ -155,19 +180,19 @@ const HeaderTop1 = () => {
                     className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
                     aria-current="page"
                   >
-                    Thống kê
+                    DASHBOARD
                   </a>
                   <a
                     href="/listAuction"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    Danh sách sản phẩm
+                    PRODUCT LIST
                   </a>
                   <a
                     href="/listuser"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    Danh sách người dùng
+                    USER LIST
                   </a>
                 </div>
               ) : (
@@ -190,6 +215,66 @@ const HeaderTop1 = () => {
             </div>
             {isAuthenticated() ? (
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 ">
+                  <div className="relative ml-3">
+                    <Button
+                      id="notification-button"
+                      aria-controls={notificationOpen ? 'notification-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={notificationOpen ? 'true' : undefined}
+                      onClick={handleNotificationClick}
+                    >
+                      <svg
+                        className="w-6 h-6 text-white dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="m10.827 5.465-.435-2.324m.435 2.324a5.338 5.338 0 0 1 6.033 4.333l.331 1.769c.44 2.345 2.383 2.588 2.6 3.761.11.586.22 1.171-.31 1.271l-12.7 2.377c-.529.099-.639-.488-.749-1.074C5.813 16.73 7.538 15.8 7.1 13.455c-.219-1.169.218 1.162-.33-1.769a5.338 5.338 0 0 1 4.058-6.221Zm-7.046 4.41c.143-1.877.822-3.461 2.086-4.856m2.646 13.633a3.472 3.472 0 0 0 6.728-.777l.09-.5-6.818 1.277Z"
+                        />
+                      </svg>
+                    </Button>
+                    <Menu
+                      id="notification-menu"
+                      anchorEl={notificationAnchorEl}
+                      open={notificationOpen}
+                      onClose={handleNotificationClose}
+                      MenuListProps={{
+                        'aria-labelledby': 'notification-button',
+                      }}
+                      className="w-[250px] max-h-[300px]"
+                    >
+                      {notifications.map((notification: any) => (
+                        <div
+                          key={notification.noticationID}
+                          className="p-4 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+                          onClick={handleNotificationClose}
+                        >
+                          <div className="font-bold text-gray-700 truncate w-full text-[10px]">
+                            {notification.title}
+                          </div>
+                          <div className="text-sm text-gray-500 text-[8px]">
+                            {notification.description}
+                          </div>
+                          <div className="text-xs text-gray-400 text-[6px]">
+                            {new Date(notification.createDate).toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                      {notifications.length === 0 && (
+                        <div className="p-4 text-center text-gray-500">Không có thông báo nào.</div>
+                      )}
+                    </Menu>
+                  </div>
+                </div>
                 <div className="relative ml-3">
                   <div>
                     <Button
@@ -249,4 +334,3 @@ const HeaderTop1 = () => {
 };
 
 export default HeaderTop1;
-

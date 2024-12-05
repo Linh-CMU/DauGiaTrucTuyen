@@ -47,13 +47,8 @@ const AuctionContract = () => {
   const handleAccept = async (id: number) => {
     try {
       const createResponse = await registerForAuction(id);
-      if (createResponse.isSucceed) {
-        const paymentResponse = await createPaymentDeposit(id);
-        if (paymentResponse) {
-          window.location.href = paymentResponse;
-        } else {
-          setErrorMessage(paymentResponse.message);
-        }
+      if (createResponse) {
+          window.location.href = createResponse;
       } else {
         setErrorMessage(createResponse.message);
       }
