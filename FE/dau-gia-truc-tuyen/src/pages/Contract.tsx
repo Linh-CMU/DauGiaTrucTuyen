@@ -244,7 +244,7 @@ const AuctionContract = () => {
           Điều 6: Chấp nhận và hiệu lực thỏa thuận
         </h2>
         <p>
-          Thỏa thuận này có hiệu lực kể từ ngày bên C chấp nhận và thanh toán tiền đặt cọc trước.
+          Thỏa thuận này có hiệu lực kể start date bên C chấp nhận và thanh toán tiền đặt cọc trước.
         </p>
         <p>
           Thỏa thuận có thể được thay đổi hoặc bổ sung nếu có thêm thỏa thuận giữa các bên và phải

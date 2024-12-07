@@ -63,8 +63,8 @@ const AllPropertiesUser = ({ listAllAuction }: AllPropertiesProps) => {
             startDay={card.startDay}
             targetDate={targetDate}
             url={'detail-auction'}
-            isApproved={card.statusAuction}
-          />
+            isApproved={card.statusAuction} description={''} link={''}
+            />
         );
       })}
     </div>

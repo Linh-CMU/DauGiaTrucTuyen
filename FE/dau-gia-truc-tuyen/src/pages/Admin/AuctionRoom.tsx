@@ -160,7 +160,7 @@ const AuctionRoom = () => {
                 <button className="bg-green-500 text-white px-2 py-1 rounded mr-2">
                   Tải file thông tin
                 </button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded">Từ chối</button>
+                <button className="bg-red-500 text-white px-2 py-1 rounded">Refuse</button>
               </Box>
             </Box>
           </Grid>

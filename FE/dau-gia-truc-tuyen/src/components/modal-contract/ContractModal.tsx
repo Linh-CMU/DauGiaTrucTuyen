@@ -47,12 +47,12 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
     try {
       const response = await submitAuctionForm(formData);
       if (response.isSucceed) {
-        alert('Bạn đã tạo sản phẩm thành công');
+        setSuccessMessage('You have successfully created a product.');
         navigate('/listYourAuction');
         onClose();
       }
     } catch (error) {
-      setSuccessMessage('Error creating auction item: ' + error);
+      setErrorMessage('Error creating auction item: ' + error);
     }
   };
   const fetchData = async () => {
@@ -159,7 +159,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           2. <strong>Mô tả sản phẩm:</strong> {formData?.description}
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          3. <strong>Giá khởi điểm:</strong> {formData?.startingPrice?.toLocaleString()} VNĐ
+          3. <strong>Starting price:</strong> {formData?.startingPrice?.toLocaleString()} VNĐ
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
           4. <strong>Thời gian đấu giá:</strong> Ngày bắt đầu - Ngày kết thúc sẽ được cập nhật khi
@@ -181,7 +181,7 @@ const ContractModal: React.FC<ContractModalProps> = ({ isOpen, onClose, formData
           Thời Hạn Hợp Đồng
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          Hợp đồng có hiệu lực từ ngày bắt đầu đấu giá và kết thúc khi sản phẩm đấu giá được bán hoặc khi có thông báo từ hệ thống.
+          Hợp đồng có hiệu lực start date bắt đầu đấu giá và kết thúc khi sản phẩm đấu giá được bán hoặc khi có thông báo từ hệ thống.
         </Typography>
 
         {/* Chữ ký */}

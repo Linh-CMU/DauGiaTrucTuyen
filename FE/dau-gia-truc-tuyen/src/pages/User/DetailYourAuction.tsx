@@ -29,7 +29,7 @@ const DetailAuctionPage = () => {
   return (
     <div className="container mx-auto p-4 flex flex-col gap-6 mt-20">
       <div className="flex gap-6 max-w-1/2">
-        <CarouselDetail imgList={auctionDetailInfor?.image} />
+        <CarouselDetail imgList={auctionDetailInfor?.images} />
         <div className="col-span-2 w-full">
           {auctionDetailInfor && (
             <DetailInformationUser 

@@ -8,6 +8,7 @@ import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { CancelModal } from '@components/modalAccept/ApproveModal';
 import { deleteAuction } from '@queries/AuctionAPI';
+import { useMessage } from '@contexts/MessageContext';
 
 interface InfoRowProps {
   label: string;
@@ -34,6 +35,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
   const navigate = useNavigate();
   const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false);
   const [getId, setGetId] = useState(0);
+  const { setErrorMessage, setSuccessMessage } = useMessage();
   const [currentPrice, setCurrentPrice] = useState(0);
   const handleModalCancelClose = () => {
     setApproveModalCancelOpen(false); // Close cancel modal
@@ -43,7 +45,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
       const response = await deleteAuction(getId);
       if (response.isSucceed) {
         navigate('/listYourAuction');
-        alert('Bạn đã xóa sản phẩm thành công');
+        setSuccessMessage('You have successfully deleted the product.');
       }
     }
     setApproveModalCancelOpen(false);
@@ -130,7 +132,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
 
       return endDate; // Trả về đối tượng Date
     } catch (error) {
-      console.error('Error in calculateNewTargetDate:', { endTime, endDay, timePerLap, error });
+      setErrorMessage(`Error in calculateNewTargetDate: ${{ endTime, endDay, timePerLap, error }}`);
       return new Date(); // Trả về giá trị mặc định trong trường hợp lỗi
     }
   };
@@ -231,12 +233,6 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     endDate.setHours(endHours, endMinutes, 0, 0);
 
     return endDate; // Trả về đối tượng Date đã được tính toán
-  };
-
-  const isRegistrationAllowed = (endTime: string, endDay: string): boolean => {
-    const finalTime = calculateFinalTime(endTime, endDay);
-    console.log('finalTime', finalTime);
-    return finalTime > new Date(); // Kiểm tra nếu thời gian kết thúc lớn hơn hiện tại
   };
 
   const isEndTimePassed = (endTime: string = '', endDay: string = ''): boolean => {

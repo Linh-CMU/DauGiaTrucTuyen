@@ -50,6 +50,7 @@ export interface AuctionDetails {
     fileAttachments: string | null;
   };
   countdowntime: string;
+  images: { img: string }[]
 }
 
 export interface AuctionDetailRegister {
@@ -70,4 +71,5 @@ export interface AuctionDetailRegister {
   endTime: string;
   statusAuction: string;
   countBidder: number;
+  images: { img: string }[]
 }

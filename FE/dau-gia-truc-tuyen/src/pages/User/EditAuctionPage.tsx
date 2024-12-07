@@ -81,11 +81,17 @@ const EditActionPage: React.FC = () => {
   }, []);
   const submit = async () => {
     try {
+      if(auctionDetailInfor?.startingPrice) {
+        if(auctionDetailInfor?.startingPrice < 20000){
+          setErrorMessage('starting amount must be greater than 20,000 VND');
+          return;
+        }
+      }
       const response = await submitEditAuctionForm(auctionDetailInfor as AuctionDetail);
-      if(response.isSucceed){
-        setSuccessMessage('Bạn đã chỉnh sửa sản phẩm thành công');
-      }else{
-        setErrorMessage('Có lỗi hệ thống xin liên hệ với admin');
+      if (response.isSucceed) {
+        setSuccessMessage('You have successfully edited the product.');
+      } else {
+        setErrorMessage('System error please contact admin');
       }
     } catch (error) {
       console.error('Error creating auction item:', error);
@@ -147,8 +153,8 @@ const EditActionPage: React.FC = () => {
 
   return (
     <>
-      <div className="w-full mt-24 flex items-center justify-center pt-10">
-        <h5 className="font-bold text-center text-2xl pl-9">CẬP NHẬT SẢN PHẨM ĐẤU GIÁ</h5>
+      <div className="w-full mt-10 flex items-center justify-center pt-10">
+        <h5 className="font-bold text-center text-2xl pl-9">UPDATE AUCTION PRODUCTS</h5>
       </div>
       <form onSubmit={handleSubmit(submit)} className="h-[80vh]">
         <div className="flex justify-center pt-10">
@@ -160,20 +166,20 @@ const EditActionPage: React.FC = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="full-name"
                   >
-                    Tên sản phẩm
+                    Product Name
                   </label>
                   <textarea
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="name"
                     defaultValue={auctionDetailInfor?.nameAuction}
                     {...register('nameAuctionItem', {
-                        onChange: (e) => {
-                          setAuctionDetailInfor((prev: any) => ({
-                            ...prev,
-                            nameAuction: e.target.value,
-                          }));
-                        },
-                      })}
+                      onChange: (e) => {
+                        setAuctionDetailInfor((prev: any) => ({
+                          ...prev,
+                          nameAuction: e.target.value,
+                        }));
+                      },
+                    })}
                     placeholder="Enter full name"
                   />
                 </div>
@@ -184,20 +190,20 @@ const EditActionPage: React.FC = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="gender"
                   >
-                    Mô tả
+                    Describe
                   </label>
                   <textarea
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="name"
                     defaultValue={auctionDetailInfor?.description}
                     {...register('description', {
-                        onChange: (e) => {
-                          setAuctionDetailInfor((prev: any) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }));
-                        },
-                      })}
+                      onChange: (e) => {
+                        setAuctionDetailInfor((prev: any) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }));
+                      },
+                    })}
                     placeholder="Enter full name"
                   />
                 </div>
@@ -208,21 +214,30 @@ const EditActionPage: React.FC = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="birth-date"
                   >
-                    Giá sản phẩm
+                    Product price
                   </label>
                   <input
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="birth-date"
                     type="text"
-                    value={auctionDetailInfor?.startingPrice}
+                    value={
+                      auctionDetailInfor?.startingPrice
+                        ? new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          }).format(auctionDetailInfor.startingPrice)
+                        : ''
+                    }
                     {...register('startingPrice', {
-                        onChange: (e) => {
-                          setAuctionDetailInfor((prev: any) => ({
-                            ...prev,
-                            startingPrice: e.target.value,
-                          }));
-                        },
-                      })}
+                      onChange: (e) => {
+                        const rawValue = e.target.value.replace(/[^\d]/g, ''); // Loại bỏ ký tự không phải số
+                        const numericValue = parseInt(rawValue || '0', 10); // Chuyển về số nguyên
+                        setAuctionDetailInfor((prev: any) => ({
+                          ...prev,
+                          startingPrice: numericValue,
+                        }));
+                      },
+                    })}
                     required
                   />
                 </div>
@@ -233,18 +248,18 @@ const EditActionPage: React.FC = () => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="address"
                   >
-                    Loại sản phẩm
+                    Product Type
                   </label>
                   <select
                     id="category"
                     {...register('category', {
-                        onChange: (e) => {
-                          setAuctionDetailInfor((prev: any) => ({
-                            ...prev,
-                            category: e.target.value,
-                          }));
-                        },
-                      })}
+                      onChange: (e) => {
+                        setAuctionDetailInfor((prev: any) => ({
+                          ...prev,
+                          category: e.target.value,
+                        }));
+                      },
+                    })}
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   >
                     {listCategory ? (
@@ -280,7 +295,7 @@ const EditActionPage: React.FC = () => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="grid-first-name"
                       >
-                        Hình ảnh sản phẩm
+                        Product Image
                       </label>
                     </div>
 
@@ -290,7 +305,7 @@ const EditActionPage: React.FC = () => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="grid-first-name"
                       >
-                        Hình ảnh chứng minh sản phẩm
+                        Product demonstration images
                       </label>
                     </div>
                   </div>
@@ -370,17 +385,17 @@ const EditActionPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-              {/* Additional upload sections and fields here */}
-              <div className="flex items-center justify-center mt-8">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Submit
-                </button>
-              </div>
             </div>
           </div>
+        </div>
+        {/* Additional upload sections and fields here */}
+        <div className="flex items-center justify-center">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Submit
+          </button>
         </div>
       </form>
     </>
