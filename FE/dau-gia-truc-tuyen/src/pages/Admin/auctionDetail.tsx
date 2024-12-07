@@ -62,6 +62,10 @@ const AuctionDetail = () => {
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
+      if(files === null){
+        setErrorMessage("please upload the file");
+        return;
+      }
       const response = await approveAuction(Number(id), true, totalTime, files);
       if (response.isSucceed) {
         fetchDetailAuction();

@@ -78,7 +78,6 @@ const TableAuction = ({
     console.log(response, 'data');
     if (response?.isSucceed) {
       setUser(response?.result);
-      console.log('ds', listUser);
     } else {
       setErrorMessage('fetch list fail');
     }
@@ -112,7 +111,10 @@ const TableAuction = ({
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
-      
+      if(files === null){
+        setErrorMessage("please upload the file");
+        return;
+      }
       const response = await approveAuction(selectedAuctionID, true, totalTime, files);
       if (response.isSucceed) {
         fetchListAuction();
