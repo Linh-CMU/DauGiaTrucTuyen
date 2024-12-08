@@ -1,24 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getListAccount, lockUser, unLockUser } from '../../queries/AdminAPI';
+import { getListAccount, lockUser, profileUser, unLockUser } from '../../queries/AdminAPI';
 import { useMessage } from '@contexts/MessageContext';
-import { Account } from '../../types/auth.type';
+import { Account, profileResponse } from '../../types/auth.type';
+import { Button } from '@mui/material';
 
 const ListAccountPage = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const { setErrorMessage, setSuccessMessage } = useMessage();
   const navigate = useNavigate();
   const [searchUser, setSearchUser] = useState('');
-  
+  const [profile, setProfile] = useState<profileResponse | null>();
   const headings = [
-    
     { key: 'userName', value: 'User Name' },
     { key: 'email', value: 'Email' },
     { key: 'fullName', value: 'Full Name' },
     { key: 'phone', value: 'Phone' },
     { key: 'action', value: 'Action' },
   ];
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await profileUser();
+        console.log(response.result);
+        setProfile(response.result);
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
   const [currentPage, setCurrenPage] = useState(1);
   const pageSize = 4;
 
@@ -36,16 +45,13 @@ const ListAccountPage = () => {
   }, []);
 
   // filter username
-  const filterUser = accounts.filter((account) => 
+  const filterUser = accounts.filter((account) =>
     account.userName.toLowerCase().includes(searchUser.toLocaleLowerCase())
   );
 
   // Pagination logic
   const totalPages = Math.ceil(filterUser.length / pageSize);
-  const currentAccounts = filterUser.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const currentAccounts = filterUser.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handlePrev = () => {
     if (currentPage > 1) {
@@ -116,8 +122,6 @@ const ListAccountPage = () => {
     }
   };
 
-  
-
   return (
     <div className="container mx-auto py-24 px-32">
       <div className="mb-4 flex justify-between items-center  pb-5">
@@ -147,8 +151,14 @@ const ListAccountPage = () => {
             </div>
           </div>
         </div>
+        {profile && !profile?.categoryId ? (
+          <div>
+            <Button style={{ backgroundColor: '#1D4ED8', color: '#FFFFFF' }} href="/addAdminPage">
+              ADD EMPLOYEE
+            </Button>
+          </div>
+        ) : null}
       </div>
-
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
@@ -170,18 +180,23 @@ const ListAccountPage = () => {
                 key={account.accountId}
                 className={`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}
               >
-              
                 <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3 flex items-center space-x-4 w-auto">
                   <img
-                        src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${account.avatar}`}
-                        alt="Front CCCD"
-                        className="flex-shrink-0 w-10 h-10 object-cover rounded-full mr-2"
-                      />
+                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${account.avatar}`}
+                    alt="Front CCCD"
+                    className="flex-shrink-0 w-10 h-10 object-cover rounded-full mr-2"
+                  />
                   {account.userName}
                 </td>
-                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">{account.email}</td>
-                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">{account.fullName}</td>
-                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">{account.phone}</td>
+                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">
+                  {account.email}
+                </td>
+                <td className="border-dashed border-t border-gray-200 w-1/4 px-6 py-3">
+                  {account.fullName}
+                </td>
+                <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3">
+                  {account.phone}
+                </td>
                 <td className="border-dashed border-t border-gray-200 w-1/6 px-6 py-3 flex ">
                   {account.status ? (
                     <button
@@ -223,7 +238,18 @@ const ListAccountPage = () => {
           className="px-4 py-2 bg-gray-200 rounded-md text-sm"
           disabled={currentPage === 1}
         >
-          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            className="shrink-0 size-3.5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="m15 18-6-6 6-6"></path>
           </svg>
         </button>
@@ -233,7 +259,18 @@ const ListAccountPage = () => {
           className="px-4 py-2 bg-gray-200 rounded-md text-sm"
           disabled={currentPage === totalPages}
         >
-          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            className="shrink-0 size-3.5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="m9 18 6-6-6-6"></path>
           </svg>
         </button>

@@ -79,6 +79,7 @@ export interface profileResponse {
   fullName: string;
   phone: string;
   city: string;
+  categoryId: number | null;
   ward: string;
   district: string;
   address: string;

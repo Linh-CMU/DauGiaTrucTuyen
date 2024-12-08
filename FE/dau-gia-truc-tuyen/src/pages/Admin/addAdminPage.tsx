@@ -24,7 +24,6 @@ const AddAccountAdmin = () => {
       const response = await getCategory();
       if (response?.isSucceed) {
         setCategory(response?.result);
-        setSuccessMessage('Succcessfully');
       } else {
         setErrorMessage('Failed to fetch categories');
       }
@@ -47,6 +46,7 @@ const AddAccountAdmin = () => {
     const isSuccess = await createAccount(username, password, email, department);
     if (isSuccess) {
       navigate('/listuser');
+      setSuccessMessage('Succcessfully');
     } else {
       setErrorMessage('Signing up is failed');
     }

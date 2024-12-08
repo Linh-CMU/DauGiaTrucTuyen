@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getCity, getDistrict, getWard, inforUser, profileUser } from '@queries/AdminAPI';
 import { cityResponse, districtResponse, profileResponse, wardResponse } from '../types/auth.type';
+import sign from '../../public/tao-chu-ky-dep-theo-ten.jpg'
 
 interface Bid {
   id: number;
@@ -24,9 +25,10 @@ const AuctionContract = () => {
     sellerAddress,
     deposit,
     owner,
-    effectiveDate,
+    userId,
     auctionId,
     auctionInfo,
+    check,
   } = location.state || {};
 
   const { setErrorMessage, setSuccessMessage } = useMessage();
@@ -43,12 +45,11 @@ const AuctionContract = () => {
   const [filteredWards, setFilteredWards] = useState<cityResponse[]>([]);
   const [filteredWard, setFilteredWard] = useState<cityResponse[]>([]);
   const [accepted, setAccepted] = useState(false);
-
   const handleAccept = async (id: number) => {
     try {
       const createResponse = await registerForAuction(id);
       if (createResponse) {
-          window.location.href = createResponse;
+        window.location.href = createResponse;
       } else {
         setErrorMessage(createResponse.message);
       }
@@ -93,12 +94,19 @@ const AuctionContract = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await profileUser();
-        setProfiles(response.result);
-      } catch (error) {}
+        if (userId) {
+          const response = await inforUser(userId);
+          setProfiles(response.result);
+        } else {
+          const response = await profileUser();
+          setProfiles(response.result);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchData();
-  }, []);
+  }, [userId]);
   useEffect(() => {
     if (profiles) {
       const districts = locationData.districts.filter(
@@ -244,7 +252,7 @@ const AuctionContract = () => {
           Điều 6: Chấp nhận và hiệu lực thỏa thuận
         </h2>
         <p>
-          Thỏa thuận này có hiệu lực kể start date bên C chấp nhận và thanh toán tiền đặt cọc trước.
+          Thỏa thuận này có hiệu lực kể từ ngày bên C chấp nhận và thanh toán tiền đặt cọc trước.
         </p>
         <p>
           Thỏa thuận có thể được thay đổi hoặc bổ sung nếu có thêm thỏa thuận giữa các bên và phải
@@ -269,8 +277,19 @@ const AuctionContract = () => {
             <p className="font-semibold">BÊN A</p>
             <p className="italic">Công ty cung cấp nền tảng</p>
             <div className="mt-16">
+              <img
+                src={sign}
+                alt="Signature"
+                style={{
+                  width: '100px',
+                  height: '50px',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}
+                className="signature-image"
+              />
               <p>_________________________</p>
-              <p>Chữ ký & dấu</p>
+              <p>ONLINE AUCTION</p>
             </div>
           </div>
           <div className="text-center">
@@ -315,18 +334,31 @@ const AuctionContract = () => {
       </section>
 
       <section className="flex justify-center mt-6">
-        <button
-          onClick={() => handleAccept(auctionId)}
-          className={`px-8 py-2 font-semibold rounded-md bg-green-500 text-white`}
-        >
-          Chấp nhận hợp đồng
-        </button>
-        <button
-          onClick={handleCancel}
-          className="px-8 py-2 font-semibold rounded-md bg-red-500 text-white ml-4"
-        >
-          Hủy
-        </button>
+        {userId | check ? (
+          <>
+            <button
+              className="bg-blue-500 text-white px-2 py-1 rounded mr-2 w-56 h-10"
+              onClick={handleCancel}
+            >
+              BACK
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => handleAccept(auctionId)}
+              className={`px-8 py-2 font-semibold rounded-md bg-green-500 text-white`}
+            >
+              Chấp nhận hợp đồng
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-8 py-2 font-semibold rounded-md bg-red-500 text-white ml-4"
+            >
+              Hủy
+            </button>
+          </>
+        )}
       </section>
     </div>
   );

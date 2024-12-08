@@ -354,17 +354,17 @@ export const approveAuction = async (
 
 
 // Submit auction form data
-export const submitAuctionForm = async (data: AuctionItemFormData) => {
+export const submitAuctionForm = async (data?: AuctionItemFormData) => {
   try {
     const token = getToken();
     const formData = new FormData();
-    formData.append('nameAuction', data.nameAuction);
-    formData.append('description', data.description);
-    formData.append('startingPrice', data.startingPrice.toString());
-    formData.append('categoryID', data.categoryID);
+    formData.append('nameAuction', data?.nameAuction || '');
+    formData.append('description', data?.description || '');
+    formData.append('startingPrice', data?.startingPrice.toString() || '');
+    formData.append('categoryID', data?.categoryID || '');
 
-    if (data.imageAuction) formData.append('imageAuction', data.imageAuction);
-    if (data.imageVerification) formData.append('imageVerification', data.imageVerification);
+    if (data?.imageAuction) formData.append('imageAuction', data.imageAuction);
+    if (data?.imageVerification) formData.append('imageVerification', data.imageVerification);
 
     const response = await axiosInstance.post('/api/addAuctionItem', formData, {
       headers: {

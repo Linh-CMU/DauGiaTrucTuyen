@@ -50,7 +50,8 @@ export interface AuctionDetails {
     fileAttachments: string | null;
   };
   countdowntime: string;
-  images: { img: string }[]
+  images: { img: string }[];
+  createDate: string;
 }
 
 export interface AuctionDetailRegister {

@@ -7,12 +7,14 @@ import {
   getListUserAdmin,
   getListAuctionOfUser,
   getListAuctionRegisterOfUser,
+  profileUser,
 } from '../../queries/index';
 import { ApproveModal, CancelModal, UserModal } from '../../components/modalAccept/ApproveModal'; // Import modal
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useMessage } from '@contexts/MessageContext';
+import { profileResponse } from '../../types/auth.type';
 
 const TableAuction = ({
   tabValue,
@@ -38,13 +40,23 @@ const TableAuction = ({
   const [files, setFiles] = useState<File | null>(null);
   const [minutes, setMinutes] = useState<number | ''>('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [profile, setProfile] = useState<profileResponse | null>();
 
   useEffect(() => {
     fetchListAuction();
     fetchListCategory();
-    fetchListUser();
   }, [tabValue]);
   const { setSuccessMessage, setErrorMessage } = useMessage();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await profileUser();
+        console.log(response.result);
+        setProfile(response.result);
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
   const fetchListAuction = async () => {
     if (id) {
       if (status) {
@@ -73,15 +85,6 @@ const TableAuction = ({
       }
     }
   };
-  const fetchListUser = async () => {
-    const response = await getListUserAdmin(Number(id));
-    console.log(response, 'data');
-    if (response?.isSucceed) {
-      setUser(response?.result);
-    } else {
-      setErrorMessage('fetch list fail');
-    }
-  };
 
   const fetchListCategory = async () => {
     const response = await getCategory();
@@ -96,8 +99,14 @@ const TableAuction = ({
     setSelectedAuctionID(id); // Save auction ID
     setApproveModalOpen(true); // Open approval modal
   };
-  const handleUser = (id: number) => {
-    setSelectedAuctionID(id); // Save auction ID
+  const handleUser = async(id: number) => {
+    const response = await getListUserAdmin(id);
+    console.log(response, 'data');
+    if (response?.isSucceed) {
+      setUser(response?.result);
+    } else {
+      setErrorMessage('fetch list fail');
+    }
     setUserModalOpen(true); // Open approval modal
   };
 
@@ -111,8 +120,8 @@ const TableAuction = ({
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
-      if(files === null){
-        setErrorMessage("please upload the file");
+      if (files === null) {
+        setErrorMessage('please upload the file');
         return;
       }
       const response = await approveAuction(selectedAuctionID, true, totalTime, files);
@@ -209,11 +218,10 @@ const TableAuction = ({
     return btns;
   };
 
-  const handleCategoryChange = (selectedCategoryName : any) => {
-    console.log("Danh mục được chọn:", selectedCategoryName);
-    setSelectedCategory(selectedCategoryName); 
+  const handleCategoryChange = (selectedCategoryName: any) => {
+    console.log('Danh mục được chọn:', selectedCategoryName);
+    setSelectedCategory(selectedCategoryName);
   };
-
   return (
     <>
       {name ? (
@@ -256,22 +264,24 @@ const TableAuction = ({
             </div>
           </div>
         </div>
-        <select
-          id="countries"
-          onChange={(event) => handleCategoryChange(event.target.value)} 
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
-        >
-          <option value="">Category</option> 
-          {listCategory.map((category, index) => (
-            <option
-              value={category.nameCategory} 
-              key={index}
-              className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
-            >
-              {category.nameCategory}
-            </option>
-          ))}
-        </select>
+        {profile && !profile?.categoryId && (
+          <select
+            id="countries"
+            onChange={(event) => handleCategoryChange(event.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
+          >
+            <option value="">Category</option>
+            {listCategory.map((category, index) => (
+              <option
+                value={category.nameCategory}
+                key={index}
+                className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
+              >
+                {category.nameCategory}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="w-full">
@@ -355,7 +365,7 @@ const TableAuction = ({
                           e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
                           handleReject(auction.listAuctionID);
                         }}
-                        className="bg-red-500 text-white px-2 py-1 rounded w-20 pt-3 pb-3"
+                        className="bg-red-500 text-white px-2 py-1 rounded w-20 h-8 flex items-center justify-center"
                       >
                         Refuse
                       </button>

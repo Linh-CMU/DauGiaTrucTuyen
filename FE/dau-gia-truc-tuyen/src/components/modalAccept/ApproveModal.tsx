@@ -11,6 +11,7 @@ interface ModalProps {
   setHours?: (time: number) => void;
   setMinutes?: (time: number) => void;
   setFile?: (file: File) => void;
+  handleNavigateToContract?: (userId: string) => void;
 }
 
 // ApproveModal Component
@@ -46,11 +47,9 @@ export const ApproveModal: React.FC<ModalProps> = ({
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-        Auction approval confirmation
+          Auction approval confirmation
         </Typography>
-        <Typography sx={{ mt: 2 }}>
-        Are you sure you want to browse this auction?
-        </Typography>
+        <Typography sx={{ mt: 2 }}>Are you sure you want to browse this auction?</Typography>
         {/* Vòng thời gian */}
         <Box sx={{ display: 'flex', gap: 2, marginTop: '20px' }}>
           {/* Nhập số giờ */}
@@ -107,7 +106,6 @@ export const ApproveModal: React.FC<ModalProps> = ({
   );
 };
 
-
 // CancelModal Component
 export const CancelModal: React.FC<ModalProps> = ({ open, onClose, onConfirm }) => {
   const style = {
@@ -125,12 +123,12 @@ export const CancelModal: React.FC<ModalProps> = ({ open, onClose, onConfirm }) 
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-        Auction Cancellation Confirmation
+          Auction Cancellation Confirmation
         </Typography>
         <Typography sx={{ mt: 2 }}>Are you sure you want to cancel this auction?</Typography>
         <Box mt={2} display="flex" justifyContent="space-between">
           <Button variant="contained" color="error" onClick={onConfirm}>
-          Auction Cancellation
+            Auction Cancellation
           </Button>
           <Button variant="outlined" onClick={onClose}>
             Close
@@ -140,7 +138,12 @@ export const CancelModal: React.FC<ModalProps> = ({ open, onClose, onConfirm }) 
     </Modal>
   );
 };
-export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
+export const UserModal: React.FC<ModalProps> = ({
+  open,
+  onClose,
+  users,
+  handleNavigateToContract,
+}) => {
   const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -171,12 +174,23 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
               <thead className="bg-gray-200 sticky top-0 z-10">
                 <tr>
                   <th>User name</th>
+                  {handleNavigateToContract && <th>View contract</th>}
                 </tr>
               </thead>
               <tbody>
                 {users.map((user, index) => (
                   <tr key={index}>
                     <td style={{ border: '1px solid #ddd', padding: '8px' }}>{user.userName}</td>
+                    {handleNavigateToContract && (
+                      <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                        <button
+                          className="bg-orange-400 h-8 flex justify-center items-center"
+                          onClick={() => handleNavigateToContract(user?.userID)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

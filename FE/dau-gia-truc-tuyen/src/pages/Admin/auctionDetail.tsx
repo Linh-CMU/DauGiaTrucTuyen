@@ -10,8 +10,11 @@ import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import SearchIcon from '@mui/icons-material/Search';
 import { CarouselDetail } from '@components/properties-detail';
 import { useMessage } from '@contexts/MessageContext';
+import DetailContentUser from '@components/properties-detail/DetailContentUser';
+import ContractModal from '@components/modal-contract/ContractModal';
 
 const AuctionDetail = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailAuction, setDetailAuction] = useState<any | null>(null); // Khởi tạo với null
   const [loading, setLoading] = useState<boolean>(true); // Biến trạng thái để theo dõi quá trình tải
   const [error, setError] = useState<string | null>(null); // Biến trạng thái để lưu lỗi
@@ -62,8 +65,8 @@ const AuctionDetail = () => {
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
-      if(files === null){
-        setErrorMessage("please upload the file");
+      if (files === null) {
+        setErrorMessage('please upload the file');
         return;
       }
       const response = await approveAuction(Number(id), true, totalTime, files);
@@ -115,10 +118,7 @@ const AuctionDetail = () => {
   }, [id]);
   const fetchDetailAuction = async () => {
     try {
-      console.log('id', id);
-
       const response = await getDetailAuctionAdmin(Number(id)); // Sử dụng id từ props
-      console.log(response, 'data');
       if (response?.isSucceed) {
         setDetailAuction(response.result);
       } else {
@@ -282,12 +282,14 @@ const AuctionDetail = () => {
     {
       label: 'Price step',
       value: `${
-        detailAuction.priceStep ?
-          detailAuction.priceStep.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-          })
-          .replace('₫', 'VNĐ') : 0
+        detailAuction.priceStep
+          ? detailAuction.priceStep
+              .toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              })
+              .replace('₫', 'VNĐ')
+          : 0
       }`,
     },
     {
@@ -318,7 +320,64 @@ const AuctionDetail = () => {
     { label: 'Online auction format', value: 'Bid without specifying round' },
     { label: 'Payment method', value: detailAuction.paymentMethod },
   ];
+  const handleNavigateToContract = (userId: string) => {
+    
+    navigate('/contract', {
+      state: {
+        // Contract data
+        companyName: 'Tên Công ty ABC',
+        companyAddress: '123 Đường ABC, Thành phố XYZ',
+        taxCode: '0123456789',
+        representativeName: 'Nguyễn Văn A',
+        owner: detailAuction?.user.accountId,
+        productName: detailAuction?.nameAuction,
+        websiteURL: 'https://example.com',
+        effectiveDate: '05/11/2024',
+        auctionId: detailAuction.id,
+        deposit: detailAuction.moneyDeposit,
+        userId: userId,
 
+        // Auction data
+        auctionInfo: [
+          {
+            label: 'Giá khởi điểm',
+            value: `${detailAuction?.startingPrice
+              .toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              })
+              .replace('₫', '')}
+        VNĐ`,
+          },
+          {
+            label: 'Bước giá',
+            value: `${detailAuction?.priceStep
+              .toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              })
+              .replace('₫', '')}
+        VNĐ`,
+          },
+          {
+            label: 'Tiền đặt trước',
+            value: `10% dựa theo giá khởi điểm + 1% phí tham gia theo giá khởi điểm `,
+          },
+          {
+            label: 'Thời gian đăng kí tham gia',
+            value: `Từ ${detailAuction?.startTime} ${detailAuction?.startDay} đến ${detailAuction?.endTime} ${detailAuction?.endDay}`,
+          },
+          {
+            label: 'Thời gian đăng ký tham gia đấu giá',
+            value: new Date().toLocaleDateString('en-GB'), // Format as dd/mm/yyyy
+          },
+          { label: 'Thời gian bắt đầu đấu giá', value: `${calculateNewEndTime(detailAuction.endTime, detailAuction.timePerLap)} ${detailAuction.endDay}` },
+          { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
+          { label: 'Phương thức trả giá', value: detailAuction?.paymentMethod },
+        ],
+      },
+    });
+  };
   return (
     <Box className="relative h-[100%] mt-16">
       <Box className="flex items-center justify-center">
@@ -438,6 +497,12 @@ const AuctionDetail = () => {
                         </>
                       )}
                       <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-amber-500 text-white px-2 py-1 rounded mr-2"
+                      >
+                        View contract
+                      </button>
+                      <button
                         onClick={(e) => {
                           handleReject();
                         }}
@@ -452,45 +517,7 @@ const AuctionDetail = () => {
             </div>
           </Grid>
         </Grid>
-        <Box className="h-[40%] w-full justify-center mt-5 mb-2">
-          <Typography className="text-center px-4" variant="h5" component="h2" fontWeight="bold">
-            {detailAuction.nameAuction}
-          </Typography>
-          <Typography className="px-4" variant="h6" component="h2" fontWeight="bold">
-            Describe:
-          </Typography>
-          <Typography className="px-4" fontWeight="bold">
-            - {detailAuction.description}
-          </Typography>
-          <Box>
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={5}>
-                <Box className="h-[50vh] mt-5">
-                  <Typography className="text-center" variant="h6" component="h2" fontWeight="bold">
-                    Signature image
-                  </Typography>
-                  <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.signatureImg}`}
-                    alt={detailAuction.signatureImg}
-                    className="absolute ml-[11%] h-[18%] pt-3"
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={7}>
-                <Box className="h-[50vh] mt-5">
-                  <Typography className="text-center" variant="h6" component="h2" fontWeight="bold">
-                    Photo proof of ownership
-                  </Typography>
-                  <img
-                    src={`http://capstoneauctioneer.runasp.net/api/read?filePath=${detailAuction.tImange.imange}`}
-                    alt={detailAuction.tImange.imange}
-                    className="absolute ml-[22%] h-[18%] pt-3"
-                  />
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
+        <DetailContentUser auctionDetailInfor={detailAuction} />
       </Box>
       <ApproveModal
         open={isApproveModalOpen}
@@ -513,6 +540,12 @@ const AuctionDetail = () => {
         users={listUser} // Pass the list of users
         setPrice={setPrice}
         onConfirm={handleModalUser}
+        handleNavigateToContract={handleNavigateToContract}
+      />
+      <ContractModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        detailAuction={detailAuction}
       />
     </Box>
   );
