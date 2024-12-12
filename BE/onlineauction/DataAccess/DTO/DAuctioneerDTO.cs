@@ -30,7 +30,14 @@ namespace DataAccess.DTO
         public object TImange { get; set; }
         public Winner? WinBidder { get; set; }
         public string StatusAuction { get; set; }
+        public string evidenceFile { get; set; }
         public decimal MoneyDeposit { get; set; }
+        public List<Image> images { get; set; }
+        public string createDate { get; set; }
+    }
+    public class Image
+    {
+        public string img { get; set; }
     }
     public class Winner
     {

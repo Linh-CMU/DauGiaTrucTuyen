@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DTO
 {
-    public class AcceptAutioneerDTO
+    public class AcceptAutionDTO
     {
         public int AutioneerID { get; set; }
         public bool Status { get; set; }
         public string? TimeRoom { get; set; }
-        public IFormFile? evidenceFile { get; set; }
+        public string? evidenceFile { get; set; }
     }
 }

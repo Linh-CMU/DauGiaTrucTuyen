@@ -278,7 +278,7 @@ namespace CapstoneAuctioneerAPI.Controller
         [HttpPut]
         [Route("ApproveorRejectAuction")]
         [Authorize(Policy = "ADMIN")]
-        public async Task<ActionResult> AcceptAuction(AcceptAutioneerDTO autioneer)
+        public async Task<ActionResult> AcceptAuction([FromForm] AcceptAutioneerDTO autioneer)
         {
             try
             {
@@ -424,6 +424,22 @@ namespace CapstoneAuctioneerAPI.Controller
             try
             {
                 var result = await _adminService.MonthlyIncomeStatistics();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("total")]
+        [Authorize(Policy = "ADMIN")]
+        public async Task<ActionResult> TotalAsync()
+        {
+            try
+            {
+                var result = await _adminService.TotalAsync();
                 return Ok(result);
             }
             catch (Exception ex)

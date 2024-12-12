@@ -1,11 +1,15 @@
 ﻿using Azure;
+using BusinessObject.Model;
 using DataAccess;
 using DataAccess.DTO;
 using DataAccess.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Net.payOS;
+using Net.payOS.Types;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
@@ -25,13 +29,26 @@ namespace CapstoneAuctioneerAPI.Controller
         /// The user service
         /// </summary>
         private readonly UserService _userService;
+
+        private readonly PaypalClient _paypalClient;
+        /// <summary>
+        /// The auction service
+        /// </summary>
+        private readonly AuctionService _auctionService;
+        /// <summary>
+        /// The user service
+        /// </summary>
+        private readonly PayOS _payOS;
         /// <summary>
         /// Initializes a new instance of the <see cref="UserController"/> class.
         /// </summary>
         /// <param name="userService">The user service.</param>
-        public UserController(UserService userService)
+        public UserController(UserService userService, PaypalClient paypalClient, AuctionService auctionService, PayOS payOS)
         {
             _userService = userService;
+            _paypalClient = paypalClient;
+            _auctionService = auctionService;
+            _payOS = payOS;
         }
         /// <summary>
         /// Adds the auctionner.
@@ -143,8 +160,41 @@ namespace CapstoneAuctioneerAPI.Controller
             {
                 return BadRequest(result);
             }
+            var deposit = await _userService.TotalPayDeposit(aid, userId);
+            ItemData item = new ItemData(deposit.nameAuction, 1, deposit.priceAuction);
+            List<ItemData> items = new List<ItemData>();
+            items.Add(item);
+            var did = GenerateUniqueId();
+            var deposits = new Deposit
+            {
+                DID = did.ToString(),
+                RAID = deposit.IdResgiter,
+                PaymentType = "Payos",
+                PaymentDate = DateTime.Now.ToString(),
+                status = "wait"
+            };
+            var pay = await _userService.PaymentForDeposit(deposits);
+            if (pay != true)
+            {
+                return BadRequest(StatusCodes.Status500InternalServerError);
+            }
+            string shortenedName = deposit.nameAuction.Length > 10
+                    ? deposit.nameAuction.Substring(0, 10)
+                    : deposit.nameAuction;
+            var expirationTime = DateTime.Now.AddMinutes(15).ToString("yyyy-MM-dd HH:mm:ss");
+            PaymentData paymentData = new PaymentData(did, deposit.priceAuction, $"Tiền Cọc {shortenedName}", items, "https://auction-fe-nu.vercel.app/cancel", "https://auction-fe-nu.vercel.app/success", expirationTime);
+            CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+            return Ok(createPayment.checkoutUrl);
+        }
+        private int GenerateUniqueId()
+        {
+            byte[] buffer = Guid.NewGuid().ToByteArray();
+            long longValue = BitConverter.ToInt64(buffer, 0); // Chuyển GUID thành long
 
-            return Ok(result);
+            // Giới hạn giá trị trả về chỉ trong phạm vi 5 chữ số
+            int uniqueId = (int)(Math.Abs(longValue) % 100000); // Lấy giá trị dương và chỉ lấy 5 chữ số cuối cùng
+
+            return uniqueId;
         }
         /// <summary>
         /// Places the bid.

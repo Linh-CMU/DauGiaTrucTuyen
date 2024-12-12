@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataAccess.Repository
 {
@@ -47,7 +48,14 @@ namespace DataAccess.Repository
         {
             try
             {
-                await AuctionDAO.Instance.AcceptAuctioneerForAdmin(autioneer, idAuction);
+                var data = new AcceptAutionDTO
+                {
+                    AutioneerID = autioneer.AutioneerID,
+                    Status = autioneer.Status,
+                    TimeRoom = autioneer.TimeRoom,
+                    evidenceFile = autioneer.evidenceFile != null ? $"http://capstoneauctioneer.runasp.net/api/read?filePath={await _upload.SaveFileAsync(autioneer.evidenceFile, "Approve", idAuction)}" : null,
+                };
+                await AuctionDAO.Instance.AcceptAuctioneerForAdmin(data, idAuction);
                 return new ResponseDTO { IsSucceed = true, Message = "successfully" };
 
             }
@@ -345,6 +353,19 @@ namespace DataAccess.Repository
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+        public async Task<ResponseDTO> TotalAsync()
+        {
+            var result = await AuctionDAO.Instance.TotalAsync();
+            if (result != null)
+            {
+                return new ResponseDTO { Result = result, IsSucceed = true, Message = "Successfully" };
+            }
+            else
+            {
+                return new ResponseDTO { IsSucceed = false, Message = "Failed" };
+
             }
         }
     }

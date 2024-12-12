@@ -136,14 +136,15 @@ namespace DataAccess.Repository
             {
                 var check = await RegistAuctionDAO.Instance.BetAsync(auction.auctionId);
                 var idauction = await RegistAuctionDAO.Instance.SelectId(userid, auction.auctionId);
+                var price = await RegistAuctionDAO.Instance.CheckPrice(auction.auctionId);
                 if (check != null)
                 {
                     var bet = new PlacingABid
                     {
                         PriceBit = check.PriceBit,
-                        RAID = idauction
+                        RAID = idauction,
                     };
-                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price);
+                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price, false);
                     return result;
                 }
                 else
@@ -152,7 +153,7 @@ namespace DataAccess.Repository
                     {
                         RAID = idauction
                     };
-                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price);
+                    var result = await RegistAuctionDAO.Instance.PlaceBid(bet, auction.price, true);
                     return result;
                 }
 

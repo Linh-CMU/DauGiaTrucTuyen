@@ -77,7 +77,7 @@ namespace CapstoneAuctioneerAPI.Controller
                     Audience = new[] { "800544947907-gqq1fut5e84qhsdtapqs1nf1f3rao28r.apps.googleusercontent.com" }
                 });
                 var check = await _accountService.checkLoginEmail(payload.Email);
-                if(check)
+                if (check)
                 {
                     var login = new Login
                     {
@@ -95,7 +95,7 @@ namespace CapstoneAuctioneerAPI.Controller
                     var account = new AddAccountDTO
                     {
                         UserName = payload.Email,
-                        Email= payload.Email,
+                        Email = payload.Email,
                         Password = "Auction@123"
                     };
                     var result = await _accountService.CreateGoogle(account);
@@ -198,7 +198,7 @@ namespace CapstoneAuctioneerAPI.Controller
             try
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _accountService.ChangePassWordAsync(userId ,changepassDTO);
+                var result = await _accountService.ChangePassWordAsync(userId, changepassDTO);
                 if (result.IsSucceed)
                 {
                     return Ok(result);
@@ -265,11 +265,7 @@ namespace CapstoneAuctioneerAPI.Controller
             try
             {
                 var result = await _accountService.ForgotPassword(username);
-                if (result.IsSucceed)
-                {
-                    return Ok(result);
-                }
-                return BadRequest(result);
+                return Ok(result);
             }
             catch (Exception ex)
             {

@@ -98,7 +98,9 @@ namespace DataAccess.Repository
                     FileAuctioneer = result.FileAuctioneer,
                     SignatureImg = result.SignatureImg,
                     TImage = result.TImange,
-                    countdowntime = formattedTimeRemaining // Nếu không có ngày/giờ, giá trị sẽ là ""
+                    countdowntime = formattedTimeRemaining, // Nếu không có ngày/giờ, giá trị sẽ là ""
+                    images = result.images,
+                    createDate = result.createDate,
                 };
 
                 return auction;
@@ -405,6 +407,12 @@ namespace DataAccess.Repository
             {
                 return new ResponseDTO { IsSucceed = false, Message = "Failed" };
             }
+        }
+
+        public async Task<SetTimeForBatch> GetInforSendMail(int id)
+        {
+            var result = await AuctionDAO.Instance.GetInforSendMail(id);
+            return result;
         }
     }
 }

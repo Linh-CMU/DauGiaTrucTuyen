@@ -214,5 +214,10 @@ namespace DataAccess.Service
             await NotificationDAO.Instance.AddNotification(adminNotification);
             return await _auctioneerRepository.CheckPayMent(payment, id);
         }
+
+        public async Task<SetTimeForBatch> GetInforSendMail(int id)
+        {
+            return await _auctioneerRepository.GetInforSendMail(id);
+        }
     }
 }

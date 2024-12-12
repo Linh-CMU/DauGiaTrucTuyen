@@ -26,5 +26,7 @@ namespace DataAccess.DTO
         public string? TimePerLap { get; set; }
         public string StatusAuction { get; set; }
         public int countBidder { get; set; }
+        public List<Image> images { get; set; }
+        public string createDate { get; set; }
     }
 }

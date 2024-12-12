@@ -90,5 +90,6 @@ namespace DataAccess.IRepository
         /// <returns></returns>
         Task<ResponseDTO> ListAuctioneerByUser(string id, int status);
         Task<ResponseDTO> ListAuctioneerRegisterByUser(string id, int status);
+        Task<SetTimeForBatch> GetInforSendMail(int id);
     }
 }

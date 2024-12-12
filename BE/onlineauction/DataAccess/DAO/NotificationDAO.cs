@@ -79,6 +79,7 @@ namespace DataAccess.DAO
                     // Retrieve the list of notifications for the specified user
                     var result = await context.Notications
                                               .Where(u => u.AccountID == userId)
+                                              .OrderByDescending(o => o.NoticationID)
                                               .ToListAsync();
 
                     // Update the notification statuses if they are false

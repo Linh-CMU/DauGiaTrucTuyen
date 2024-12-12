@@ -152,5 +152,23 @@ namespace CapstoneAuctioneerAPI.Controller
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+        [HttpGet("test")]
+        public async Task<IActionResult> test(int id)
+        {
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _auctionService.GetInforSendMail(id);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
     }
 }

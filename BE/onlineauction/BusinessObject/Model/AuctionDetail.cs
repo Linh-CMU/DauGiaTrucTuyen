@@ -24,6 +24,7 @@ namespace BusinessObject.Model
         public string? TimePerLap { get; set; }
         public decimal? PriceStep { get; set; }
         public string? PaymentMethod { get; set; }
+        public string? evidenceFile { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.Now;
         public virtual ListAuction ListAuctions { get; set; }
         public virtual Category? Categorys { get; set; }

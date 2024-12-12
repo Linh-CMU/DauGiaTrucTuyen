@@ -110,7 +110,7 @@ namespace DataAccess.Repository
                     return new ResponseDTO() { IsSucceed = false, Message = "Invalid credentials" };
                 }
             }
-            if (account.Status == true && account.EmailConfirmed != false)
+            if (account.Status == true && account.EmailConfirmed == false)
             {
                 return new ResponseDTO() { IsSucceed = false, Message = "Account had lock" };
             }
@@ -457,7 +457,7 @@ namespace DataAccess.Repository
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
             // Tạo đường link đặt lại mật khẩu
-            var resetLink = $"http://localhost:5173/resetPasswordPage/{code}/{account.Email}";
+            var resetLink = $"https://auction-fe-nu.vercel.app/resetPasswordPage/{code}/{account.Email}";
 
             // Gửi email chứa đường link đặt lại mật khẩu
             await MailUtils.SendMailGoogleSmtp(

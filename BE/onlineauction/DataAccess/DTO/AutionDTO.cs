@@ -28,5 +28,7 @@ namespace DataAccess.DTO
         public string SignatureImg { get; set; }
         public object TImage { get; set; }
         public string countdowntime { get; set; }
+        public List<Image> images { get; set; }
+        public string createDate { get; set; }
     }
 }

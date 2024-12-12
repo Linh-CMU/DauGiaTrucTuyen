@@ -64,10 +64,13 @@ namespace DataAccess.DAO
             {
                 using (var context = new ConnectDB())
                 {
-                    var check = context.RegistAuctioneers.Where(x => x.ListAuctionID == registAuction.ListAuctionID && x.AccountID == registAuction.AccountID).ToList();
-                    if (check.Any())
+                    var check = context.RegistAuctioneers.Where(x => x.ListAuctionID == registAuction.ListAuctionID && x.AccountID == registAuction.AccountID).FirstOrDefault();
+                    if (check != null)
                     {
-                        return new ResponseDTO { IsSucceed = false, Message = "You have registered for this auction." };
+                        var checkPay = context.Deposits.Where(p => p.RAID == check.RAID).FirstOrDefault();
+                        context.Deposits.Remove(checkPay);
+                        context.RegistAuctioneers.Remove(check);
+                        await context.SaveChangesAsync();
                     }
                     context.RegistAuctioneers.Add(registAuction);
                     await context.SaveChangesAsync();
@@ -214,13 +217,23 @@ namespace DataAccess.DAO
             }
         }
 
+        public async Task<decimal> CheckPrice(int id)
+        {
+            using (var context = new ConnectDB())
+            {
+                var result = await context.ListAuctions.Where(a => a.ListAuctionID == id).FirstOrDefaultAsync();  // Get the top 1 record
+
+                return result.MoneyDeposit;
+            }
+        }
+
         /// <summary>
         /// Places the bid.
         /// </summary>
         /// <param name="bet">The bet.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task<ResponseDTO> PlaceBid(PlacingABid bet, decimal price)
+        public async Task<ResponseDTO> PlaceBid(PlacingABid bet, decimal price, bool plac)
         {
             try
             {
@@ -235,7 +248,7 @@ namespace DataAccess.DAO
                                            AuctionDetail = ad,
                                            ListAuction = a
                                        }).FirstOrDefaultAsync();
-                    if (bet.PlacingABidID != 0)
+                    if (plac)
                     {
                         // Existing bet found, so update it
                         bet.PriceBit = check.ListAuction.StartingPrice + price;
@@ -269,38 +282,72 @@ namespace DataAccess.DAO
                 {
                     // Tìm kiếm các bản ghi tương ứng với `RAID` trong hai bảng
                     var find = await context.Deposits.FirstOrDefaultAsync(rg => rg.DID == id);
-                    var re = await context.RegistAuctioneers.FirstOrDefaultAsync(rg => rg.RAID == find.RAID);
-
-                    // Kiểm tra trạng thái "cancel" và thực hiện xóa nếu phù hợp
-                    if (status == "cancel")
+                    if (find != null)
                     {
-                        if (find != null) context.Deposits.Remove(find);
-                        if (re != null) context.RegistAuctioneers.Remove(re);
-                        await context.SaveChangesAsync();
-                        return new ResponseDTO { IsSucceed = true, Message = "Update successful - records deleted" };
-                    }
-                    else if (find != null && re != null)
-                    {
-                        find.status = status;
-                        context.Entry(find).State = EntityState.Modified;
-                        await context.SaveChangesAsync();
-                        return new ResponseDTO { IsSucceed = true, Message = "Update successful - status updated" };
+                        var re = await context.RegistAuctioneers.FirstOrDefaultAsync(rg => rg.RAID == find.RAID);
+                        if (status == "cancel")
+                        {
+                            if (find != null) context.Deposits.Remove(find);
+                            if (re != null) context.RegistAuctioneers.Remove(re);
+                            await context.SaveChangesAsync();
+                            return new ResponseDTO { IsSucceed = true, Message = "Update successful - records deleted" };
+                        }
+                        else if (re != null)
+                        {
+                            find.status = status;
+                            context.Entry(find).State = EntityState.Modified;
+                            await context.SaveChangesAsync();
+                            return new ResponseDTO { IsSucceed = true, Message = "Update successful - status updated" };
+                        }
                     }
                     else
                     {
                         var pay = await context.Payments.FirstOrDefaultAsync(p => p.OrderCode == id);
-                        if(status == "cancel")
+                        if (pay != null)
                         {
-                            context.Payments.Remove(pay);
+                            if (status == "cancel")
+                            {
+                                context.Payments.Remove(pay);
+                            }
+                            else
+                            {
+                                var result = await (from a in context.Accounts
+                                                    join rg in context.RegistAuctioneers on a.Id equals rg.AccountID
+                                                    join p in context.ListAuctions on rg.ListAuctionID equals p.ListAuctionID
+                                                    join c in context.Accounts on p.Creator equals c.Id
+                                                    join ad in context.Accounts on p.Manager equals ad.Id
+                                                    where rg.RAID == pay.RAID
+                                                    select new
+                                                    {
+                                                        Payer = a,
+                                                        Admin = ad,
+                                                        Auction = p
+                                                    }).FirstOrDefaultAsync();
+                                var auctioneerNotification = new Notification
+                                {
+                                    AccountID = result.Admin.Id,
+                                    Title = $"Thông báo thanh toán",
+                                    Description = $"Người dùng đã thanh toán sản phẩm {result.Auction.NameAuction} ngày {DateTime.Now.ToString("dd/MM/yyyy")}",
+                                    StatusNotification = false
+                                };
+                                await NotificationDAO.Instance.AddNotification(auctioneerNotification);
+                                var create = new Notification
+                                {
+                                    AccountID = result.Payer.Id,
+                                    Title = $"Thông báo thanh toán",
+                                    Description = $"Bạn đã thanh toán thành công với sản phẩm {result.Auction.NameAuction} ngày {DateTime.Now.ToString("dd/MM/yyyy")}",
+                                    StatusNotification = false
+                                };
+                                await NotificationDAO.Instance.AddNotification(create);
+                                pay.Status = true;
+                                context.Entry(pay).State = EntityState.Modified;
+                            }
+                            await context.SaveChangesAsync();
+                            return new ResponseDTO { IsSucceed = true, Message = "Update successful - status updated" };
                         }
-                        else
-                        {
-                            pay.Status = true;
-                            context.Entry(pay).State = EntityState.Modified;
-                        }
-                        await context.SaveChangesAsync();
                         return new ResponseDTO { IsSucceed = false, Message = "Record not found" };
                     }
+                    return new ResponseDTO { IsSucceed = false, Message = "Record not found" };
                 }
             }
             catch (DbUpdateException)
@@ -584,9 +631,9 @@ namespace DataAccess.DAO
                         query.AuctionStatus = false;
                         context.Entry(query).State = EntityState.Modified;
                         var search = context.Bets.Where(a => a.RAID == id).ToList();
-                        foreach(var item in search)
+                        foreach (var item in search)
                         {
-                            var plac = context.Bets.FirstOrDefault(a => a.PlacingABidID== item.PlacingABidID);
+                            var plac = context.Bets.FirstOrDefault(a => a.PlacingABidID == item.PlacingABidID);
                             context.Bets.Remove(plac);
                         }
                         await context.SaveChangesAsync();
