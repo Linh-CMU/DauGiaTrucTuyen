@@ -2,16 +2,17 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { changPassWork } from '../queries/AuthenAPI';
 import { FormEvent, useState } from 'react';
+import { useMessage } from '@contexts/MessageContext';
 
 const ChangePasswordPage = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
+  const { setErrorMessage, setSuccessMessage } = useMessage();
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match');
+      setSuccessMessage('Passwords do not match');
       return;
     }
     const data = {
@@ -22,13 +23,12 @@ const ChangePasswordPage = () => {
     try {
       const response = await changPassWork(data);
       if (response.isSucceed) {
-        alert('Password changed successfully');
+        setSuccessMessage('Password changed successfully');
       } else {
-        alert('Password changed successfully');
+        setErrorMessage('Password changed failed');
       }
     } catch (error) {
-      console.error('Error changing password:', error);
-      alert('Failed to change password');
+      setErrorMessage('Failed to change password');
     }
   };
 

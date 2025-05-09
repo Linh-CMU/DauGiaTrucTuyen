@@ -87,7 +87,7 @@ const PropertiesList = ({ searchResults, isSearch, setIsSearch }: PropertySearch
               <Tab label="In progress" value="1" />
               <Tab label="Coming soon" value="2" />
               <Tab label="Ended" value="3" />
-              <Tab label="Registered" value="4" />
+              {getRole() === 'user' && <Tab label="Registered" value="4" />}
             </StyledTabList>
           </Box>
           <TabPanel value={value}>

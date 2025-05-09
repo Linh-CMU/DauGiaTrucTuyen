@@ -46,7 +46,7 @@ const CardList = ({
 
   const renderPrice = () => (
     <div className="flex justify-between text-l">
-      <div className="font-thin">Giá khởi điểm</div>
+      <div className="font-thin">Starting price</div>
       <div className="font-bold">
         {Number(priceStart)
           .toLocaleString('vi-VN', {
@@ -136,7 +136,7 @@ const CardList = ({
           <p className="mt-2 text-gray-600 line-clamp-3 min-h-28">{description}</p>
         ) : (
           <p className="mt-2 text-gray-600">
-            <span className="text-black font-bold">{renderPrice() || '36.000.000 VNĐ'}</span>
+            <span className="text-black font-bold">{renderPrice() || '0 VNĐ'}</span>
           </p>
         )}
 

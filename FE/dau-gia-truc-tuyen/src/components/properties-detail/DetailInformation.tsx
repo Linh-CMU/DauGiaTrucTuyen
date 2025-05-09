@@ -2,6 +2,7 @@ import CountdownTimer from '@common/coutdown-timer/CountdownTimer';
 import { AuctionDetails } from 'types';
 import { convertDate } from '@utils/helper';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 interface InfoRowProps {
   label: string;
@@ -120,23 +121,35 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
     return finalTime <= new Date(); // Kiểm tra nếu thời gian cuối đã qua
   };
   const auctionInfo = [
-    { label: 'Giá khởi điểm', value: `${auctionDetailInfor?.startingPrice.toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    })
-    .replace('₫', '')} VNĐ` },
-    { label: 'Bước giá', value: `${auctionDetailInfor.priceStep.toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    })
-    .replace('₫', '')} VNĐ` },
-    { label: 'Tiền đặt trước', value: `${auctionDetailInfor.moneyDeposit.toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    })
-    .replace('₫', '')} VNĐ` },
     {
-      label: 'Thời gian đăng kí tham gia',
+      label: 'Starting price',
+      value: `${auctionDetailInfor?.startingPrice
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', '')} VNĐ`,
+    },
+    {
+      label: 'Price Step',
+      value: `${auctionDetailInfor.priceStep
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', '')} VNĐ`,
+    },
+    {
+      label: 'Deposit',
+      value: `${auctionDetailInfor.moneyDeposit
+        .toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })
+        .replace('₫', '')} VNĐ`,
+    },
+    {
+      label: 'Registration time',
       value: `${auctionDetailInfor.startTime} ${auctionDetailInfor.startDay}`,
     },
     {
@@ -144,16 +157,17 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
       value: `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`,
     },
     {
-      label: 'Thời gian bắt đầu đấu giá',
+      label: 'Auction start time',
       value: `${auctionDetailInfor.endTime} ${auctionDetailInfor.endDay}`,
     },
     {
       label: '',
       value: `${calculateNewEndTime(auctionDetailInfor.endTime, auctionDetailInfor.timePerLap)} ${auctionDetailInfor.endDay}`,
     },
-    { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
-    { label: 'Phương thức trả giá', value: auctionDetailInfor.paymentMethod },
+    { label: 'Online auction format', value: 'Undefined bidding round' },
+    { label: 'Payment method price', value: auctionDetailInfor.paymentMethod },
   ];
+  const [check, setCheck] = useState(true);
   const handleNavigateToContract = () => {
     navigate('/contract', {
       state: {
@@ -168,11 +182,29 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
         effectiveDate: '05/11/2024',
         auctionId: auctionDetailInfor.listAuctionID,
         deposit: auctionDetailInfor.moneyDeposit,
-
+        check: check,
         // Auction data
         auctionInfo: [
-          { label: 'Giá khởi điểm', value: `${auctionDetailInfor?.startingPrice} VNĐ` },
-          { label: 'Bước giá', value: `${auctionDetailInfor?.priceStep} VNĐ` },
+          {
+            label: 'Giá khởi điểm',
+            value: `${auctionDetailInfor?.startingPrice
+              .toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              })
+              .replace('₫', '')}
+        VNĐ`,
+          },
+          {
+            label: 'Bước giá',
+            value: `${auctionDetailInfor?.priceStep
+              .toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              })
+              .replace('₫', '')}
+        VNĐ`,
+          },
           {
             label: 'Tiền đặt trước',
             value: `10% dựa theo giá khởi điểm + 1% phí tham gia theo giá khởi điểm `,
@@ -183,9 +215,12 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
           },
           {
             label: 'Thời gian đăng ký tham gia đấu giá',
-            value: new Date().toLocaleDateString('en-GB'), // Format as dd/mm/yyyy
-          },          
-          { label: 'Thời gian bắt đầu đấu giá', value: '09:00:00 31/10/2024' },
+            value: `${auctionDetailInfor.createDate ? auctionDetailInfor.createDate : new Date().toLocaleDateString('en-GB')}`, // Format as dd/mm/yyyy
+          },
+          {
+            label: 'Thời gian bắt đầu đấu giá',
+            value: `${calculateNewEndTime(auctionDetailInfor.endTime, auctionDetailInfor.timePerLap)} ${auctionDetailInfor.endDay}`,
+          },
           { label: 'Hình thức đấu giá trực tuyến', value: 'Trả giá không xác định vòng' },
           { label: 'Phương thức trả giá', value: auctionDetailInfor?.paymentMethod },
         ],
@@ -220,6 +255,13 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
             <>
               {isEndTimePassed(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay) ? (
                 <>
+                  <button className="bg-amber-500 text-white px-2 py-1 rounded mr-2 h-10"
+                  onClick={() => {
+                    handleNavigateToContract();
+                    setCheck(false);
+                  }}>
+                    View contract
+                  </button>
                   <button
                     className="bg-blue-500 text-white px-2 py-1 rounded mr-2 w-56 h-10"
                     onClick={() => setSwitchdetail(true)}
@@ -240,7 +282,7 @@ const DetailInformation: React.FC<DetailInformationProps> = ({
                   !isRegistrationAllowed(auctionDetailInfor?.endTime, auctionDetailInfor?.endDay)
                 }
               >
-                JOIN THE AUCTION
+                REGISTER AUCTION
               </button>
             </>
           )}

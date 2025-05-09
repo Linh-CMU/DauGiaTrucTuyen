@@ -8,6 +8,8 @@ import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { CancelModal } from '@components/modalAccept/ApproveModal';
 import { deleteAuction } from '@queries/AuctionAPI';
+import { useMessage } from '@contexts/MessageContext';
+import ContractModal from '@components/modal-contract/ContractModal';
 
 interface InfoRowProps {
   label: string;
@@ -29,11 +31,13 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
 );
 
 const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetailInfor }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [swith, setSwith] = useState(false);
   const [bidHistory, setBidHistory] = useState([]);
   const navigate = useNavigate();
   const [isApproveModalCancelOpen, setApproveModalCancelOpen] = useState(false);
   const [getId, setGetId] = useState(0);
+  const { setErrorMessage, setSuccessMessage } = useMessage();
   const [currentPrice, setCurrentPrice] = useState(0);
   const handleModalCancelClose = () => {
     setApproveModalCancelOpen(false); // Close cancel modal
@@ -43,7 +47,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
       const response = await deleteAuction(getId);
       if (response.isSucceed) {
         navigate('/listYourAuction');
-        alert('Bạn đã xóa sản phẩm thành công');
+        setSuccessMessage('You have successfully deleted the product.');
       }
     }
     setApproveModalCancelOpen(false);
@@ -130,7 +134,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
 
       return endDate; // Trả về đối tượng Date
     } catch (error) {
-      console.error('Error in calculateNewTargetDate:', { endTime, endDay, timePerLap, error });
+      setErrorMessage(`Error in calculateNewTargetDate: ${{ endTime, endDay, timePerLap, error }}`);
       return new Date(); // Trả về giá trị mặc định trong trường hợp lỗi
     }
   };
@@ -197,9 +201,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     },
     {
       label: '',
-      value: newEndTime
-        ? `${newEndTime} ${auctionDetailInfor.endDay}`
-        : 'Chưa được duyệt',
+      value: newEndTime ? `${newEndTime} ${auctionDetailInfor.endDay}` : 'Chưa được duyệt',
     },
     { label: 'Trạng thái sản phẩm', value: auctionDetailInfor.statusAuction || 'Không xác định' },
   ];
@@ -231,12 +233,6 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
     endDate.setHours(endHours, endMinutes, 0, 0);
 
     return endDate; // Trả về đối tượng Date đã được tính toán
-  };
-
-  const isRegistrationAllowed = (endTime: string, endDay: string): boolean => {
-    const finalTime = calculateFinalTime(endTime, endDay);
-    console.log('finalTime', finalTime);
-    return finalTime > new Date(); // Kiểm tra nếu thời gian kết thúc lớn hơn hiện tại
   };
 
   const isEndTimePassed = (endTime: string = '', endDay: string = ''): boolean => {
@@ -309,7 +305,7 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
                   <span>{formatMoney(currentPrice)} VNĐ</span>
                 </div>
                 <div className="h-[2px] w-full bg-gray-200"></div>
-                <div className='mt-2'>
+                <div className="mt-2">
                   <button className="bg-green-600" onClick={() => setSwith(false)}>
                     Back
                   </button>
@@ -323,6 +319,12 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
               <InfoRow key={index} label={item.label} value={item.value} />
             ))}
             <div className="mt-14 ml-auto mr-auto">
+              <button
+                className="bg-amber-500 text-white px-2 py-1 rounded mr-2 h-10"
+                onClick={() => setIsModalOpen(true)}
+              >
+                View contract
+              </button>
               {auctionDetailInfor.statusAuction === 'Not approved yet' ? (
                 <>
                   <button
@@ -362,6 +364,11 @@ const DetailInformationUser: React.FC<DetailInformationProps> = ({ auctionDetail
         open={isApproveModalCancelOpen}
         onClose={handleModalCancelClose}
         onConfirm={handleModalReject}
+      />
+      <ContractModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        detailAuction={auctionDetailInfor}
       />
     </div>
   );

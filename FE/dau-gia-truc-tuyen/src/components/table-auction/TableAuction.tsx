@@ -7,11 +7,14 @@ import {
   getListUserAdmin,
   getListAuctionOfUser,
   getListAuctionRegisterOfUser,
+  profileUser,
 } from '../../queries/index';
 import { ApproveModal, CancelModal, UserModal } from '../../components/modalAccept/ApproveModal'; // Import modal
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Button, Modal, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useMessage } from '@contexts/MessageContext';
+import { profileResponse } from '../../types/auth.type';
 
 const TableAuction = ({
   tabValue,
@@ -34,65 +37,61 @@ const TableAuction = ({
   const [price, setPrice] = useState<number | null>(null);
   const [time, setTime] = useState('');
   const [hours, setHours] = useState<number | ''>('');
+  const [files, setFiles] = useState<File | null>(null);
   const [minutes, setMinutes] = useState<number | ''>('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [profile, setProfile] = useState<profileResponse | null>();
 
   useEffect(() => {
     fetchListAuction();
     fetchListCategory();
-    fetchListUser();
   }, [tabValue]);
-
+  const { setSuccessMessage, setErrorMessage } = useMessage();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await profileUser();
+        console.log(response.result);
+        setProfile(response.result);
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
   const fetchListAuction = async () => {
     if (id) {
-      console.log('status', status);
       if (status) {
         const response = await getListAuctionOfUser(id, tabValue);
         console.log(response, 'data');
         if (response?.isSucceed) {
           setListAllAuction(response?.result);
-          console.log('a1');
           console.log(response?.result);
         } else {
-          console.error('fetch list fail');
+          setErrorMessage('fetch list fail');
         }
       } else {
         const response = await getListAuctionRegisterOfUser(id, tabValue);
-        console.log(response, 'data');
         if (response?.isSucceed) {
           setListAllAuction(response?.result);
         } else {
-          console.error('fetch list fail');
+          setErrorMessage('fetch list fail');
         }
       }
     } else {
       const response = await getListAuctionAdmin(tabValue);
-      console.log(response, 'data');
       if (response?.isSucceed) {
         setListAllAuction(response?.result);
       } else {
-        console.error('fetch list fail');
+        setErrorMessage('fetch list fail');
       }
-    }
-  };
-  const fetchListUser = async () => {
-    const response = await getListUserAdmin(Number(id));
-    console.log(response, 'data');
-    if (response?.isSucceed) {
-      setUser(response?.result);
-      console.log('ds', listUser);
-    } else {
-      console.error('fetch list fail');
     }
   };
 
   const fetchListCategory = async () => {
     const response = await getCategory();
-    console.log(response, 'data');
     if (response?.isSucceed) {
       setCategory(response?.result);
     } else {
-      console.error('fetch list fail');
+      setErrorMessage('fetch list fail');
     }
   };
 
@@ -100,8 +99,14 @@ const TableAuction = ({
     setSelectedAuctionID(id); // Save auction ID
     setApproveModalOpen(true); // Open approval modal
   };
-  const handleUser = (id: number) => {
-    setSelectedAuctionID(id); // Save auction ID
+  const handleUser = async(id: number) => {
+    const response = await getListUserAdmin(id);
+    console.log(response, 'data');
+    if (response?.isSucceed) {
+      setUser(response?.result);
+    } else {
+      setErrorMessage('fetch list fail');
+    }
     setUserModalOpen(true); // Open approval modal
   };
 
@@ -115,11 +120,14 @@ const TableAuction = ({
       const formattedHours = (hours || 0).toString().padStart(2, '0');
       const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
       const totalTime = `${formattedHours}:${formattedMinutes}`;
-      
-      const response = await approveAuction(selectedAuctionID, true, totalTime);
+      if (files === null) {
+        setErrorMessage('please upload the file');
+        return;
+      }
+      const response = await approveAuction(selectedAuctionID, true, totalTime, files);
       if (response.isSucceed) {
         fetchListAuction();
-        alert('Bạn đã phê duyệt thành công');
+        setSuccessMessage('You have approved successfully.');
       }
     }
     setApproveModalOpen(false);
@@ -129,10 +137,10 @@ const TableAuction = ({
   };
   const handleModalReject = async () => {
     if (selectedAuctionID) {
-      const response = await approveAuction(selectedAuctionID, false, time);
+      const response = await approveAuction(selectedAuctionID, false, time, files);
       if (response.isSucceed) {
         fetchListAuction();
-        alert('Bạn đã từ chối với đơn hàng đấu giá này');
+        setSuccessMessage('You have declined this auction order.');
       }
     }
     setApproveModalOpen(false);
@@ -148,25 +156,6 @@ const TableAuction = ({
     setApproveModalCancelOpen(false); // Close cancel modal
   };
   const navigate = useNavigate();
-
-  const handleTimeChange = () => {
-    const formattedHours = (hours || 0).toString().padStart(2, '0');
-    const formattedMinutes = (minutes || 0).toString().padStart(2, '0');
-    const totalTime = `${formattedHours}:${formattedMinutes}`;
-    if (setTime) {
-      setTime(totalTime);
-    }
-  };
-  const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  };
 
   const headings = [
     { key: 'daugia', value: 'Auction name' },
@@ -229,11 +218,10 @@ const TableAuction = ({
     return btns;
   };
 
-  const handleCategoryChange = (selectedCategoryName : any) => {
-    console.log("Danh mục được chọn:", selectedCategoryName);
-    setSelectedCategory(selectedCategoryName); 
+  const handleCategoryChange = (selectedCategoryName: any) => {
+    console.log('Danh mục được chọn:', selectedCategoryName);
+    setSelectedCategory(selectedCategoryName);
   };
-
   return (
     <>
       {name ? (
@@ -241,7 +229,7 @@ const TableAuction = ({
           <div className="ml-[30%] mr-[30%] mb-10 p-4 bg-gray-100 rounded-lg shadow-md text-center">
             <h2 className="text-lg font-semibold text-gray-800">
               {' '}
-              {status ? 'Chủ sản phẩm:' : 'Sản phẩm tham gia:'} {name}
+              {status ? 'Product Owner:' : 'Participating products:'} {name}
             </h2>
           </div>
         </>
@@ -276,22 +264,24 @@ const TableAuction = ({
             </div>
           </div>
         </div>
-        <select
-          id="countries"
-          onChange={(event) => handleCategoryChange(event.target.value)} 
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
-        >
-          <option value="">Category</option> 
-          {listCategory.map((category, index) => (
-            <option
-              value={category.nameCategory} 
-              key={index}
-              className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
-            >
-              {category.nameCategory}
-            </option>
-          ))}
-        </select>
+        {profile && !profile?.categoryId && (
+          <select
+            id="countries"
+            onChange={(event) => handleCategoryChange(event.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5"
+          >
+            <option value="">Category</option>
+            {listCategory.map((category, index) => (
+              <option
+                value={category.nameCategory}
+                key={index}
+                className="text-lg text-gray-700 mb-2 cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1 rounded transition duration-200"
+              >
+                {category.nameCategory}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="w-full">
@@ -365,7 +355,7 @@ const TableAuction = ({
                             }}
                             className="bg-green-500 text-white px-2 py-1 rounded mr-2 "
                           >
-                            Duyệt
+                            Accept
                           </button>
                         </>
                       )}
@@ -375,9 +365,9 @@ const TableAuction = ({
                           e.stopPropagation(); // Ngăn chặn sự kiện click lan lên thẻ <tr>
                           handleReject(auction.listAuctionID);
                         }}
-                        className="bg-red-500 text-white px-2 py-1 rounded w-20 pt-3 pb-3"
+                        className="bg-red-500 text-white px-2 py-1 rounded w-20 h-8 flex items-center justify-center"
                       >
-                        Từ chối
+                        Refuse
                       </button>
                     </td>
                   </tr>
@@ -385,7 +375,7 @@ const TableAuction = ({
               ) : (
                 <tr>
                   <td colSpan={6} className="text-center py-4">
-                    Không có buổi đấu giá nào
+                    There are no auctions
                   </td>
                 </tr>
               )}
@@ -443,6 +433,7 @@ const TableAuction = ({
           onConfirm={handleModalApprove} // Ensure this is correct
           setHours={setHours}
           setMinutes={setMinutes}
+          setFile={setFiles}
         />
         <CancelModal
           open={isApproveModalCancelOpen} // Use the correct state for the cancel modal

@@ -270,7 +270,7 @@ const HeaderTop1 = () => {
                         </div>
                       ))}
                       {notifications.length === 0 && (
-                        <div className="p-4 text-center text-gray-500">Không có thông báo nào.</div>
+                        <div className="p-4 text-center text-gray-500">There are no notifications.</div>
                       )}
                     </Menu>
                   </div>
@@ -315,12 +315,12 @@ const HeaderTop1 = () => {
                 <div className="relative ml-3 flex">
                   <div>
                     <Button variant="outlined" onClick={onLoginBtnClick}>
-                      Đăng nhập
+                    Log in
                     </Button>
                   </div>
                   <div className="ml-6">
                     <Button className="ml-10" variant="contained" onClick={onSignUpBtnClick}>
-                      Đăng kí
+                      Sign up
                     </Button>
                   </div>
                 </div>

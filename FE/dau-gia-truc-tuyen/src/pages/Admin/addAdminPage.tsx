@@ -1,4 +1,5 @@
 import { useAuth } from '@contexts/AuthContext';
+import { useMessage } from '@contexts/MessageContext';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { createAccount } from '@queries/AdminAPI';
@@ -16,7 +17,7 @@ const AddAccountAdmin = () => {
   const { signUp } = useAuth();
   const [listCategory, setCategory] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const { setErrorMessage, setSuccessMessage } = useMessage();
   // Lấy danh sách danh mục
   const fetchListCategory = async () => {
     try {
@@ -24,10 +25,10 @@ const AddAccountAdmin = () => {
       if (response?.isSucceed) {
         setCategory(response?.result);
       } else {
-        console.error('Failed to fetch categories');
+        setErrorMessage('Failed to fetch categories');
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      setErrorMessage('Error fetching categories:'+ error);
     } finally {
       setLoading(false);
     }
@@ -39,14 +40,15 @@ const AddAccountAdmin = () => {
     e.preventDefault();
     // Check if passwords match
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setErrorMessage('Passwords do not match');
       return;
     }
     const isSuccess = await createAccount(username, password, email, department);
     if (isSuccess) {
       navigate('/listuser');
+      setSuccessMessage('Succcessfully');
     } else {
-      console.log('Signing up is failed');
+      setErrorMessage('Signing up is failed');
     }
   };
 

@@ -10,6 +10,8 @@ interface ModalProps {
   users?: any[];
   setHours?: (time: number) => void;
   setMinutes?: (time: number) => void;
+  setFile?: (file: File) => void;
+  handleNavigateToContract?: (userId: string) => void;
 }
 
 // ApproveModal Component
@@ -17,9 +19,9 @@ export const ApproveModal: React.FC<ModalProps> = ({
   open,
   onClose,
   onConfirm,
-  setPrice,
   setHours,
   setMinutes,
+  setFile, // Thêm hàm setFile để lưu file được chọn
 }) => {
   const style = {
     position: 'absolute' as 'absolute',
@@ -32,19 +34,27 @@ export const ApproveModal: React.FC<ModalProps> = ({
     p: 4,
   };
 
-  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      if (setFile) {
+        setFile(file); // Gọi hàm setFile để lưu file được chọn
+      }
+    }
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-          Xác nhận duyệt đấu giá
+          Auction approval confirmation
         </Typography>
-        <Typography sx={{ mt: 2 }}>Bạn có chắc chắn muốn duyệt buổi đấu giá này không?</Typography>
+        <Typography sx={{ mt: 2 }}>Are you sure you want to browse this auction?</Typography>
         {/* Vòng thời gian */}
         <Box sx={{ display: 'flex', gap: 2, marginTop: '20px' }}>
           {/* Nhập số giờ */}
           <TextField
-            label="Số giờ"
+            label="Number of hours"
             type="number"
             onChange={(e) => (setHours ? setHours(Number(e.target.value)) : null)}
             inputProps={{
@@ -56,7 +66,7 @@ export const ApproveModal: React.FC<ModalProps> = ({
           />
           {/* Nhập số phút */}
           <TextField
-            label="Số phút"
+            label="Number of minutes"
             type="number"
             onChange={(e) => (setMinutes ? setMinutes(Number(e.target.value)) : null)}
             inputProps={{
@@ -67,6 +77,16 @@ export const ApproveModal: React.FC<ModalProps> = ({
             sx={{ flex: 1 }}
           />
         </Box>
+        {/* Input file */}
+        <Box sx={{ mt: 2 }}>
+          <Typography>Confirmation file</Typography>
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={handleFileChange}
+            style={{ marginTop: '10px' }}
+          />
+        </Box>
         <Box mt={2} display="flex" justifyContent="space-between">
           <Button
             variant="contained"
@@ -75,10 +95,10 @@ export const ApproveModal: React.FC<ModalProps> = ({
               onConfirm();
             }}
           >
-            Duyệt
+            Accept
           </Button>
           <Button variant="outlined" color="error" onClick={onClose}>
-            Hủy
+            Reject
           </Button>
         </Box>
       </Box>
@@ -103,22 +123,27 @@ export const CancelModal: React.FC<ModalProps> = ({ open, onClose, onConfirm }) 
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-          Xác nhận hủy đấu giá
+          Auction Cancellation Confirmation
         </Typography>
-        <Typography sx={{ mt: 2 }}>Bạn có chắc chắn muốn hủy buổi đấu giá này không?</Typography>
+        <Typography sx={{ mt: 2 }}>Are you sure you want to cancel this auction?</Typography>
         <Box mt={2} display="flex" justifyContent="space-between">
           <Button variant="contained" color="error" onClick={onConfirm}>
-            Hủy đấu giá
+            Auction Cancellation
           </Button>
           <Button variant="outlined" onClick={onClose}>
-            Đóng
+            Close
           </Button>
         </Box>
       </Box>
     </Modal>
   );
 };
-export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
+export const UserModal: React.FC<ModalProps> = ({
+  open,
+  onClose,
+  users,
+  handleNavigateToContract,
+}) => {
   const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -136,7 +161,7 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" component="h2">
-          Danh sách người đăng ký
+          List of subscribers
         </Typography>
         {users && users.length > 0 ? (
           <Box
@@ -148,24 +173,35 @@ export const UserModal: React.FC<ModalProps> = ({ open, onClose, users }) => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead className="bg-gray-200 sticky top-0 z-10">
                 <tr>
-                  <th>Tên người dùng</th>
+                  <th>User name</th>
+                  {handleNavigateToContract && <th>View contract</th>}
                 </tr>
               </thead>
               <tbody>
                 {users.map((user, index) => (
                   <tr key={index}>
                     <td style={{ border: '1px solid #ddd', padding: '8px' }}>{user.userName}</td>
+                    {handleNavigateToContract && (
+                      <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                        <button
+                          className="bg-orange-400 h-8 flex justify-center items-center"
+                          onClick={() => handleNavigateToContract(user?.userID)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
             </table>
           </Box>
         ) : (
-          <Typography>Không có người đăng ký.</Typography>
+          <Typography>No subscribers.</Typography>
         )}
         <Box mt={2} display="flex" justifyContent="space-between">
           <Button variant="contained" color="primary" onClick={onClose}>
-            Đóng
+            Close
           </Button>
         </Box>
       </Box>

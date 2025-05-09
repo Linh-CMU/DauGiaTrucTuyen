@@ -310,16 +310,33 @@ export const registerForAuction = async (id: number) => {
   }
 };
 
-export const approveAuction = async (autioneerID: number, status: boolean, timeRoom: string) => {
+export const approveAuction = async (
+  autioneerID: number,
+  status: boolean,
+  timeRoom: string,
+  file: File | null
+) => {
   try {
     const token = getToken();
+
+    // Tạo FormData và thêm các trường dữ liệu
+    const formData = new FormData();
+    formData.append("autioneerID", autioneerID.toString());
+    formData.append("status", status.toString());
+    formData.append("timeRoom", timeRoom);
+
+    // Chỉ thêm file nếu file không phải là null
+    if (file) {
+      formData.append("evidenceFile", file);
+    }
+
     const response = await axiosInstance.put(
       `api/Admin/ApproveorRejectAuction`,
-      { autioneerID, status, timeRoom },
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "multipart/form-data", // Sử dụng multipart/form-data
         },
       }
     );
@@ -327,26 +344,27 @@ export const approveAuction = async (autioneerID: number, status: boolean, timeR
     if (response.data.isSucceed) {
       return { isSucceed: true, message: response.data.message };
     } else {
-      throw new Error(response.data.message || 'Failed to approve/reject auction');
+      throw new Error(response.data.message || "Failed to approve/reject auction");
     }
   } catch (error) {
-    console.error('Error approving/rejecting auction:', error);
+    console.error("Error approving/rejecting auction:", error);
     throw error;
   }
 };
 
+
 // Submit auction form data
-export const submitAuctionForm = async (data: AuctionItemFormData) => {
+export const submitAuctionForm = async (data?: AuctionItemFormData) => {
   try {
     const token = getToken();
     const formData = new FormData();
-    formData.append('nameAuction', data.nameAuction);
-    formData.append('description', data.description);
-    formData.append('startingPrice', data.startingPrice.toString());
-    formData.append('categoryID', data.categoryID);
+    formData.append('nameAuction', data?.nameAuction || '');
+    formData.append('description', data?.description || '');
+    formData.append('startingPrice', data?.startingPrice.toString() || '');
+    formData.append('categoryID', data?.categoryID || '');
 
-    if (data.imageAuction) formData.append('imageAuction', data.imageAuction);
-    if (data.imageVerification) formData.append('imageVerification', data.imageVerification);
+    if (data?.imageAuction) formData.append('imageAuction', data.imageAuction);
+    if (data?.imageVerification) formData.append('imageVerification', data.imageVerification);
 
     const response = await axiosInstance.post('/api/addAuctionItem', formData, {
       headers: {

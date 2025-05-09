@@ -162,6 +162,20 @@ export const productStatistics = async () => {
     }
 };
 
+export const totalStatistics = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get('/api/Admin/total', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching user'); 
+    }
+};
+
 export const moneyStatistics = async () => {
     try {
         const token = localStorage.getItem('token');

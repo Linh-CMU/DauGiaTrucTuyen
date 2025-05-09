@@ -7,6 +7,8 @@ import { addUserInformation } from '../../queries/AdminAPI';
 import { useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '@contexts/AuthContext';
+import { checkCCCD } from '@queries/AuthenAPI';
+import axios from 'axios';
 
 const AddInfo = () => {
   const [citys, setCitys] = useState<cityResponse[]>([]);
@@ -117,14 +119,56 @@ const AddInfo = () => {
     const today = new Date();
     const age = today.getFullYear() - birthDateObj.getFullYear();
     const monthDifference = today.getMonth() - birthDateObj.getMonth();
-  
+
     // Adjust age if birthday hasn't occurred yet this year
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDateObj.getDate())) {
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDateObj.getDate())
+    ) {
       return age - 1;
     }
-  
+
     return age;
   };
+  const [data, setData] = useState<any>();
+  const [check, setCheck] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (selectedFrontCCCD) {
+        const formData = new FormData();
+        formData.append('image', selectedFrontCCCD);
+
+        try {
+          const response = await axios.post('https://api.fpt.ai/vision/idr/vnm', formData, {
+            headers: {
+              'api-key': 'ifQTXVK0n5wRXD8qczSXwxbcBPvMIjQt',
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+          if (response && response.data && response.data.data.length > 0) {
+            // Lấy dữ liệu từ mảng data
+            const extractedData = response.data.data[0];
+
+            console.log('Extracted Data:', extractedData);
+
+            // Cập nhật dữ liệu vào state nếu cần
+            setData(extractedData);
+            setSuccessMessage('Successfully!');
+            setCheck(true);
+          } else {
+            setSuccessMessage('Failed!');
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          setErrorMessage('Failed to upload image.');
+        }
+      }
+    };
+
+    fetchData();
+  }, [selectedFrontCCCD]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsTouched(true);
@@ -151,28 +195,28 @@ const AddInfo = () => {
 
     if (selectedImage) {
       formData.append('avatar', selectedImage);
-    }else{
+    } else {
       setErrorMessage('Please enter your avatar.');
       return;
-    };
+    }
     if (selectedFrontCCCD) {
       formData.append('frontCCCD', selectedFrontCCCD);
-    }else{
+    } else {
       setErrorMessage('Please enter your front cccd.');
       return;
-    };
+    }
     if (selectedBacksideCCCD) {
       formData.append('backsideCCCD', selectedBacksideCCCD);
-    }else{
+    } else {
       setErrorMessage('Please enter your back side cccd.');
       return;
-    };
+    }
     if (signature) {
       formData.append('signature', signature);
-    }else{
+    } else {
       setErrorMessage('Please enter your signature.');
       return;
-    };
+    }
 
     try {
       const response = await addUserInformation(formData);
@@ -186,6 +230,14 @@ const AddInfo = () => {
       setErrorMessage('Erro add infomation');
     }
   };
+  function formatDate(dateString: string) {
+    const dateParts = dateString.split('/');
+    if (dateParts.length === 3) {
+      // Chuyển từ 'dd/MM/yyyy' sang 'yyyy-MM-dd'
+      return `${dateParts[2]}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
+    }
+    return dateString;
+  }
   const onLogoutBtnClick = () => {
     logout();
     navigate('/');
@@ -216,18 +268,15 @@ const AddInfo = () => {
                     FULL NAME
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!fullName && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
                     id="grid-last-name"
                     type="text"
                     placeholder="Enter full name"
-                    value={fullName}
+                    value={data?.name}
                     onChange={(e) => setFullName(e.target.value)}
-                    required
+                    readOnly
                     onFocus={() => setIsTouched(true)}
                   />
-                  {!fullName && isTouched && (
-                    <p className="text-red-500 text-xs italic">Please enter your full name.</p>
-                  )}
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mb-6">
@@ -241,7 +290,7 @@ const AddInfo = () => {
                   <select
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-gender"
-                    value={gender !== null ? Number(gender) : ''}
+                    value={data?.sex == 'NAM' ? 1 : data?.sex == 'NU' ? 0 : ''}
                     onChange={(e) => setGender(e.target.value === '1')}
                     required
                   >
@@ -249,13 +298,10 @@ const AddInfo = () => {
                     <option value="1">Nam</option>
                     <option value="0">Nu</option>
                   </select>
-                  {!gender && isTouched && (
-                    <p className="text-red-500 text-xs italic">Vui lòng chọn giới tính .</p>
-                  )}
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mb-6">
-                <div className="w-full  px-3 mb-6 md:mb-0">
+                <div className="w-full px-3 mb-6 md:mb-0">
                   <label
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="grid-first-name"
@@ -263,18 +309,15 @@ const AddInfo = () => {
                     birthDate
                   </label>
                   <input
-                    className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${!birthDate && isTouched ? 'border-red-500' : 'border-gray-200'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500`}
+                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-last-name"
                     type="date"
                     placeholder="Chọn ngày cấp"
-                    value={birthDate}
+                    value={data?.dob ? formatDate(data.dob) : ''}
                     onChange={(e) => setBirthDate(e.target.value)}
                     onFocus={() => setIsTouched(true)}
                     required
                   />
-                  {!birthDate && isTouched && (
-                    <p className="text-red-500 text-xs italic">Please enter your birthdate .</p>
-                  )}
                 </div>
               </div>
               <div className="flex flex-wrap -mx-3 mb-6">
@@ -444,7 +487,9 @@ const AddInfo = () => {
                     onFocus={() => setIsTouched(true)}
                   />
                   {!placeOfResidence && isTouched && (
-                    <p className="text-red-500 text-xs italic">Please enter your permanent residence.</p>
+                    <p className="text-red-500 text-xs italic">
+                      Please enter your permanent residence.
+                    </p>
                   )}
                 </div>
               </div>
@@ -754,12 +799,16 @@ const AddInfo = () => {
           </div>
         </div>
         <div className="flex justify-center pb-20 pt-10">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            ADD INFORMATION
-          </button>
+          {check && (
+            <>
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                ADD INFORMATION
+              </button>
+            </>
+          )}
         </div>
       </form>
     </>

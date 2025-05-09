@@ -3,15 +3,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 interface CarouselDetailProps {
-  imgList?: string; // Make this optional if it may be undefined
+  imgList?: { img: string }[]; // Define imgList as an array of objects with an 'img' key
 }
 
-const CarouselDetail: React.FC<CarouselDetailProps> = ({ imgList }) => {
-  
-  // Image URLs (Replace with your actual image paths)
- const images = [
-  `http://capstoneauctioneer.runasp.net/api/read?filePath=${imgList}`
-];
+const CarouselDetail: React.FC<CarouselDetailProps> = ({ imgList = [] }) => {
+  // Transform imgList into a list of image URLs
+  const images = imgList.map((item) => `http://capstoneauctioneer.runasp.net/api/read?filePath=${item.img}`);
 
   const [selectedIndex, setSelectedIndex] = useState(0); // Start with the first image
   const [isZoomed, setIsZoomed] = useState(false); // State to manage zoom modal visibility
@@ -67,7 +64,6 @@ const CarouselDetail: React.FC<CarouselDetailProps> = ({ imgList }) => {
           onClick={toggleZoom} // Click to zoom
         />
       </div>
-
       {/* Slider with images */}
       <div className="relative w-full flex items-center">
         {/* Left scroll button */}
@@ -90,7 +86,9 @@ const CarouselDetail: React.FC<CarouselDetailProps> = ({ imgList }) => {
               key={index}
               src={image}
               alt={`Thumbnail ${index + 1}`}
-              className={`w-20 h-20 object-cover cursor-pointer rounded-md transition-all duration-300 focus:outline-dashed`}
+              className={`w-20 h-20 object-cover cursor-pointer rounded-md transition-all duration-300 focus:outline-dashed ${
+                selectedIndex === index ? 'border-2 border-blue-500' : ''
+              }`}
               onClick={() => handleImageClick(index)}
             />
           ))}
